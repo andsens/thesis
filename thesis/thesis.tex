@@ -1,0 +1,98 @@
+\documentclass[twoside,11pt,openright]{report}
+
+\usepackage[latin1]{inputenc}
+\usepackage[american]{babel}
+\usepackage{a4}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[labeled]{multibib}
+\usepackage{color}
+\usepackage{datetime}
+
+\renewcommand*\ttdefault{txtt}
+
+\newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
+
+\newcites{A,B}{Primary Bibliography,Secondary Bibliography}
+
+% see http://imf.au.dk/system/latex/bog/
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{empty} 
+\pagenumbering{roman} 
+\vspace*{\fill}\noindent{\rule{\linewidth}{1mm}\\[4ex]
+{\Huge\sf Something about Computer Science}\\[2ex]
+{\huge\sf Karsken Bælg, 20051234}\\[2ex]
+\noindent\rule{\linewidth}{1mm}\\[4ex]
+\noindent{\Large\sf Master's Thesis, Computer Science\\[1ex] 
+\monthname\ \the\year  \\[1ex] Advisor: Anders Møller\\[15ex]}\\[\fill]}
+\epsfig{file=logo.eps}\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{plain}
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\todo{in English\dots}
+
+\chapter*{Resum\'e}
+\addcontentsline{toc}{chapter}{Resum\'e}
+
+\todo{in Danish\dots}
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgments}
+
+\todo{\dots}
+
+\vspace{2ex}
+\begin{flushright}
+  \emph{Karsken Bælg,}\\
+  \emph{Aarhus, \today.}
+\end{flushright}
+
+\tableofcontents
+\pagenumbering{arabic}
+\setcounter{secnumdepth}{2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+\label{ch:intro}
+
+\todo{\dots}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{\todo{\dots}}
+\label{ch:main}
+
+\todo{example of a citation to primary literature: \citeA{lazypropagation2010},
+and one to secondary literature: \citeB{ambiguity2010}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+\todo{\dots}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{chapter}{Primary Bibliography}
+\bibliographystyleA{plain} 
+\bibliographyA{refs.bib}
+\addcontentsline{toc}{chapter}{Secondary Bibliography}
+\bibliographystyleB{plain} 
+\bibliographyB{refs.bib} % remove this if you don't need secondary literature
+
+\end{document}
+
