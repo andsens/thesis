@@ -1,0 +1,3 @@
+[submodule "lib/php-activerecord"]
+	path = lib/php-activerecord
+	url = git@github.com:andsens/php-activerecord.git
