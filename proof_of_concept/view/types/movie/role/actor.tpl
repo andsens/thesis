@@ -1,1 +1,0 @@
-<span id="actor-<?php echo $id; ?>"><?php echo $name; ?></span>

@@ -1,3 +1,0 @@
-[submodule "proof_of_concept/lib/php-activerecord"]
-	path = proof_of_concept/lib/php-activerecord
-	url = https://github.com/kla/php-activerecord.git

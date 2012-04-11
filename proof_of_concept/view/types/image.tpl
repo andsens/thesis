@@ -1,1 +1,0 @@
-<img src="{{source}}" width="{{width}}px" height="{{height}}px" title="{{title}}" />
