@@ -28,11 +28,11 @@
 \pagestyle{empty} 
 \pagenumbering{roman} 
 \vspace*{\fill}\noindent{\rule{\linewidth}{1mm}\\[4ex]
-{\Huge\sf Something about Computer Science}\\[2ex]
-{\huge\sf Karsken Bælg, 20051234}\\[2ex]
+{\Huge\sf Coupling Server-Side Templates and Client-Side Models}\\[2ex]
+{\huge\sf Anders Ingemann, 20052979}\\[2ex]
 \noindent\rule{\linewidth}{1mm}\\[4ex]
 \noindent{\Large\sf Master's Thesis, Computer Science\\[1ex] 
-\monthname\ \the\year  \\[1ex] Advisor: Anders Møller\\[15ex]}\\[\fill]}
+\monthname\ \the\year  \\[1ex] Advisor: Michael Schwartzbach\\[15ex]}\\[\fill]}
 \epsfig{file=logo.eps}\clearpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,83 +70,134 @@
 
 \todo{\dots}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{The state of templating languages today}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Rich Client Applications}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Problems to Solve}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Abstract Solution}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Choice of Languages \& The Library Stack}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Parser \& Server-Side Templates}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Client-Side Framework \& Templates}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Use-Cases (Examples)}
-\label{ch:intro}
-
-\todo{\dots}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{\todo{\dots}}
-\label{ch:main}
-
 \todo{example of a citation to primary literature: \citeA{lazypropagation2010},
 and one to secondary literature: \citeB{ambiguity2010}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Future Work}
-\label{ch:intro}
+\chapter{Developing webapplications}
+Webapplications are on the rise. Not a day goes by where a new
+webapp is popping up for uses that were previously reserved for a
+program locally installed on a computer. Even more so: Previously
+unimagined uses for any internet enabled device seem to be developed
+at a rate that surpasses the former.
 
+\section{What are webapplications?}
+There are many definitions for a webapplication. What they all have in
+common is the fact that they communicate with the outside world. Their
+implementations differ from device to device, desktop PCs included.
+
+In this thesis however, we will focus on webapplications which use a
+modern web browser and with it HTML as their basis (HTML5 in particular).
+Interactivity is supplied by JavaScript in this case.
+There do exist other languages like Dart, CoffeeScript and Google Web Toolkit.
+However, they are all translated into JavaScript if cross-browser
+compatibility is a requirement (which it almost always is).
+
+Another way to render a webapplication interactive, is by
+rendering customized HTML pages on the server. This has both advantages
+and disadvantages to the client-side scripting method.
+data-processing speed
+security concerns
+client initialization
+control over application (cross browser stuff)
+
+\section{The development process}
+The development process of a webapplication is similar to any other
+software development process. One starts with the data to be modeled.
+This might happen on the server and the client simultaneously.
+A protocol for communication between the two is then established.
+Even though the design layout for an application may have existed in
+the beginning of the process it is usually only fully implemented when
+most other critical components are in place.
+
+\subsection{Usual design patterns}
+The model-view-controller design pattern has proven itself to be a sane
+choice for developing webapplications. Most frameworks today use this
+pattern or variations thereof.
+model-view-controller-presenter (/ModelView)
+Designs of webapplications change with time, features are added or
+removed and common processes simplified. In light of this, it is
+desireable to ensure that the "View" part of the model-view-controller
+pattern is easily modifieable.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Templating languages}
+\section{A survey}
+\subsection{Mustache}
+\subsection{\todo{\dots}}
+\section{Limitations}
+These templating languages are very different in their design.
+All aim to improve one or more aspects of the templating task.
+Of those Mustache seems to be specifically tailored for webapplications
+with interactive JavaScript parts.
+They do all have a common trait which in some cases can be an advantage
+but given any specific implementation of a webapplication is a drawback:
+They are completely oblivious of their surroundings. They draw the line
+at the "View" part in order to encourage a seperation from the other
+parts. This comes at the cost of lost information when sending a
+rendered view to the client.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Requirements}
+The information lost after a view is rendered might not be useful and
+the behavior of existing templating languages therefore inconsequential.
+This is not the case. Let us consider minimal template used for
+displaying profile information:
 \todo{\dots}
+As you can see, the fields of the user object are printed into the HTML
+at the appropriate places, leaving us with a normal page which can be
+displayed in the browser.
+Add the requirement that this form is not to be submitted via a
+synchronous browser request but via AJAX. Now the developer has to
+reverse engineer the generated HTML with JavaScript to obtain the
+user information that is to be submitted. Any changes to the template
+will now also require a change in client side code, particularly the
+code, which finds the values in the form.
+This example contains a rather obvious loss of information.
+The position of the field attributes of the user object.
+At the time of the rendering these positions are known, but as soon as the
+result is converted into a string that is sent to the client, this
+information is lost.
+
+\section{Development workflow}
+\section{Initial prototype}
+\subsection{Libraries}
+\subsection{The application}
+\subsection{Results}
+\section{Plan for next iteration \todo{\dots}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Implementation}
+\section{Templating language syntax}
+\subsection{Integrating the parser}
+\section{Template-aware clients}
+\subsection{Client side architecture}
+\subsection{Transmitting meta-data}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Usage}
+\section{Application example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Evaluation}
+\section{Performance}
+\section{Limitations}
+\section{Advantages}
+\subsection{Comparison}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Future Work}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Related Work}
-\label{ch:intro}
-
-\todo{\dots}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
