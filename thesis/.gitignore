@@ -5,4 +5,5 @@
 *.log
 *.toc
 *.ps
-thesis.pdf
+*.pdf
+thesis-diff.tex

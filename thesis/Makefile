@@ -9,6 +9,17 @@ thesis:
 	mv -f thesis.tmp thesis.pdf
 	make clean
 
+diff:
+	latex thesis-diff.tex
+	bibtex A
+	bibtex B
+	latex thesis-diff.tex
+	dvips -t letter -o thesis-diff.tmp thesis-diff.dvi
+	mv -f thesis-diff.tmp thesis-diff.ps
+	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis-diff.ps thesis-diff.tmp
+	mv -f thesis-diff.tmp thesis-diff.pdf
+	rm thesis-diff.tex
+
 latex:
 	latex thesis
 	bibtex thesis
