@@ -75,35 +75,70 @@ and one to secondary literature: \citeB{ambiguity2010}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Developing webapplications}
-Webapplications are on the rise. Not a day goes by where a new
-webapp is popping up for uses that were previously reserved for a
+\chapter{Developing web applications}
+web applications are on the rise. Not a day goes by where a new
+web application is popping up for uses that were previously reserved for a
 program locally installed on a computer. Even more so: Previously
 unimagined uses for any internet enabled device seem to be developed
 at a rate that surpasses the former.
 
-\section{What are webapplications?}
-There are many definitions for a webapplication. What they all have in
-common is the fact that they communicate with the outside world. Their
-implementations differ from device to device, desktop PCs included.
-
-In this thesis however, we will focus on webapplications which use a
+\section{What are web applications?}
+In this thesis, we will focus on web applications which use a
 modern web browser and with it HTML as their basis (HTML5 in particular).
-Interactivity is supplied by JavaScript in this case.
-There do exist other languages like Dart, CoffeeScript and Google Web Toolkit.
+The non static parts, which control the heart of the web application,
+are supplied by JavaScript.
+Alternatives to JavaScript like Dart, CoffeeScript and Google Web Toolkit
+do exist and are meant to ameloriate the shortcomings of JavaScript. 
 However, they are all translated into JavaScript if cross-browser
 compatibility is a requirement (which it almost always is).
 
-Another way to render a webapplication interactive, is by
-rendering customized HTML pages on the server. This has both advantages
-and disadvantages to the client-side scripting method.
-data-processing speed
-security concerns
-client initialization
-control over application (cross browser stuff)
+The claim that web applications are meant to be ubiquitous,
+operating system independent and run in the browser, is not a claim shared
+by all definitions of a web application. It is however one that for
+simplicities sake will be treated as fact for the remainder of this thesis.
+
+Another way to incorporate business logic \todo{definition} and
+interactivity into a web application, is by rendering customized HTML pages
+on the server.\\
+This has both advantages and disadvantages to the client-side scripting method:
+\begin{itemize}
+	\item \emph{Heavy computations can be run in a controllable time frame regardless
+	of the client device.}\\
+		Especially phones and other portable devices have reduced computing
+		capacity in order to save battery power.
+	\item \emph{Sensitive data can be handled without leaking it to the
+	client.}\\
+		Any data that the client is not supposed to see, can never leave the
+		server. This means if any computation on the data should take place,
+		it would have to be made "unsensitive". In the case of personal data
+		for statistical purposes, the data would have to be anonymized first.
+	\item \emph{The client application has to be initialized with data for each
+	page load.}\\
+		Data that gives the application context, is -- depending on the language
+		and implementation -- loaded in RAM and/or saved in a database. On the
+		client this data would first have to be loaded either from the server or
+		from the local storage.
+	\item \emph{The technology stack is more controllable.}\\
+		Technologies like CSS, HTML and JavaScript have suffered greatly under
+		the browser wars and have only gained widespread standardization in the
+		last 5 years. There are still many inconsistencies, especially when
+		tackling edge cases. This stack and its edge cases is greatly reduced when
+		on the server, because every software version and the software itself can
+		be controlled by the developer.
+\end{itemize}
+
+These arguments do not make the case for a server-only web application.
+They highlight the strengths of server side processing. A combination of
+server-side and client-side processing where their respective advantages
+are utilized and their drawbacks avoided, would in part help in creating
+an optimal web application.
+
+\todo{Explain why client side programming advantages are obvious.
+The above is mainly done to draw lines in the sand, between client
+and server side.}
 
 \section{The development process}
-The development process of a webapplication is similar to any other
+The development process of a web application is similar to any other
 software development process. One starts with the data to be modeled.
 This might happen on the server and the client simultaneously.
 A protocol for communication between the two is then established.
@@ -113,29 +148,75 @@ most other critical components are in place.
 
 \subsection{Usual design patterns}
 The model-view-controller design pattern has proven itself to be a sane
-choice for developing webapplications. Most frameworks today use this
+choice for developing web applications. Most frameworks today use this
 pattern or variations thereof.
-model-view-controller-presenter (/ModelView)
-Designs of webapplications change with time, features are added or
+The pattern is a seperation of responsibility like so many other patterns
+are. It lends itself very well to web applications because of the way web
+applications are structured.\\
+The "Model" part represents the data that the web application presents and
+allows the user to modify. It does not only contain basic
+Create-Read-Update-Delete operations, but also macro procedures which are
+specifically tied to a concrete type of data.\\
+A "Controller" implements the business logic that is not tied to one specific
+model. It draws on the operations tied to the models to perform its duties.
+Both of these components may be implemented on the server as well as the
+client.
+
+This is true for the "View" component as well. Its purpose however only comes
+to fruition on the client. The job of the "View" component is to present the
+data to the user and tie calls to the controller to elements of the interface
+that can be acted upon by the user.\\
+This component is still present on both the server and the client though. Any
+HTML the server sends to the client is considered part of the "View" component.
+
+Designs of web applications change with time, features are added or
 removed and common processes simplified. In light of this, it is
 desireable to ensure that the "View" part of the model-view-controller
 pattern is easily modifieable.
 
+Modifications of this pattern have evolved in the web application domain to
+cater to this specific purpose. The most notable of those would be the
+model-view-viewmodel pattern. It was designed by Microsoft and targeted at
+interface development platforms including Windows Presentation Foundation and
+Silverlight but also HTML5.\\
+The advantage of this version of model-view-controller is the improved
+seperation of roles between interface developers and application developers.
+Even if this is the same person, seperation of responsibility in an application
+still has its merits.\\
+The "ViewModel" component allows developers to implement interface logic that
+lies between the model and the view, allowing the view to be entirely free
+of code. This component is meant to hold data-bindings to the model while
+listening to interface events at the same time. It "translates" user actions
+into operations on the model. Without it the view would have to be aware of how
+data is laid out internally, making refactors harder.
+
+\todo{MVVM from Microsoft, MVP by Taligent (Apple, IBM, HP)}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Templating languages}
-\section{A survey}
-\subsection{Mustache}
-\subsection{\todo{\dots}}
+\chapter{Tools of the trade}
+In order to achieve a seperation of responsibility various frameworks and tools
+are at a developers disposal. In this thesis we will focus on two of them
+specifically.
+\section{Templating languages}
+A templating language allows the developer to create HTML documents containing
+placeholders, which later can be filled by a model and its attributes.
+Templating is part of the "View" component in the model-view-controller
+pattern. In the following survey we will look at different templating languages
+and the strategies they employ to aid the developer.
+\subsection{A survey}
+\subsubsection{Mustache}
+\subsubsection{\todo{\dots}}
+\section{Client frameworks}
 \section{Limitations}
 These templating languages are very different in their design.
 All aim to improve one or more aspects of the templating task.
-Of those Mustache seems to be specifically tailored for webapplications
+Of those Mustache seems to be specifically tailored for web applications
 with interactive JavaScript parts.
-They do all have a common trait which in some cases can be an advantage
-but given any specific implementation of a webapplication is a drawback:
+They all have a common trait which in some cases can be an advantage
+but given any specific implementation of a web application is a drawback:
 They are completely oblivious of their surroundings. They draw the line
-at the "View" part in order to encourage a seperation from the other
+at the "View" part in order to encourage a separation from the other
 parts. This comes at the cost of lost information when sending a
 rendered view to the client.
 
@@ -144,7 +225,7 @@ rendered view to the client.
 \chapter{Requirements}
 The information lost after a view is rendered might not be useful and
 the behavior of existing templating languages therefore inconsequential.
-This is not the case. Let us consider minimal template used for
+This is not the case. Let us consider a minimal template used for
 displaying profile information:
 \todo{\dots}
 As you can see, the fields of the user object are printed into the HTML
@@ -162,9 +243,32 @@ At the time of the rendering these positions are known, but as soon as the
 result is converted into a string that is sent to the client, this
 information is lost.
 
+\todo{Introduction to what I want to do about it}
+
 \section{Development workflow}
+The tool introduced here, will be developed via an iterative workflow.
+First a rudementary prototype will be developed, which is not very
+useful in practice, but serves to illustrate the roadmap lying ahead.
+
 \section{Initial prototype}
+This prototype features an interactive application with which a movie
+library can be maintained. Details can be edited and actors can be
+added.
+The server side backend is base on PHP and MySQL. The client side uses
+HTML5, JavaScript (+XPath) and CSS as its core technologies.
+
 \subsection{Libraries}
+\todo{
+	\begin{itemize}
+		\item less
+		\item jQuery
+		\item underscore
+		\item backbone
+		\item Sammy.js?
+		\item prototype :-(
+	\end{itemize}
+}
+
 \subsection{The application}
 \subsection{Results}
 \section{Plan for next iteration \todo{\dots}}
