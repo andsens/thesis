@@ -77,7 +77,7 @@ and one to secondary literature: \citeB{ambiguity2010}}
 
 \chapter{Developing web applications}
 web applications are on the rise. Not a day goes by where a new
-web application is popping up for uses that were previously reserved for a
+web application isn't popping up for uses that were previously reserved for a
 program locally installed on a computer. Even more so: Previously
 unimagined uses for any internet enabled device seem to be developed
 at a rate that surpasses the former.
@@ -102,8 +102,8 @@ interactivity into a web application, is by rendering customized HTML pages
 on the server.\\
 This has both advantages and disadvantages to the client-side scripting method:
 \begin{itemize}
-	\item \emph{Heavy computations can be run in a controllable time frame regardless
-	of the client device.}\\
+	\item \emph{Heavy computations can be run in a controllable time frame
+	regardless of the client device.}\\
 		Especially phones and other portable devices have reduced computing
 		capacity in order to save battery power.
 	\item \emph{Sensitive data can be handled without leaking it to the
@@ -198,17 +198,20 @@ data is laid out internally, making refactors harder.
 In order to achieve a seperation of responsibility various frameworks and tools
 are at a developers disposal. In this thesis we will focus on two of them
 specifically.
+\section{Client frameworks}
+\subsection{Backbone.js}
 \section{Templating languages}
 A templating language allows the developer to create HTML documents containing
 placeholders, which later can be filled by a model and its attributes.
 Templating is part of the "View" component in the model-view-controller
-pattern. In the following survey we will look at different templating languages
-and the strategies they employ to aid the developer.
-\subsection{A survey}
-\subsubsection{Mustache}
-\subsubsection{\todo{\dots}}
-\section{Client frameworks}
-\section{Limitations}
+pattern. In the following we will have a look at one such templating language.
+\subsection{Mustache}
+Mustache is a so called "logic-less" template engine.
+This subtitle derives from the fact that there are no if statements,
+else clauses, or while loops. Instead there are only tags. Some tags are
+replaced with a value, some nothing, and others a series of values.\\
+Tags in in this context can be understood as an advanced form of placeholders.
+\subsubsection{Limitations}
 These templating languages are very different in their design.
 All aim to improve one or more aspects of the templating task.
 Of those Mustache seems to be specifically tailored for web applications
@@ -246,11 +249,19 @@ information is lost.
 \todo{Introduction to what I want to do about it}
 
 \section{Development workflow}
-The tool introduced here, will be developed via an iterative workflow.
-First a rudementary prototype will be developed, which is not very
-useful in practice, but serves to illustrate the roadmap lying ahead.
+The tool introduced in this thesis, will be developed via an iterative
+workflow. Two or three versions of the solution to the requirements outlined
+above will be discussed in this thesis. Each version building on the knowledge
+acquired in the development process of the previous.
 
 \section{Initial prototype}
+First a rudementary prototype will be made. It is not very
+useful in practice, but serves to illustrate the roadmap lying ahead.\\
+This prototype is an exploratory prototype, meaning none of its code or
+architecture is intended to make it into the next iteration. The motivation
+behind this exercise was to simply explore what challenges lied ahead and to
+explore the problem domain.
+
 This prototype features an interactive application with which a movie
 library can be maintained. Details can be edited and actors can be
 added.
@@ -258,20 +269,38 @@ The server side backend is base on PHP and MySQL. The client side uses
 HTML5, JavaScript (+XPath) and CSS as its core technologies.
 
 \subsection{Libraries}
-\todo{
-	\begin{itemize}
-		\item less
-		\item jQuery
-		\item underscore
-		\item backbone
-		\item Sammy.js?
-		\item prototype :-(
-	\end{itemize}
-}
+In order to speed up the prototyping process a plethora of libraries have been
+used. Excluding basic core technologies like JavaScript, MySQL and PHP, the
+application stack consists of the following:
+\begin{itemize}
+	\item \emph{less}\\
+	A superset of CSS providing variables, calculations and nested selectors. It
+	is a javascript library which converts included less files into CSS.
+	\item \emph{jQuery}\\
+	The de-facto standard when creating web applications. Amon other things it
+	simplifies the interaction with the DOM.
+	\item \emph{underscore.js}\\
+	Before jQuery was the standard prototype.js was a library developed by
+	Sam Stephenson to improve upon the DOM API itself. It also brought with it
+	various improvements to native JavaScript prototype objects. Underscore
+	carries these improvements into the world of jQuery.
+	\item \emph{backbone.js}\\
+	Backbond.js is a JavaScript Model/View framework. It provides the developer
+	with View, Model and Collection prototypes. The View prototype can be
+	considered analogous to the aforementioned ViewModel, while the Model and
+	Collection part make up the Model component and collections thereof
+	respectively.
+	\item \emph{php-activerecord}\\
+	PHP ActiveRecord is the server side library utilized to communicate with the
+	database.
+	
+\end{itemize}
 
 \subsection{The application}
 \subsection{Results}
 \section{Plan for next iteration \todo{\dots}}
+While developing this application various libraries have been examined for
+their viability further down the road  in the next iterations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
