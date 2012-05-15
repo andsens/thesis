@@ -13,6 +13,11 @@
 \usepackage{color}
 \usepackage{datetime}
 
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
+
 \renewcommand*\ttdefault{txtt}
 
 \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
@@ -34,6 +39,8 @@
 \noindent{\Large\sf Master's Thesis, Computer Science\\[1ex] 
 \monthname\ \the\year  \\[1ex] Advisor: Michael Schwartzbach\\[15ex]}\\[\fill]}
 \epsfig{file=logo.eps}\clearpage
+
+\todo{Re-enable pagebreak after chapters}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -79,24 +86,30 @@ and one to secondary literature: \citeB{ambiguity2010}}
 web applications are on the rise. Not a day goes by where a new
 web application isn't popping up for uses that were previously reserved for a
 program locally installed on a computer. Even more so: Previously
-unimagined uses for any internet enabled device seem to be developed
+unimagined uses for any Internet enabled device seem to be developed
 at a rate that surpasses the former.
 
 \section{What are web applications?}
 In this thesis, we will focus on web applications which use a
 modern web browser and with it HTML as their basis (HTML5 in particular).
-The non static parts, which control the heart of the web application,
-are supplied by JavaScript.
+The non-static parts, which control the heart of the web application,
+are supplied by JavaScript. This not only includes interactivity, but also
+animation and updates from the server.\\
+Interactivity in this context is defined as anything in the web application
+the user can modify directly via an input device or modify indirectly, e.g.,
+the back button in the browser and the window size of the browser.
+
 Alternatives to JavaScript like Dart, CoffeeScript and Google Web Toolkit
-do exist and are meant to ameloriate the shortcomings of JavaScript. 
+do exist and are meant to ameliorate the shortcomings of JavaScript. 
 However, they are all translated into JavaScript if cross-browser
 compatibility is a requirement (which it almost always is).
 
 The claim that web applications are meant to be ubiquitous,
 operating system independent and run in the browser, is not a claim shared
-by all definitions of a web application. It is however one that for
-simplicities sake will be treated as fact for the remainder of this thesis.
+by all definitions of a web application. For simplicity however we will for the
+remainder of this thesis treat it as fact.
 
+\subsection{Server side web applications}
 Another way to incorporate business logic \todo{definition} and
 interactivity into a web application, is by rendering customized HTML pages
 on the server.\\
@@ -110,7 +123,7 @@ This has both advantages and disadvantages to the client-side scripting method:
 	client.}\\
 		Any data that the client is not supposed to see, can never leave the
 		server. This means if any computation on the data should take place,
-		it would have to be made "unsensitive". In the case of personal data
+		it would have to be made insensitive, e.g., in the case of personal data
 		for statistical purposes, the data would have to be anonymized first.
 	\item \emph{The client application has to be initialized with data for each
 	page load.}\\
@@ -119,13 +132,19 @@ This has both advantages and disadvantages to the client-side scripting method:
 		client this data would first have to be loaded either from the server or
 		from the local storage.
 	\item \emph{The technology stack is more controllable.}\\
-		Technologies like CSS, HTML and JavaScript have suffered greatly under
-		the browser wars and have only gained widespread standardization in the
-		last 5 years. There are still many inconsistencies, especially when
-		tackling edge cases. This stack and its edge cases is greatly reduced when
+		The main browser technology stack, i.e., CSS, HTML and JavaScript,
+		has suffered greatly under the "browser wars" \todo{reference}
+		and has only gained widespread standardization in the last 5 years.
+		There are still many inconsistencies, especially when tackling edge cases
+		(for example the "Guillotine bug" in Microsoft Internet Explorer 6 and 7,
+		each with their own variation
+		\todo{http://www.positioniseverything.net/explorer/guillotine.html}).
+		This technology stack and its edge cases is greatly reduced when
 		on the server, because every software version and the software itself can
 		be controlled by the developer.
 \end{itemize}
+
+\subsection{Client side web applications}
 
 These arguments do not make the case for a server-only web application.
 They highlight the strengths of server side processing. A combination of
@@ -140,17 +159,18 @@ and server side.}
 \section{The development process}
 The development process of a web application is similar to any other
 software development process. One starts with the data to be modeled.
-This might happen on the server and the client simultaneously.
+It may be developed for the client and server part simultaneously.
 A protocol for communication between the two is then established.
-Even though the design layout for an application may have existed in
-the beginning of the process it is usually only fully implemented when
-most other critical components are in place.
+The design of a web application is usually the last component to fall
+into place. It may have existed in the very beginning of the development
+process, but is usually only finished and implemented when most other critical
+components are in place.
 
 \subsection{Usual design patterns}
 The model-view-controller design pattern has proven itself to be a sane
 choice for developing web applications. Most frameworks today use this
 pattern or variations thereof.
-The pattern is a seperation of responsibility like so many other patterns
+The pattern is a separation of responsibility like so many other patterns
 are. It lends itself very well to web applications because of the way web
 applications are structured.\\
 The "Model" part represents the data that the web application presents and
@@ -171,8 +191,8 @@ HTML the server sends to the client is considered part of the "View" component.
 
 Designs of web applications change with time, features are added or
 removed and common processes simplified. In light of this, it is
-desireable to ensure that the "View" part of the model-view-controller
-pattern is easily modifieable.
+desirable to ensure that the "View" part of the model-view-controller
+pattern is easily modifiable.
 
 Modifications of this pattern have evolved in the web application domain to
 cater to this specific purpose. The most notable of those would be the
@@ -180,8 +200,8 @@ model-view-viewmodel pattern. It was designed by Microsoft and targeted at
 interface development platforms including Windows Presentation Foundation and
 Silverlight but also HTML5.\\
 The advantage of this version of model-view-controller is the improved
-seperation of roles between interface developers and application developers.
-Even if this is the same person, seperation of responsibility in an application
+separation of roles between interface developers and application developers.
+Even if this is the same person, separation of responsibility in an application
 still has its merits.\\
 The "ViewModel" component allows developers to implement interface logic that
 lies between the model and the view, allowing the view to be entirely free
@@ -195,11 +215,17 @@ data is laid out internally, making refactors harder.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Tools of the trade}
-In order to achieve a seperation of responsibility various frameworks and tools
+In order to achieve a separation of responsibility various frameworks and tools
 are at a developers disposal. In this thesis we will focus on two of them
 specifically.
 \section{Client frameworks}
 \subsection{Backbone.js}
+\subsection{XPath}
+XPath is a language that allows us to define a path from a root node to another
+node. Although limited, the language is fairly concise and directly built into
+JavaScript. We will only be dealing with XPath 1.0, because version 2.0 is, with
+the exception of Microsoft Internet Explorer, not implemented in any browsers
+yet and likely will not ever be (the final specification was released 2006).
 \section{Templating languages}
 A templating language allows the developer to create HTML documents containing
 placeholders, which later can be filled by a model and its attributes.
@@ -250,13 +276,13 @@ information is lost.
 
 \section{Development workflow}
 The tool introduced in this thesis, will be developed via an iterative
-workflow. Two or three versions of the solution to the requirements outlined
+work flow. Two or three versions of the solution to the requirements outlined
 above will be discussed in this thesis. Each version building on the knowledge
 acquired in the development process of the previous.
 
 \section{Initial prototype}
-First a rudementary prototype will be made. It is not very
-useful in practice, but serves to illustrate the roadmap lying ahead.\\
+First a rudimentary prototype will be made. It is not very
+useful in practice, but serves to illustrate the road map lying ahead.\\
 This prototype is an exploratory prototype, meaning none of its code or
 architecture is intended to make it into the next iteration. The motivation
 behind this exercise was to simply explore what challenges lied ahead and to
@@ -265,7 +291,7 @@ explore the problem domain.
 This prototype features an interactive application with which a movie
 library can be maintained. Details can be edited and actors can be
 added.
-The server side backend is base on PHP and MySQL. The client side uses
+The server side back end is based on PHP and MySQL. The client side uses
 HTML5, JavaScript (+XPath) and CSS as its core technologies.
 
 \subsection{Libraries}
@@ -277,7 +303,7 @@ application stack consists of the following:
 	A superset of CSS providing variables, calculations and nested selectors. It
 	is a javascript library which converts included less files into CSS.
 	\item \emph{jQuery}\\
-	The de-facto standard when creating web applications. Amon other things it
+	The de facto standard when creating web applications. Among other things it
 	simplifies the interaction with the DOM.
 	\item \emph{underscore.js}\\
 	Before jQuery was the standard prototype.js was a library developed by
@@ -285,7 +311,7 @@ application stack consists of the following:
 	various improvements to native JavaScript prototype objects. Underscore
 	carries these improvements into the world of jQuery.
 	\item \emph{backbone.js}\\
-	Backbond.js is a JavaScript Model/View framework. It provides the developer
+	Backbone.js is a JavaScript Model/View framework. It provides the developer
 	with View, Model and Collection prototypes. The View prototype can be
 	considered analogous to the aforementioned ViewModel, while the Model and
 	Collection part make up the Model component and collections thereof
@@ -297,10 +323,16 @@ application stack consists of the following:
 \end{itemize}
 
 \subsection{The application}
+\todo{explaiiiin}
 \subsection{Results}
 \section{Plan for next iteration \todo{\dots}}
 While developing this application various libraries have been examined for
-their viability further down the road  in the next iterations.
+their viability in the next iterations. backbone.js has in this case proven
+itself to be a very good fit. Its View prototype is made to bind with the
+interface while being model aware. Such a component is what is needed to put the
+information about the placement of data in the DOM to good use. Only small
+modifications should be necessary to allow the View component to populate the
+Model component with data from the DOM.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
