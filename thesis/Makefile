@@ -3,10 +3,8 @@ thesis:
 	bibtex A
 	bibtex B
 	latex thesis.tex
-	dvips -t letter -o thesis.tmp thesis.dvi
-	mv -f thesis.tmp thesis.ps
-	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis.ps thesis.tmp
-	mv -f thesis.tmp thesis.pdf
+	dvips -t letter -o thesis.ps thesis.dvi
+	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis.ps thesis.pdf
 	make clean
 
 diff:
@@ -14,11 +12,10 @@ diff:
 	bibtex A
 	bibtex B
 	latex thesis-diff.tex
-	dvips -t letter -o thesis-diff.tmp thesis-diff.dvi
-	mv -f thesis-diff.tmp thesis-diff.ps
-	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis-diff.ps thesis-diff.tmp
-	mv -f thesis-diff.tmp thesis-diff.pdf
+	dvips -t letter -o thesis-diff.ps thesis-diff.dvi
+	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis-diff.ps thesis-diff.pdf
 	rm thesis-diff.tex
+	make clean
 
 latex:
 	latex thesis
