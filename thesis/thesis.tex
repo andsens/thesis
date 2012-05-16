@@ -167,48 +167,72 @@ process, but is usually only finished and implemented when most other critical
 components are in place.
 
 \subsection{Usual design patterns}
-The model-view-controller design pattern has proven itself to be a sane
+Design patterns help developers to organize software projects into agreed upon
+components, where each component has a specific function
+(also referred to as "concerns" or "responsibility").
+Although their exact features may not be known when a developer is first
+introduced to a new software project, design patterns help him to quickly
+recognize where functionality may be located in the code.
+
+Instead of requiring developers to think up new structures, Design patterns
+also help developers with grouping new code into well known components.
+
+We will focus on one specific design pattern in this thesis. There many others,
+which are relevant in web application development. There is nonetheless one
+prevalent design pattern which we will examine in the following.
+
+\subsubsection{Model-View-Controller}
+The Model-View-Controller design pattern has proven itself to be a sane
 choice for developing web applications. Most frameworks today use this
 pattern or variations thereof.
-The pattern is a separation of responsibility like so many other patterns
-are. It lends itself very well to web applications because of the way web
-applications are structured.\\
-The "Model" part represents the data that the web application presents and
-allows the user to modify. It does not only contain basic
-Create-Read-Update-Delete operations, but also macro procedures which are
-specifically tied to a concrete type of data.\\
-A "Controller" implements the business logic that is not tied to one specific
-model. It draws on the operations tied to the models to perform its duties.
-Both of these components may be implemented on the server as well as the
-client.
+It lends itself very well to web applications because of the client server
+model, components of this pattern can be present on both sides allowing the
+structure to be homogeneous.
 
-This is true for the "View" component as well. Its purpose however only comes
-to fruition on the client. The job of the "View" component is to present the
-data to the user and tie calls to the controller to elements of the interface
-that can be acted upon by the user.\\
-This component is still present on both the server and the client though. Any
-HTML the server sends to the client is considered part of the "View" component.
+\begin{itemize}
+	\item The "Model" part represents the "data". All dynamic parts of an
+	application modify, create or delete data, however ephemeral this data may
+	be. Since much of the data can grouped, because it belongs to the same
+	entity, it makes sense to represent those entities in the code and
+	attach the data to them. This constitutes a Model. Besides this data,
+	the Model can also have functions attached to it, which can act upon the data
+	in various ways.
+	\item A "Controller" implements the business logic that is decoupled from one
+	specific Model. It draws on the functions tied to the models to perform its
+	duties. Both of these components may be present on the server as well
+	as the client.
+	\item This is true for the "View" component as well. Its purpose however only
+	comes to fruition on the client. This component is present on both the server
+	and the client. Any HTML the server sends to the client is considered part of
+	the "View" component.\\
+	The job of the "View" component is to present the data to the user and
+	tie calls to the controller to elements of the interface that can be acted
+	upon by the user.
+\end{itemize}
 
 Designs of web applications change with time, features are added or
 removed and common processes simplified. In light of this, it is
-desirable to ensure that the "View" part of the model-view-controller
+desirable to ensure that the "View" part of the Model-View-Controller
 pattern is easily modifiable.
 
 Modifications of this pattern have evolved in the web application domain to
 cater to this specific purpose. The most notable of those would be the
-model-view-viewmodel pattern. It was designed by Microsoft and targeted at
+Model-View-ViewModel pattern. It was designed by Microsoft and targeted at
 interface development platforms including Windows Presentation Foundation and
-Silverlight but also HTML5.\\
-The advantage of this version of model-view-controller is the improved
-separation of roles between interface developers and application developers.
-Even if this is the same person, separation of responsibility in an application
-still has its merits.\\
+Silverlight but also HTML5.\todo{reference}
+
 The "ViewModel" component allows developers to implement interface logic that
-lies between the model and the view, allowing the view to be entirely free
-of code. This component is meant to hold data-bindings to the model while
+lies between the Model and the View, allowing the view to be entirely free
+of code. This component is meant to hold data-bindings to the Model while
 listening to interface events at the same time. It "translates" user actions
-into operations on the model. Without it the view would have to be aware of how
-data is laid out internally, making refactors harder.
+into operations on the Model. Without it, the view would have to be aware of how
+data is laid out internally, making refactoring of code harder.
+
+The advantage of this version of Model-View-Controller is the improved
+separation of responsibility between interface developers and application
+developers. Neither will be required to modify or thoroughly understand the code
+of the other. Even if both roles are filled by the same person,
+separation of responsibility in an application still has its merits.
 
 \todo{MVVM from Microsoft, MVP by Taligent (Apple, IBM, HP)}
 
@@ -228,8 +252,8 @@ the exception of Microsoft Internet Explorer, not implemented in any browsers
 yet and likely will not ever be (the final specification was released 2006).
 \section{Templating languages}
 A templating language allows the developer to create HTML documents containing
-placeholders, which later can be filled by a model and its attributes.
-Templating is part of the "View" component in the model-view-controller
+placeholders, which later can be filled by a Model and its attributes.
+Templating is part of the "View" component in the Model-View-Controller
 pattern. In the following we will have a look at one such templating language.
 \subsection{Mustache}
 Mustache is a so called "logic-less" template engine.
@@ -329,7 +353,7 @@ application stack consists of the following:
 While developing this application various libraries have been examined for
 their viability in the next iterations. backbone.js has in this case proven
 itself to be a very good fit. Its View prototype is made to bind with the
-interface while being model aware. Such a component is what is needed to put the
+interface while being Model aware. Such a component is what is needed to put the
 information about the placement of data in the DOM to good use. Only small
 modifications should be necessary to allow the View component to populate the
 Model component with data from the DOM.
