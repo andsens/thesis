@@ -1,17 +1,26 @@
-\documentclass[twoside,11pt,openright]{report}
+\documentclass[oneside,11pt,a4paper]{report}
+
+% Use 'oneside' for digital and 'twoside' for print
+% \documentclass[oneside,11pt,a4paper]{report}
+% \documentclass[twoside,11pt,openright,a4paper]{report}
+% Re-enable page break after chapters
 
 \usepackage[latin1]{inputenc}
 \usepackage[american]{babel}
-\usepackage{a4}
 \usepackage{latexsym}
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage{epsfig}
+\usepackage{graphicx,epstopdf}
+\epstopdfsetup{outdir=temp/,suffix=}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[labeled]{multibib}
 \usepackage{color}
 \usepackage{datetime}
+\usepackage[a4paper]{geometry}
+
+
+
 
 \usepackage{etoolbox}
 \makeatletter
@@ -38,9 +47,8 @@
 \noindent\rule{\linewidth}{1mm}\\[4ex]
 \noindent{\Large\sf Master's Thesis, Computer Science\\[1ex] 
 \monthname\ \the\year  \\[1ex] Advisor: Michael Schwartzbach\\[15ex]}\\[\fill]}
-\epsfig{file=logo.eps}\clearpage
-
-\todo{Re-enable pagebreak after chapters}
+\includegraphics{graphics/logo}
+\clearpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -71,7 +79,6 @@
 \setcounter{secnumdepth}{2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \chapter{Introduction}
 \label{ch:intro}
 
