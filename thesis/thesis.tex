@@ -5,22 +5,32 @@
 % \documentclass[twoside,11pt,openright,a4paper]{report}
 % Re-enable page break after chapters
 
+\usepackage[scaled]{beramono}
+\renewcommand{\ttdefault}{beramono}
+
 \usepackage[latin1]{inputenc}
 \usepackage[american]{babel}
 \usepackage{latexsym}
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage{graphicx,epstopdf}
-\epstopdfsetup{outdir=temp/,suffix=}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[labeled]{multibib}
-\usepackage{color}
 \usepackage{datetime}
+
+\usepackage{hyperref}
+
+\usepackage{graphicx,epstopdf}
+\epstopdfsetup{outdir=temp/,suffix=}
+
 \usepackage[a4paper]{geometry}
 
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily}
 
-
+\usepackage{color,xcolor}
+\definecolor{lgray}{rgb}{0.93,0.93,0.93}
+\def\inline#1{{\setlength{\fboxsep}{0pt}\colorbox{lgray}{\lstinline{#1}}}}
 
 \usepackage{etoolbox}
 \makeatletter
@@ -307,13 +317,13 @@ information is lost.
 
 \todo{Introduction to what I want to do about it}
 
-\section{Development workflow}
+\section{Development work flow}
 The tool introduced in this thesis, will be developed via an iterative
 work flow. Two or three versions of the solution to the requirements outlined
 above will be discussed in this thesis. Each version building on the knowledge
 acquired in the development process of the previous.
 
-\section{Initial prototype}
+\chapter{Initial prototype}
 First a rudimentary prototype will be made. It is not very
 useful in practice, but serves to illustrate the road map lying ahead.\\
 This prototype is an exploratory prototype, meaning none of its code or
@@ -327,14 +337,14 @@ added.
 The server side back end is based on PHP and MySQL. The client side uses
 HTML5, JavaScript (+XPath) and CSS as its core technologies.
 
-\subsection{Libraries}
+\section{Libraries}
 In order to speed up the prototyping process a plethora of libraries have been
 used. Excluding basic core technologies like JavaScript, MySQL and PHP, the
 application stack consists of the following:
 \begin{itemize}
 	\item \emph{less}\\
 	A superset of CSS providing variables, calculations and nested selectors. It
-	is a javascript library which converts included less files into CSS.
+	is a JavaScript library which converts included less files into CSS.
 	\item \emph{jQuery}\\
 	The de facto standard when creating web applications. Among other things it
 	simplifies the interaction with the DOM.
@@ -342,7 +352,9 @@ application stack consists of the following:
 	Before jQuery was the standard prototype.js was a library developed by
 	Sam Stephenson to improve upon the DOM API itself. It also brought with it
 	various improvements to native JavaScript prototype objects. Underscore
-	carries these improvements into the world of jQuery.
+	carries these improvements into the world of jQuery. underscore.js includes a
+	small templating engine which will allow us to generate DOM elements and
+	insert them into the page, without having to resort to page reloading.
 	\item \emph{backbone.js}\\
 	Backbone.js is a JavaScript Model/View framework. It provides the developer
 	with View, Model and Collection prototypes. The View prototype can be
@@ -355,9 +367,129 @@ application stack consists of the following:
 	
 \end{itemize}
 
-\subsection{The application}
+\section{The application}
+The application features an rudimentary templates, which are note backed by any
+engine. Instead PHP is used directly in the HTML files.
+\subsection{Templates}
+Although PHP allows for more complex templates, we keep them simple in order to
+place the same constraints on the templates as we would have when using
+Mustache.
+\begin{itemize}
+	\item \emph{Template inclusion}\\
+	Starting from the root sub-templates are included via a simple
+	PHP \inline{require} command.
+	\item \emph{Simple variables}\\
+	Simple variables are inserted via a PHP \inline{echo} command.
+	\item \emph{Objects}\\
+	Objects are converted into arrays so their fields can be placed in the global
+	scope with the \inline{extract} method. For every class, that is used in the
+	templating process, there exists at least on template. For two or more
+	templates that use the same class, their names are disambiguated by appending
+	a the name of the context each template is associated with (e.g.
+	\inline{movie.edit.tpl} and \inline{movie.view.tpl})
+	\item \emph{Collections}\\
+	Collections (i.e. PHP arrays) are simply iterated through, in this prototype
+	only objects are present in these arrays, the \inline{foreach} block therefore
+	contains the aforementioned method to place objects fields into the global
+	scope.
+	\item \emph{Client side templates}\\
+	There is a small portion of client side templates, which are used whenever new
+	data is added.  They do not have any impact on the functionality explored in
+	this prototype, but are simply included and used to give the web application a
+	more complete feel.
+\end{itemize}
+\subsection{Parsing the HTML}
+\subsubsection{Models and ViewModels}
+Every Model on the server side is linked to the database, one instance of a
+model represents one entity in the database. Each of these Models is also
+represented on the client side using backbone.js, which provides us with
+a "Backbone.Model" base class which can be extended.
+The client side models have two static methods attached to them.
+\inline{getAttrType()} takes an attribute name and returns the type of that
+attribute or hints at what should be done with the XPath result in order to
+obtain the attribute value.
+\inline{getComplexType()} returns a reference to the object prototype that should
+be instantiated for a given attribute.
+The return values of \inline{getAttrType()} are:
+\begin{itemize}
+	\item \emph{\inline{string}}\\
+	A simple string value.
+	\item \emph{\inline{node}}\\
+	A DOM node. This return value still represents a string, but in order to be
+	able to post process an XPath result as a DOM node, the result type needs to
+	be specified beforehand. \todo{how fucking stupid is that?! Worst. API. ever.}
+	\item \emph{\inline{model}}\\
+	A backbone.js Model. \inline{getComplexType} is used here to instantiate the
+	concrete Model.
+	\item \emph{\inline{collection}}\\
+	Collections are represented by extending "Backbone.Collection". Calling
+	\inline{getComplexType()} with the attribute name returns the prototype for the
+	Collection tied to that attribute.
+\end{itemize}
+All models are located in \inline{proof_of_concept/model}.
+
+backbone.js also comes with a "Backbone.View" class. We extend this class to
+bind the models to elements in the DOM. This is done by listening to events
+fired by these elements and modifying the models correspondingly.
+
+We attach a static field named "finders" to these ViewModels. This field
+contains objects defining where various attributes of the Model this ViewModel
+belongs to can be found (using the node this ViewModel is attached to).
+
+To specify where the elements can be found we use XPath. If the result of a
+XPath query is too broad, a "process" attribute can be defined, containing a
+function, which processes the result and returns the desired attribute value.
+
+An entry in the "finder" field can also contain a \inline{view()} function which
+simply returns a prototype of the ViewModel that corresponds to the node the
+XPath points at. We use a function in this case, because not doing so would
+result in a circular dependency when loading, that can not be resolved.
+
+ViewModels are attached to one node only, any element they govern is a child of
+that node.
+\subsubsection{parser.js}
+The \inline{getViewModel()} function in the parser.js file is the heart of the
+prototype. Given a Model, a root node and a corresponding ViewModel, the parser
+iterates through the "finders" of the ViewModel. It returns an instance of that
+ViewModel with the root node attached to it and its "model" field pointing to an
+instance of the corresponding Model.
+For each key \inline{getAttrType()} is called to determine how the result of the
+XPath query defined in the finder should be handled.
+\begin{itemize}
+	\item \emph{\inline{collection}}\\
+	The type of the Models in the Collection is retrieved with
+	\inline{getComplexType()} and the XPath query is executed.\\
+	If the finder contains a "process" attribute defining a function, the return
+	value of that function replaces the original XPath result. This replacement
+	function is executed for all of the other procedures as well.\\
+	A loop iterates through the result and recursively calls
+	\inline{getViewModel()} with the current value of the iteration, the return
+	value of \inline{view()} and the "model" attribute attached to the prototype
+	returned by \inline{getComplexType()}.
+	\item \emph{\inline{model}}\\
+	\inline{getComplexType()} is called on the current model -- like before -- and
+	a single node is retrieved from the XPath result. Again
+	\inline{getViewModel()} is called recursively with the Model returned by
+	\inline{getComplexType()}, the ViewModel returned by \inline{view()} and the
+	single node from the XPath result.
+	\item \emph{\inline{node}}\\
+	The XPath result is executed and the "process" function is called with it as
+	an argument. At this point the "process" function is crucial. An attribute of
+	a model should contain a pointer to a DOM node, since it would only make sense
+	in the context of the current page load and would only be understood by the
+	actual ViewModel it belongs to.
+	\item \emph{\inline{string}}\\
+	The XPath is executed and the string is retrieved from the result.
+\end{itemize}
+All of these procedures convert a DOM node into a value usable in the context of
+a Model attribute. Once all of the attributes have been found a Model is
+instantiated and its attributes set. After that a ViewModel is instantiated with
+its "model" field pointing to the new Model instance and the root node pointing
+to the node passed to \inline{getViewModel()}.
+
+\subsection{Using the results}
 \todo{explaiiiin}
-\subsection{Results}
+\section{Results}
 \section{Plan for next iteration \todo{\dots}}
 While developing this application various libraries have been examined for
 their viability in the next iterations. backbone.js has in this case proven
