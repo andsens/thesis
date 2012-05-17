@@ -257,11 +257,13 @@ Templating is part of the "View" component in the Model-View-Controller
 pattern. In the following we will have a look at one such templating language.
 \subsection{Mustache}
 Mustache is a so called "logic-less" template engine.
-This subtitle derives from the fact that there are no if statements,
-else clauses, or while loops. Instead there are only tags. Some tags are
-replaced with a value, some nothing, and others a series of values.\\
+This subtitle derives from the fact that there are no control flow statements
+(e.g. if and else statements and while loops). Instead there are only tags.
 Tags in in this context can be understood as an advanced form of placeholders.
+Some tags are replaced with a string, some are replaced with nothing,
+yet others are replace with series of strings or even more tags.
 \subsubsection{Limitations}
+\todo{fix entire paragraph}
 These templating languages are very different in their design.
 All aim to improve one or more aspects of the templating task.
 Of those Mustache seems to be specifically tailored for web applications
