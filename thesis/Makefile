@@ -1,35 +1,28 @@
-thesis:
-	latex thesis.tex
-	bibtex A
-	bibtex B
-	latex thesis.tex
-	dvips -t letter -o thesis.ps thesis.dvi
-	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis.ps thesis.pdf
-	make clean
+.SILENT:
+latexargs = -output-directory=temp -interaction=batchmode -file-line-error-style
+thesis: mktemp
+	latex $(latexargs) thesis || make errors
+	bibtex -terse temp/A || make errors
+	bibtex -terse temp/B || make errors
+	latex $(latexargs) thesis || make errors
+	pdflatex $(latexargs) thesis || make errors
+	cat temp/thesis.pdf > thesis.pdf
 
-diff:
-	latex thesis-diff.tex
-	bibtex A
-	bibtex B
-	latex thesis-diff.tex
-	dvips -t letter -o thesis-diff.ps thesis-diff.dvi
-	ps2pdf14 -dPDFSETTINGS=/prepress -dEmbedAllFonts=true thesis-diff.ps thesis-diff.pdf
+diff: mktemp
+	latex $(latexargs) thesis-diff || make errors
+	bibtex temp/A || make errors
+	bibtex temp/B || make errors
+	latex $(latexargs) thesis-diff || make errors
+	pdflatex $(latexargs) thesis-diff || make errors
 	rm thesis-diff.tex
-	make clean
-
-latex:
-	latex thesis
-	bibtex thesis
-	latex thesis && (pkill -USR1 xdvi\* || echo "No xdvi!")
-
-xdvi:
-	xdvi -background white thesis.dvi -s 5 -sidemargin 0.0cm -topmargin 1.0cm -hush -expertmode 0 -geometry 750x987+0+0 >& /dev/null &
 
 clean:
-	rm *.aux
-	rm *.bbl
-	rm *.blg
-	rm *.dvi
-	rm *.log
-	rm *.toc
-	rm *.ps
+	test -e temp
+	rm -f temp/*
+	
+mktemp:
+	mkdir -p temp
+
+errors:
+	grep  ":[^:]*:" temp/thesis.log
+	false
