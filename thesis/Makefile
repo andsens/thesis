@@ -1,5 +1,10 @@
-.SILENT:
+.SILENT: thesis diff
 latexargs = -output-directory=temp -interaction=batchmode -file-line-error-style
+
+mklatex: mktemp
+	latexmk -pdf -auxdir=temp -outdir=temp -bibtex thesis
+	cat temp/thesis.pdf > thesis.pdf
+
 thesis: mktemp
 	latex $(latexargs) thesis || make errors
 	bibtex -terse temp/A || make errors
