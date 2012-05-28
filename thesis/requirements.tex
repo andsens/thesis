@@ -1,0 +1,28 @@
+\chapter{Requirements}
+The information lost after a view is rendered might not be useful and
+the behavior of existing templating languages therefore inconsequential.
+This is not the case. Let us consider a minimal template used for
+displaying profile information:
+\todo{\dots}
+As you can see, the fields of the user object are printed into the HTML
+at the appropriate places, leaving us with a normal page which can be
+displayed in the browser.
+Add the requirement that this form is not to be submitted via a
+synchronous browser request but via AJAX. Now the developer has to
+reverse engineer the generated HTML with JavaScript to obtain the
+user information that is to be submitted. Any changes to the template
+will now also require a change in client side code, particularly the
+code, which finds the values in the form.
+This example contains a rather obvious loss of information.
+The position of the field attributes of the user object.
+At the time of the rendering these positions are known, but as soon as the
+result is converted into a string that is sent to the client, this
+information is lost.
+
+\todo{Introduction to what I want to do about it}
+
+\section{Development work flow}
+The tool introduced in this thesis, will be developed via an iterative
+work flow. Two or three versions of the solution to the requirements outlined
+above will be discussed in this thesis. Each version building on the knowledge
+acquired in the development process of the previous.

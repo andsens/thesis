@@ -1,0 +1,36 @@
+\chapter{Tools of the trade}
+In order to achieve a separation of responsibility various frameworks and tools
+are at a developers disposal. In this thesis we will focus on two of them
+specifically.
+\section{Client frameworks}
+\subsection{Backbone.js}
+\subsection{XPath}
+XPath is a language that allows us to define a path from a root node to another
+node. Although limited, the language is fairly concise and directly built into
+JavaScript. We will only be dealing with XPath 1.0, because version 2.0 is, with
+the exception of Microsoft Internet Explorer, not implemented in any browsers
+yet and likely will not ever be (the final specification was released 2006).
+\section{Templating languages}
+A templating language allows the developer to create HTML documents containing
+placeholders, which later can be filled by a Model and its attributes.
+Templating is part of the "View" component in the Model-View-Controller
+pattern. In the following we will have a look at one such templating language.
+\subsection{Mustache}
+Mustache is a so called "logic-less" template engine.
+This subtitle derives from the fact that there are no control flow statements
+(e.g. if and else statements and while loops). Instead there are only tags.
+Tags in in this context can be understood as an advanced form of placeholders.
+Some tags are replaced with a string, some are replaced with nothing,
+yet others are replace with series of strings or even more tags.
+\subsubsection{Limitations}
+\todo{fix entire paragraph}
+These templating languages are very different in their design.
+All aim to improve one or more aspects of the templating task.
+Of those Mustache seems to be specifically tailored for web applications
+with interactive JavaScript parts.
+They all have a common trait which in some cases can be an advantage
+but given any specific implementation of a web application is a drawback:
+They are completely oblivious of their surroundings. They draw the line
+at the "View" part in order to encourage a separation from the other
+parts. This comes at the cost of lost information when sending a
+rendered view to the client.
