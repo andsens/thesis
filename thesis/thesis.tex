@@ -6,8 +6,6 @@
 % Re-enable page break after chapters
 
 \usepackage[scaled]{beramono}
-\renewcommand{\ttdefault}{beramono}
-
 \usepackage[latin1]{inputenc}
 \usepackage[american]{babel}
 \usepackage{latexsym}
@@ -19,6 +17,7 @@
 \usepackage{datetime}
 
 \usepackage{hyperref}
+% \usepackage[hyperpageref]{backref}
 
 \usepackage{graphicx,epstopdf}
 \epstopdfsetup{outdir=temp/,suffix=}
@@ -26,11 +25,11 @@
 \usepackage[a4paper]{geometry}
 
 \usepackage{listings}
-\lstset{basicstyle=\ttfamily}
+\lstset{basicstyle=\small\fontfamily{fvm}\fontseries{r}\selectfont}
 
 \usepackage{color,xcolor}
 \definecolor{lgray}{rgb}{0.93,0.93,0.93}
-\def\inline#1{{\setlength{\fboxsep}{0pt}\colorbox{lgray}{\lstinline{#1}}}}
+\def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
 
 \usepackage{etoolbox}
 \makeatletter
