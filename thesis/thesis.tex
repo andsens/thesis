@@ -32,10 +32,10 @@
 \definecolor{lgray}{rgb}{0.93,0.93,0.93}
 \def\inline#1{{\setlength{\fboxsep}{0pt}\colorbox{lgray}{\lstinline{#1}}}}
 
-% \usepackage{etoolbox}
-% \makeatletter
-% \patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
-% \makeatother
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
 
 \renewcommand*\ttdefault{txtt}
 
@@ -45,51 +45,46 @@
 
 % see http://imf.au.dk/system/latex/bog/
 
-\begin{document}
-
-\pagestyle{empty} 
-\include{cover}
-
 \pagestyle{plain}
 
-\include{abstract}
+\begin{document}
 
-\include{resume}
+\pagenumbering{roman}
 
-\include{acknowledgements}
+\include{00-cover}
+
+\include{01-abstract}
+
+\include{02-resume}
+
+\include{03-acknowledgements}
 
 \pagenumbering{arabic}
-\setcounter{secnumdepth}{2}
-\tableofcontents
 
-\include{introduction}
+\include{04-table-of-contents}
 
-\include{developing-web-applications}
+\include{10-introduction}
 
-\include{tools-of-the-trade}
+\include{20-developing-web-applications}
 
-\include{requirements}
+\include{23-tools-of-the-trade}
 
-\include{initial-prototype}
+\include{26-requirements}
 
-\include{implementation}
+\include{29-initial-prototype}
 
-\include{usage}
+\include{32-implementation}
 
-\include{evaluation}
+\include{50-usage}
 
-\include{future-work}
+\include{70-evaluation}
 
-\include{related-work}
+\include{75-future-work}
 
-\include{conclusion}
+\include{78-related-work}
 
-\addcontentsline{toc}{chapter}{Primary Bibliography}
-\bibliographystyleA{plain} 
-\bibliographyA{refs.bib}
-\addcontentsline{toc}{chapter}{Secondary Bibliography}
-\bibliographystyleB{plain} 
-\bibliographyB{refs.bib} % remove this if you don't need secondary literature
+\include{95-conclusion}
+
+\include{99-bibliography}
 
 \end{document}
-
