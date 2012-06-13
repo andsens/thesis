@@ -1,4 +1,4 @@
-\documentclass[oneside,11pt,a4paper]{report}
+\documentclass[twoside,11pt,openright,a4paper]{report}
 
 % Use 'oneside' for digital and 'twoside' for print
 % \documentclass[oneside,11pt,a4paper]{report}
@@ -15,6 +15,9 @@
 \usepackage{lmodern}
 \usepackage[labeled]{multibib}
 \usepackage{datetime}
+\usepackage{tocbibind}
+
+\usepackage{layout}
 
 \usepackage{hyperref}
 % \usepackage[hyperpageref]{backref}
@@ -28,19 +31,34 @@
 \lstset{basicstyle=\small\fontfamily{fvm}\fontseries{r}\selectfont}
 
 \usepackage{color,xcolor}
-\definecolor{lgray}{rgb}{0.93,0.93,0.93}
+\include{colors}
+
 \def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
 
-\usepackage{etoolbox}
-\makeatletter
-\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
-\makeatother
+\lstset{
+	basicstyle=\color{solarized-base00},
+	keywordstyle=\color{solarized-base02},
+	commentstyle=\color{solarized-base01},
+	stringstyle=\color{solarized-green},
+	numberstyle=\tiny\color{gray},
+	numbers=left,
+	backgroundcolor=\color{solarized-base3},
+	showspaces=false,
+	showstringspaces=false,
+	frame=single,
+	tabsize=2,
+	breaklines=true,
+}
+
+% \lstlistoflistings
 
 \renewcommand*\ttdefault{txtt}
 
 \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
 
 \newcites{A,B}{Primary Bibliography,Secondary Bibliography}
+
+\usepackage{tikz}
 
 % see http://imf.au.dk/system/latex/bog/
 
@@ -61,6 +79,8 @@
 \pagenumbering{arabic}
 
 \include{04-table-of-contents}
+
+\layout
 
 \include{10-introduction}
 

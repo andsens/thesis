@@ -7,6 +7,24 @@ unimagined uses for any Internet enabled device seem to be developed
 at a rate that surpasses the former.
 
 \section{What are web applications?}
+Any web application can be divided into a server part and a client part.
+Mostly both parts play a role in providing functionality to a web application.
+The server holds persistent data in order for the user to be able to connect
+from any machine. Since the server is not in the same location as the
+client machine, latency in responses to user actions are a problem.
+This problem is solved by letting the client part of the web application compute
+responses where information on the server is not required. Queries to the server
+can happen both synchronously and asynchronously, meaning a function can either
+wait for the server response and block further execution of code until the
+response is available or it can define a callback function which is invoked
+once the response is available.
+
+\begin{figure}
+	\centering
+	\includegraphics{graphics/synchronous}
+	\caption{Diagram of synchronous communication between client and server}
+\end{figure}
+
 In this thesis, we will focus on web applications which use a
 modern web browser and with it HTML as their basis (HTML5 in particular).
 The non-static parts, which control the heart of the web application,
@@ -72,6 +90,12 @@ an optimal web application.
 \todo{Explain why client side programming advantages are obvious.
 The above is mainly done to draw lines in the sand, between client
 and server side.}
+
+\begin{figure}
+	\centering
+	\input{graphics/asynchronous}
+	\caption{Diagram of asynchronous communication between client and server}
+\end{figure}
 
 \section{The development process}
 The development process of a web application is similar to any other

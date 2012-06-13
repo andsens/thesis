@@ -1,14 +1,47 @@
 \chapter{Initial prototype}
-First a rudimentary prototype will be made. It is not very
-useful in practice, but serves to illustrate the road map lying ahead.\\
-This prototype is an exploratory prototype, meaning none of its code or
-architecture is intended to make it into the next iteration. The motivation
-behind this exercise was to simply explore what challenges lied ahead and to
-explore the problem domain.
-
+First we make a rudimentary proof of concept. It is an exploratory prototype,
+meaning none of its code or architecture is intended to be carried over into the
+next iteration.
 This prototype features an interactive application with which a movie
 library can be maintained. Details can be edited and actors can be
 added.
+It is not very useful in practice, but serves to make the basic idea more
+concrete in the following ways:
+
+\begin{itemize}
+	\item \emph{Explicit conceptualization}\\
+	The prototype is meant to capture the core of the initial idea (to couple
+	client models with server templates).
+	Many of the less pronounced concepts of the idea will need to be made concrete
+	in order for the core concept to work.
+	\item \emph{Highlight logical errors}\\
+	Edge cases of an idea can be crucial to its successful implementation.
+	Problems involving those cases may have been erroneously dismissed as trivial.
+	Some of those problems may not have solutions or workarounds, which
+	means the work on the entire project has been in vain. By making a working
+	prototype, those errors will be discovered early on.
+	\item \emph{Discover additional requirements}\\
+	The implementation of a movie library allows for practical challenges to
+	arise, which might not have been discovered if we implemented such an
+	application at the conclusion of the project.
+\end{itemize}
+
+The application is initialized with data from a MySQL database. The data is
+outputted to HTML via PHP. We do this by fetching the data from the database and
+printing it into HTML templates that have embedded PHP in them.
+As an example; what the template for a movie looks like can be seen in figure
+\ref{fig:movie.view.tpl}.
+
+\begin{figure}
+	\label{fig:movie.view.tpl}
+	\centering
+	\lstinputlisting[language=HTML]{../proof_of_concept/view/types/movie.view.tpl}
+	\caption{
+		The file \inline{movie.view.tpl}.
+		A template in the initial prototype.}
+\end{figure}
+
+
 The server side back end is based on PHP and MySQL. The client side uses
 HTML5, JavaScript (+XPath) and CSS as its core technologies.
 
@@ -39,7 +72,6 @@ application stack consists of the following:
 	\item \emph{php-activerecord}\\
 	PHP ActiveRecord is the server side library utilized to communicate with the
 	database.
-	
 \end{itemize}
 
 \section{The application}

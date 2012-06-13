@@ -1,0 +1,74 @@
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning,calc}
+\tikzset{corners/.style={fit={#1},rectangle,inner sep=0}}
+\tikzset{>=latex}
+\newcommand{\drawheight}{5}
+\newcommand{\boxheight}{\drawheight/3}
+\newcommand{\lnlength}{\textwidth/7}
+\newcommand{\commlength}{\textwidth/7/4}
+\begin{tikzpicture}
+	\node[fill=lgray,
+		corners={(0,0) (\textwidth,\boxheight)}]
+		(serverbg) {};
+	\node[below=0.2 of serverbg.north] {server};
+	
+	\node[fill=lgray,draw=lgray,
+		corners={(0,\boxheight*2) (\textwidth,\drawheight)}]
+		(clientbg) {};
+	\node[below=0.2 of clientbg.north] {client};
+	
+	\node[corners={(0,\boxheight) (\textwidth,\boxheight*2)}]
+		(timebg) {};
+	\node[below=0.2 of timebg.north] {time};
+	
+	
+	\draw[->,fill=lgray,draw=lgray,line width=5pt]
+		let \p1 = (timebg.west) in (0,\y1) -- (\textwidth,\y1);
+	
+	
+	\draw[->,line width=2pt]
+		let \p1 = (clientbg.west) in
+			(\x1,\y1) node (C1) {}
+		--
+			(\lnlength,\y1) node (C1') {};
+	
+	\draw[->,line width=2pt]
+		let \p1 = (clientbg) in
+			(\x1-\lnlength/2,\y1) node (C2) {}
+		--
+			(\x1+\lnlength/2,\y1) node (C2') {};
+	
+	\draw[->,line width=2pt]
+		let \p1 = (clientbg.east) in
+			(\x1-\lnlength,\y1) node (C3) {}
+		--
+			(\x1,\y1) node (C3') {};
+	
+	
+	
+	\draw[->,line width=2pt]
+		let \p1 = (serverbg), \p2 = (C1'), \p3 = (C2) in
+			(\x2+\commlength,\y1) node (S1) {}
+				--
+			(\x3-\commlength,\y1) node (S1') {};
+	
+	
+	\draw[->,line width=2pt]
+		let \p1 = (serverbg), \p2 = (C2'), \p3 = (C3) in
+			(\x2+\commlength,\y1) node (S2) {}
+		--
+			(\x3-\commlength,\y1) node (S2') {};
+	
+		
+	\draw[->] (C1') -- (S1);
+	\draw[->] (S1') -- (C2);
+	\draw[->] (C2') -- (S2);
+	\draw[->] (S2') -- (C3);
+	% \draw[->,line width=2pt]
+	% 	(2.2,1) node (P1S) {} -- (3.5,1) node (P1E) {};
+	% \draw[->,line width=2pt] (4.2,5) node (A2S) {} -- (7.5,5) node (A2E) {};
+	% \draw[->,line width=2pt] (6.2,1) node (P2S) {} -- (7.5,1) node (P2E) {};
+	% \draw[->,line width=2pt] (8.2,5) node (A3S) {} -- (11.5,5) node (A3E) {};
+	
+	
+\end{tikzpicture}
