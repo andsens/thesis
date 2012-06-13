@@ -60,6 +60,11 @@
 
 \usepackage{tikz}
 
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning,calc}
+\tikzset{corners/.style={fit={#1},rectangle,inner sep=0}}
+\tikzset{>=latex}
+
 % see http://imf.au.dk/system/latex/bog/
 
 \pagestyle{plain}

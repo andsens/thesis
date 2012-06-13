@@ -12,17 +12,42 @@ Mostly both parts play a role in providing functionality to a web application.
 The server holds persistent data in order for the user to be able to connect
 from any machine. Since the server is not in the same location as the
 client machine, latency in responses to user actions are a problem.
-This problem is solved by letting the client part of the web application compute
-responses where information on the server is not required. Queries to the server
-can happen both synchronously and asynchronously, meaning a function can either
-wait for the server response and block further execution of code until the
-response is available or it can define a callback function which is invoked
-once the response is available.
+The diagram \ref{fig:synchronous} illustrates what such an interplay between client and server
+looks like.
+\begin{figure}
+	\centering
+	\input{graphics/synchronous}
+	\caption{Diagram of synchronous communication between client and server}
+	\label{fig:synchronous}
+\end{figure}
+The client uses the web application enters data (e.g. enters data), this we will
+call user activity. Once the user issues a command that requires data from the
+server, the web application issues a request to the server and halts any further
+execution until the server has responded. The client then continues execution
+where it left of and the user can continue interacting with the web application.
+This is called a synchronous communication. The client acts in
+synchronicity with the server and does not act independently from the server.
+The higher the latency of the response, the longer the user has to wait to
+interact with the web application again.
+Such waiting periods are undesirable, it results in a loss of productivity and
+user-friendliness.
+
+This challenge is solved by letting the client part of the web application
+continue to compute responses where information on the server is not required.
+Queries to the server can then happen asynchronously, meaning a function can
+define a callback function which is invoked once the response is available. This
+is called asynchronous communication; the client continues execution after it
+has sent off a request to the server. Once the server responds, a function on
+the client will be invoked to handle that response.
+Asynchronous communication allows the user to continue to interact with the
+web application. Diagram \ref{fig:asynchronous} shows how user activity can
+take place, while the server computes a response to a previously issued request.
 
 \begin{figure}
 	\centering
-	\includegraphics{graphics/synchronous}
+	\input{graphics/asynchronous}
 	\caption{Diagram of synchronous communication between client and server}
+	\label{fig:asynchronous}
 \end{figure}
 
 In this thesis, we will focus on web applications which use a
@@ -90,12 +115,6 @@ an optimal web application.
 \todo{Explain why client side programming advantages are obvious.
 The above is mainly done to draw lines in the sand, between client
 and server side.}
-
-\begin{figure}
-	\centering
-	\input{graphics/asynchronous}
-	\caption{Diagram of asynchronous communication between client and server}
-\end{figure}
 
 \section{The development process}
 The development process of a web application is similar to any other
