@@ -1,28 +1,50 @@
 \chapter{Requirements}
-The information lost after a view is rendered might not be useful and
-the behavior of existing templating languages therefore inconsequential.
-This is not the case. Let us consider a minimal template used for
-displaying profile information:
+The data that fills the gaps in HTML templates often originates from the
+database or another data source. This source is mapped on to an object graph
+where in the case of a table the instance of a class represents a row in
+said table.
+The bindings of class fields to placeholders represent information in
+themselves. This information about what object data in a HTML page originates
+from is lost once the placeholders are filled with data and sent to the client.
+
+This loss of information is inconsequential to the way web applications are
+built with current frameworks, that does not however mean that it is useless.\\
+Let us consider a minimal template used for displaying profile information:
 \todo{\dots}
 As you can see, the fields of the user object are printed into the HTML
 at the appropriate places, leaving us with a normal page which can be
 displayed in the browser.
-Add the requirement that this form is not to be submitted via a
-synchronous browser request but via AJAX. Now the developer has to
-reverse engineer the generated HTML with JavaScript to obtain the
-user information that is to be submitted. Any changes to the template
-will now also require a change in client side code, particularly the
-code, which finds the values in the form.
-This example contains a rather obvious loss of information.
-The position of the field attributes of the user object.
-At the time of the rendering these positions are known, but as soon as the
-result is reduced to simple a string that is sent to the client, this
-information is lost.
 
+The following scenario illustrates how this simple way of handling templates,
+requires additional work when information about where data is put in the
+template is not readily available:
+
+\begin{shaded}
+After the profile form has been styled with CSS, the developer decides that
+the submission of the form should not issue a page reload. The tool of choice
+for that is AJAX.
+
+Once the form is working the way it should, everything is brought into
+production. Metrics however suggest that changing the layout of the form would
+increase usability.
+The designer moves form fields around to make it easier for user to update
+their profile.
+All the while, the developer has to accommodate the design changes by modifying
+the CSS selectors he uses to bind the form elements and the client-side version
+of the user model together.
+CSS IDs are used sparingly to avoid naming conflicts, so every correction
+to a HTML template bears with it a correction in the selection of DOM nodes.
+\end{shaded}
+This example highlights a rather obvious loss of information, namely
+the position of the form elements and their connection to model attributes.\\
+When the placeholders of an HTML template are filled these positions are known,
+but as soon as the result is reduced to simple a string that is sent
+to the client, this information is lost.
+
+The argument to uphold the status quo in this case is increased usage of
+CSS IDs. The problem is however that this approach does not scale very well.
+A complex naming scheme would be required to avoid naming collisions.
+Every possibly modifiable DOM node would be tagged with an ID,
+requiring more work in both the template writing and DOM binding of
+client-side models.
 \todo{Introduction to what I want to do about it}
-
-\section{Development work flow}
-The tool introduced in this thesis, will be developed via an iterative
-work flow. Two or three versions of the solution to the requirements outlined
-above will be discussed in this thesis. Each version building on the knowledge
-acquired in the development process of the previous.

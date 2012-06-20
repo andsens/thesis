@@ -1,13 +1,12 @@
 \chapter{Initial prototype}
-First we make a rudimentary proof of concept. It is an exploratory prototype,
-meaning none of its code or architecture is intended to be carried over into the
-next iteration.
-This prototype features an interactive application with which a movie
-library can be maintained. Details can be edited and actors can be
-added.
+First we make a rudimentary prototype. It is an exploratory prototype,
+meaning none of its code is intended to be carried over into the next iteration.
+The initial prototype is an interactive application for maintaining a movie
+library. Details can be edited and actors can be added to that library.
 It is not very useful in practice, but serves to make the basic idea more
 concrete in the following ways:
 
+\label{list:prototype-motivation}
 \begin{itemize}
 	\item \emph{Explicit conceptualization}\\
 	The prototype is meant to capture the core of the initial idea (to couple
@@ -26,11 +25,42 @@ concrete in the following ways:
 	application at the conclusion of the project.
 \end{itemize}
 
-The application is initialized with data from a MySQL database. The data is
-outputted to HTML via PHP. We do this by fetching the data from the database and
-printing it into HTML templates that have embedded PHP in them.
-As an example; what the template for a movie looks like can be seen in figure
-\ref{fig:movie.view.tpl}.
+The server-side back end is based on PHP and MySQL. The client-side uses
+HTML5, JavaScript (+XPath) and CSS as its core technologies.
+
+\section{Libraries}
+In order to speed up the prototyping process a plethora of libraries have been
+used. Excluding basic core technologies like JavaScript, MySQL and PHP, the
+application stack consists of the following:
+\begin{itemize}
+	\item \emph{less}\\
+	A superset of CSS providing variables, calculations and nested selectors. It
+	is a JavaScript library which compiles included less files into CSS.
+	\item \emph{jQuery}\\
+	The de facto standard when creating web applications. Among other things it
+	simplifies the interaction with the DOM.
+	\item \emph{backbone.js}\\
+	Backbone.js is a JavaScript Model/View framework. It provides the developer
+	with View, Model and Collection prototypes. The View prototype can be
+	considered analogous to the aforementioned ViewModel, while the Model and
+	Collection part make up the Model component and collections thereof
+	respectively.
+	\item \emph{php-activerecord}\\
+	PHP ActiveRecord is the server-side library utilized to communicate with the
+	database.
+\end{itemize}
+
+\section{Templating}
+The application features rudimentary HTML templates, which are note backed by
+any engine. Instead PHP is embedded directly into the HTML files.
+Although PHP allows for more complex templates, we keep them simple in order to
+place the same constraints on the templates as we would have when using
+Mustache.
+We convert data from the database into HTML by fetching it from the database and
+by forwarding that data to the embedded PHP.
+As an example, figure \ref{fig:movie.view.tpl} illustrates what the template
+for a movie looks like.
+The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 
 \begin{figure}
 	\label{fig:movie.view.tpl}
@@ -41,46 +71,6 @@ As an example; what the template for a movie looks like can be seen in figure
 		A template in the initial prototype.}
 \end{figure}
 
-
-The server side back end is based on PHP and MySQL. The client side uses
-HTML5, JavaScript (+XPath) and CSS as its core technologies.
-
-\section{Libraries}
-In order to speed up the prototyping process a plethora of libraries have been
-used. Excluding basic core technologies like JavaScript, MySQL and PHP, the
-application stack consists of the following:
-\begin{itemize}
-	\item \emph{less}\\
-	A superset of CSS providing variables, calculations and nested selectors. It
-	is a JavaScript library which converts included less files into CSS.
-	\item \emph{jQuery}\\
-	The de facto standard when creating web applications. Among other things it
-	simplifies the interaction with the DOM.
-	\item \emph{underscore.js}\\
-	Before jQuery was the standard prototype.js was a library developed by
-	Sam Stephenson to improve upon the DOM API itself. It also brought with it
-	various improvements to native JavaScript prototype objects. Underscore
-	carries these improvements into the world of jQuery. underscore.js includes a
-	small templating engine which will allow us to generate DOM elements and
-	insert them into the page, without having to resort to page reloading.
-	\item \emph{backbone.js}\\
-	Backbone.js is a JavaScript Model/View framework. It provides the developer
-	with View, Model and Collection prototypes. The View prototype can be
-	considered analogous to the aforementioned ViewModel, while the Model and
-	Collection part make up the Model component and collections thereof
-	respectively.
-	\item \emph{php-activerecord}\\
-	PHP ActiveRecord is the server side library utilized to communicate with the
-	database.
-\end{itemize}
-
-\section{The application}
-The application features an rudimentary templates, which are note backed by any
-engine. Instead PHP is used directly in the HTML files.
-\subsection{Templates}
-Although PHP allows for more complex templates, we keep them simple in order to
-place the same constraints on the templates as we would have when using
-Mustache.
 \begin{itemize}
 	\item \emph{Template inclusion}\\
 	Starting from the root sub-templates are included via a simple
@@ -89,114 +79,127 @@ Mustache.
 	Simple variables are inserted via a PHP \inline{echo} command.
 	\item \emph{Objects}\\
 	Objects are converted into arrays so their fields can be placed in the global
-	scope with the \inline{extract} method. For every class, that is used in the
-	templating process, there exists at least on template. For two or more
-	templates that use the same class, their names are disambiguated by appending
-	a the name of the context each template is associated with (e.g.
-	\inline{movie.edit.tpl} and \inline{movie.view.tpl})
+	scope with the \inline{extract} method.
 	\item \emph{Collections}\\
 	Collections (i.e. PHP arrays) are simply iterated through, in this prototype
-	only objects are present in these arrays, the \inline{foreach} block therefore
-	contains the aforementioned method to place objects fields into the global
-	scope.
-	\item \emph{Client side templates}\\
-	There is a small portion of client side templates, which are used whenever new
-	data is added.  They do not have any impact on the functionality explored in
-	this prototype, but are simply included and used to give the web application a
-	more complete feel.
+	only objects are present in these arrays, the block inside the
+	\inline{foreach} loop therefore simply contains the aforementioned method
+	for placing object fields into the global scope.
+	\item \emph{Client-side templates}\\
+	There is a small portion of client-side templates, which are used whenever new
+	data is added.  They do not have any impact on the concept explored in
+	this prototype, instead they are an attempt to explore edge cases as outlined
+	in the motivations for an exploratory prototype in the list
+	above(\ref{list:prototype-motivation}).
 \end{itemize}
-\subsection{Parsing the HTML}
-\subsubsection{Models and ViewModels}
-Every Model on the server side is linked to the database, one instance of a
-model represents one entity in the database. Each of these Models is also
-represented on the client side using backbone.js, which provides us with
-a "Backbone.Model" base class which can be extended.
-The client side models have two static methods attached to them.
-\inline{getAttrType()} takes an attribute name and returns the type of that
-attribute or hints at what should be done with the XPath result in order to
-obtain the attribute value.
-\inline{getComplexType()} returns a reference to the object prototype that should
-be instantiated for a given attribute.
-The return values of \inline{getAttrType()} are:
+
+\section{Models and ViewModels}
+Every Model on the server-side is linked to the database.
+One instance of a model represents one entity in the database.
+Each of these Models is also represented on the client-side using backbone.js,
+which provides us with a "Backbone.Model" base class that can be extended.
+\todo{Note for clarity that with "class" in JavaScript
+we actually mean object prototype}
+
+Using the "Backbone.View", we can create ViewModels that bind the Model and the
+DOM together. For example, this can be used to listen to changes in
+form elements, which the ViewModel translates into changes of the corresponding
+fields in the Model. The Model can in turn synchronize those changes to the
+server.
+
+Although not implemented in this prototype, the Model can also receive changes
+from the server (via server push or client pull methods) and notify
+the ViewModel about those changes. The ViewModel can then update the
+DOM (the user interface) with those changes.
+
+\subsection{Collections}
+In addition the above mentioned base classes backbone.js provides a third class.
+It is called a Collection and contains any number of other Model instances.
+In a given Collection the models all have the same type.
+
+\section{Coupling client-side and server-side models}
+Models and ViewModels are powerful abstractions.
+We can extend them to make use of the information that specifies
+which server-side field attribute belongs with what content on the HTML page.
+
+Since the client-side model mirrors the server-side model a direct mapping of
+the information retrieved from the templates should be possible.
+The classification of this information is of importance. We have two
+abstractions this information can be attached to and used by:\\
+The Model and the ViewModel.\\
+The information specifies where a Model field is located in the DOM, which would
+make the Model the optimal candidate. However, this information is
+contextualized by the server-side templates. There can be more than one template
+for a server-side model. There is only one client-side Model
+(per server-side model).
+This makes the ViewModel a far better suited solution to this problem.
+There can be more than one ViewModel per Model and it is used to manipulate the
+DOM anyways \todo{better wording}.
+
+Storing the information on the ViewModel and letting it utilize it also makes
+more sense because that information is valuable when binding event listeners
+to the DOM or manipulating DOM nodes otherwise.
+
+In this prototype we will not focus on retrieving the information from
+the templates. Instead we assume this extraction has already taken place and
+fake it by hard-coding XPaths into the ViewModels. Each XPath points to a
+position in the DOM where a server-side model field has been inserted.
+The XPath is labeled with the name of that field.
+
+The ViewModels are a means to an end, they do not enable any meaningful
+interaction with the web application by simply binding to DOM nodes.
+They do however function as a bridge between that DOM and the Model.
+It in turn can communicate with the server, which is where user interaction
+can be processed and is made meaningful.
+
+The Models need to be created when the page has loaded. To that end we use the
+ViewModels to parse the HTML and create both them and the Models they are
+attached to.
+A recursive approach will simplify the parsing in this matter.
+
+We bootstrap the parsing function by giving it a "Root" model and a "RootView"
+ViewModel. Both are prototype objects, that will later be instantiated.
+The RootView has an XPath attached to it, which points to the list of movies
+in the DOM.
+
+The function returns an instantiated ViewModel with a Model attached to it.
+
+During the process every XPath in the ViewModel is examined.
+Since any XPath is labeled with the name of the corresponding field on the
+Model, we can query the Model for the type of that field
+(this is hard-coded for the time being). The function \inline{getAttrType()}
+returns that type.
+
+We can follow three courses of action depending on the type
+returned by the Model.
 \begin{itemize}
-	\item \emph{\inline{string}}\\
-	A simple string value.
-	\item \emph{\inline{node}}\\
-	A DOM node. This return value still represents a string, but in order to be
-	able to post process an XPath result as a DOM node, the result type needs to
-	be specified beforehand. \todo{how fucking stupid is that?! Worst. API. ever.}
-	\item \emph{\inline{model}}\\
-	A backbone.js Model. \inline{getComplexType} is used here to instantiate the
-	concrete Model.
-	\item \emph{\inline{collection}}\\
-	Collections are represented by extending "Backbone.Collection". Calling
-	\inline{getComplexType()} with the attribute name returns the prototype for the
-	Collection tied to that attribute.
+	\item \emph{The field is a simple type}\\
+	For strings, integers and their like we populate the field of the Model
+	with that value. and proceed to the next XPath
+	\item \emph{The field aggregates another Model}\\
+	The function queries the Model for the type of Model its field aggregates
+	(\inline{getComplexType()}).
+	We the recurse by calling the parsing function again.
+	This time it is called with the aggregated Model class and
+	the ViewModel class, which is returned by the \inline{view()} function
+	we attached to the XPath.
+	\todo{This highlights that we need some way of mapping templates to viewmodels}
+	\item \emph{The field is a Collection}\\
+	We query the Model for the type of Model the collection contains.
+	The XPath can return more than one DOM node, for every node, we recurse.
+	The return value of the function is pushed on to the Collection.
 \end{itemize}
-All models are located in \inline{proof_of_concept/model}.
+\todo{We have not talked about the "process" function, it is a drawback}
 
-backbone.js also comes with a "Backbone.View" class. We extend this class to
-bind the models to elements in the DOM. This is done by listening to events
-fired by these elements and modifying the models correspondingly.
+Once all XPaths have been examined, the function instantiates the Model class
+that was passed to it in the beginning. It is populated with the field values
+collected while examining the XPaths.
+The ViewModel, also a function argument, is then instantiated with
+the Model instance as one of the arguments.
+This ViewModel is the return value of the function.
 
-We attach a static field named "finders" to these ViewModels. This field
-contains objects defining where various attributes of the Model this ViewModel
-belongs to can be found (using the node this ViewModel is attached to).
-
-To specify where the elements can be found we use XPath. If the result of a
-XPath query is too broad, a "process" attribute can be defined, containing a
-function, which processes the result and returns the desired attribute value.
-
-An entry in the "finder" field can also contain a \inline{view()} function which
-simply returns a prototype of the ViewModel that corresponds to the node the
-XPath points at. We use a function in this case, because not doing so would
-result in a circular dependency when loading, that can not be resolved.
-
-ViewModels are attached to one node only, any element they govern is a child of
-that node.
-\subsubsection{parser.js}
-The \inline{getViewModel()} function in the parser.js file is the heart of the
-prototype. Given a Model, a root node and a corresponding ViewModel, the parser
-iterates through the "finders" of the ViewModel. It returns an instance of that
-ViewModel with the root node attached to it and its "model" field pointing to an
-instance of the corresponding Model.
-For each key \inline{getAttrType()} is called to determine how the result of the
-XPath query defined in the finder should be handled.
-\begin{itemize}
-	\item \emph{\inline{collection}}\\
-	The type of the Models in the Collection is retrieved with
-	\inline{getComplexType()} and the XPath query is executed.\\
-	If the finder contains a "process" attribute defining a function, the return
-	value of that function replaces the original XPath result. This replacement
-	function is executed for all of the other procedures as well.\\
-	A loop iterates through the result and recursively calls
-	\inline{getViewModel()} with the current value of the iteration, the return
-	value of \inline{view()} and the "model" attribute attached to the prototype
-	returned by \inline{getComplexType()}.
-	\item \emph{\inline{model}}\\
-	\inline{getComplexType()} is called on the current model -- like before -- and
-	a single node is retrieved from the XPath result. Again
-	\inline{getViewModel()} is called recursively with the Model returned by
-	\inline{getComplexType()}, the ViewModel returned by \inline{view()} and the
-	single node from the XPath result.
-	\item \emph{\inline{node}}\\
-	The XPath result is executed and the "process" function is called with it as
-	an argument. At this point the "process" function is crucial. An attribute of
-	a model should contain a pointer to a DOM node, since it would only make sense
-	in the context of the current page load and would only be understood by the
-	actual ViewModel it belongs to.
-	\item \emph{\inline{string}}\\
-	The XPath is executed and the string is retrieved from the result.
-\end{itemize}
-All of these procedures convert a DOM node into a value usable in the context of
-a Model attribute. Once all of the attributes have been found a Model is
-instantiated and its attributes set. After that a ViewModel is instantiated with
-its "model" field pointing to the new Model instance and the root node pointing
-to the node passed to \inline{getViewModel()}.
-
-\subsection{Using the results}
-\todo{explaiiiin}
 \section{Results}
+
 \section{Plan for next iteration \todo{\dots}}
 While developing this application various libraries have been examined for
 their viability in the next iterations. backbone.js has in this case proven

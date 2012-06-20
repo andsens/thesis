@@ -1,3 +1,4 @@
+% Two sided document for left and right pages - different margins
 \documentclass[twoside,11pt,openright,a4paper]{report}
 
 % Use 'oneside' for digital and 'twoside' for print
@@ -17,21 +18,27 @@
 \usepackage{datetime}
 \usepackage{tocbibind}
 
+% See what the page layout is, with margins etc.
 \usepackage{layout}
 
+% PDF links across pages
 \usepackage{hyperref}
+% Create backlinks for citations
 % \usepackage[hyperpageref]{backref}
-
-\usepackage{graphicx,epstopdf}
-\epstopdfsetup{outdir=temp/,suffix=}
 
 \usepackage[a4paper]{geometry}
 
+% Colors
+\usepackage{color,xcolor}
+% Custom colors
+\include{colors}
+
+% Make text boxes
+\usepackage{framed}
+
+% List code
 \usepackage{listings}
 \lstset{basicstyle=\small\fontfamily{fvm}\fontseries{r}\selectfont}
-
-\usepackage{color,xcolor}
-\include{colors}
 
 \def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
 
@@ -50,14 +57,25 @@
 	breaklines=true,
 }
 
+% Don't let figures cross section borders
+% \usepackage[section]{placeins}
+
+% Allow inclusion of eps images, although wse use TikZ
+\usepackage{graphicx,epstopdf}
+\epstopdfsetup{outdir=temp/,suffix=}
+
+% List of all the code listings
 % \lstlistoflistings
 
+% Get Bitstream Vera Mono to be the monospace font
 \renewcommand*\ttdefault{txtt}
 
+% Add todo command
 \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
 
 \newcites{A,B}{Primary Bibliography,Secondary Bibliography}
 
+% Use TikZ to create diagrams
 \usepackage{tikz}
 
 \usetikzlibrary{fit}
@@ -72,6 +90,7 @@
 \begin{document}
 
 \pagenumbering{roman}
+
 
 \include{00-cover}
 
