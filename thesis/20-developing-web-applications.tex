@@ -23,20 +23,21 @@ and server looks like.
 	\label{fig:synchronous}
 \end{figure}
 
-The client uses the web application enters data (e.g. enters data), this we will
+The client uses the web application to enter data, this we will
 call user activity. Once the user issues a command that requires data from the
 server, the web application issues a request to the server and halts any further
-execution until the server has responded. The client then continues execution
-where it left of and the user can continue interacting with the web application.
+execution until the server has responded.
+Once the client receives a response, it continues execution
+where it left off and the user can continue interacting with the web application.
 This is called a synchronous communication. The client acts in
 synchronicity with the server and does not act independently from the server.
 The higher the latency of the response, the longer the user has to wait to
 interact with the web application again.
-Such waiting periods are undesirable, it results in a loss of productivity and
-user-friendliness.
+Such waiting periods are undesirable as, it results in a loss of productivity
+and user-friendliness.
 
 This challenge is solved by letting the client part of the web application
-continue to compute responses where information on the server is not required.
+continue to compute responses when information on the server is not required.
 Queries to the server can then happen asynchronously, meaning a function can
 define a callback function which is invoked once the response is available. This
 is called asynchronous communication; the client continues execution after it
@@ -79,6 +80,7 @@ interactivity by rendering customized HTML pages solely on the server.
 Rendering the HTML entirely on the server can be advantageous in a number of
 situations:
 \begin{itemize}
+	\label{list:server-side-arguments}
 	\item \emph{Heavy computations can be run in a controllable time frame
 	regardless of the client device.}\\
 		Especially phones and other portable devices have reduced computing
@@ -104,21 +106,26 @@ situations:
 		each with their own variation
 		\todo{http://www.positioniseverything.net/explorer/guillotine.html}).
 		This technology stack and its edge cases is greatly reduced when
-		on the server, because every software version and the software itself can
-		be controlled by the developer.
+		the application runs on the server, because every software version and
+		the software itself can be controlled by the developer.
 \end{itemize}
 
 \subsection{Client-side web applications}
-Web applications can also wholly be made up of client-side code, leaving the
-server to only supply static content. "Mashups" \todo{definition} are fitting
-examples of such an approach.
+Web applications can also be developed solely using client-side code,
+leaving the server to only supply static content.
+"Mashups" \todo{definition} are fitting examples of such an approach.
 These web applications rely on external JavaScript APIs
 (Google Maps, Twitter, Weather services) to combine readily available in new
 ways. The client browser requests and combines this data without interacting
-with the server.
+with the server. These external APIs retrieve their data from servers of course,
+but those servers are not maintained by the developer and are exposed to neither
+the user nor the developer.
+
 As with the server-side only approach, the client-side only approach has some
 exclusive advantages.
+
 \begin{itemize}
+	\label{list:client-side-arguments}
 	\item \emph{Low server load}\\
 	The server needs only serve static content. For most web applications,
 	all of that content fits into the RAM, allowing fast response times and
@@ -140,16 +147,32 @@ exclusive advantages.
 	\todo{Examples: Google Chrome apps, Offline GMail with Google Gears}
 \end{itemize}
 
+JavaScript is of course not the only way to create interactive web applications.
+Technologies like Java Applets and Adobe Flash have existed for a long time and
+made their impression upon the world wide web. We will not use those
+technologies for anything in this thesis. They will not be included
+in any comparisons or alternatives.
+
 \subsection{Combining the strengths}
-These arguments do not make the case for either approach to construct a
-web application. They instead highlight the strengths of both.
+The arguments from
+\ref{list:client-side-arguments} and \ref{list:server-side-arguments}
+do not make the case
+for either approach to construct a web application.
+They instead highlight the strengths of both.
 A combination of server-side and client-side processing where their respective
-advantages are utilized and their drawbacks avoided, will in part help
-creating a well developed web application.
+advantages are utilized and their drawbacks avoided, will help in creating
+responsive and maintainable web applications.
+An example of that would be guessing server responses:\\
+Often lag between action from the user and response from the server cannot be
+avoided. Instead, asynchronous communication allows the interface to stay
+responsive. The client-side code can then guess what the result from the server
+will be and update the interface accordingly.
+Later it can correct any discrepancies between the guess and the actual
+response from the server.
 
 \section{The development process}
-The development process of a web application is similar to any other
-software development process. One starts with the data to be modeled.
+The development process of a web application is similar to most
+software development processes. One starts with the data to be modeled.
 It may be developed for the client and server part simultaneously.
 A protocol for communication between the two is then established.
 The design of a web application is usually the last component to fall

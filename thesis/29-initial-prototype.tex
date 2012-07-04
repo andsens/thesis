@@ -6,8 +6,8 @@ library. Details can be edited and actors can be added to that library.
 It is not very useful in practice, but serves to make the basic idea more
 concrete in the following ways:
 
-\label{list:prototype-motivation}
 \begin{itemize}
+	\label{list:prototype-motivation}
 	\item \emph{Explicit conceptualization}\\
 	The prototype is meant to capture the core of the initial idea (to couple
 	client models with server templates).
@@ -124,17 +124,19 @@ which server-side field attribute belongs with what content on the HTML page.
 
 Since the client-side model mirrors the server-side model a direct mapping of
 the information retrieved from the templates should be possible.
-The classification of this information is of importance. We have two
-abstractions this information can be attached to and used by:\\
-The Model and the ViewModel.\\
+The classification of this information is of importance. We will need to know,
+whether a field contains a collection a string or an aggregated model, in order
+to parse the DOM properly.
+We have two possible abstractions this information can be attached to and
+used by: The Model and the ViewModel.\\
 The information specifies where a Model field is located in the DOM, which would
 make the Model the optimal candidate. However, this information is
 contextualized by the server-side templates. There can be more than one template
-for a server-side model. There is only one client-side Model
+for a server-side model. On the other hand there is only one client-side Model
 (per server-side model).
-This makes the ViewModel a far better suited solution to this problem.
-There can be more than one ViewModel per Model and it is used to manipulate the
-DOM anyways \todo{better wording}.
+This makes the ViewModel a solution, that better suits this problem.
+There can be more than one ViewModel per Model, just like there can be more than
+one server-side template per server-side model.
 
 Storing the information on the ViewModel and letting it utilize it also makes
 more sense because that information is valuable when binding event listeners
@@ -142,20 +144,22 @@ to the DOM or manipulating DOM nodes otherwise.
 
 In this prototype we will not focus on retrieving the information from
 the templates. Instead we assume this extraction has already taken place and
-fake it by hard-coding XPaths into the ViewModels. Each XPath points to a
+simply hard-code XPaths into the ViewModels. Each XPath points to a
 position in the DOM where a server-side model field has been inserted.
 The XPath is labeled with the name of that field.
 
-The ViewModels are a means to an end, they do not enable any meaningful
+The ViewModel is a means to an end, it does not enable any meaningful
 interaction with the web application by simply binding to DOM nodes.
-They do however function as a bridge between that DOM and the Model.
-It in turn can communicate with the server, which is where user interaction
-can be processed and is made meaningful.
+It does however function as a bridge between that DOM and the Model.
+The Model in turn can communicate with the server, which is where user
+interaction can be processed and is made meaningful.
 
-The Models need to be created when the page has loaded. To that end we use the
-ViewModels to parse the HTML and create both them and the Models they are
-attached to.
-A recursive approach will simplify the parsing in this matter.
+The Models that are to hold the data we want to handle need to be created and
+populated with the data from the DOM when the page has loaded.
+To that end we use the ViewModels to parse the HTML and create both them and
+the Models they are attached to.
+A recursive approach will simplify the parsing in this matter, since the DOM
+is a tree structure.
 
 We bootstrap the parsing function by giving it a "Root" model and a "RootView"
 ViewModel. Both are prototype objects, that will later be instantiated.
@@ -189,7 +193,6 @@ returned by the Model.
 	The XPath can return more than one DOM node, for every node, we recurse.
 	The return value of the function is pushed on to the Collection.
 \end{itemize}
-\todo{We have not talked about the "process" function, it is a drawback}
 
 Once all XPaths have been examined, the function instantiates the Model class
 that was passed to it in the beginning. It is populated with the field values
@@ -198,13 +201,51 @@ The ViewModel, also a function argument, is then instantiated with
 the Model instance as one of the arguments.
 This ViewModel is the return value of the function.
 
-\section{Results}
+One drawback to the method we use to obtain field values is the requirement
+for a post-processing function, that takes an XPath result and
+returns the correct value of a field.
+This is necessary because XPath is not an exact query language.
+\begin{itemize}
+	\item DOM node attributes will be returned with both their attribute name and
+	their value as one string. This is undesirable, since we almost always only
+	place a server-side field value into the value part of a DOM node attribute.
+	\item Substrings can not be retrieved with XPath, it can only return entire
+	text nodes.
+\end{itemize}
 
-\section{Plan for next iteration \todo{\dots}}
-While developing this application various libraries have been examined for
-their viability in the next iterations. backbone.js has in this case proven
-itself to be a very good fit. Its View prototype is made to bind with the
-interface while being Model aware. Such a component is what is needed to put the
-information about the placement of data in the DOM to good use. Only small
-modifications should be necessary to allow the View component to populate the
-Model component with data from the DOM.
+\section{Results - Plans for next iteration}
+
+In the introduction we listed some motivations(\ref{list:prototype-motivation}))
+for making this prototype.
+
+\begin{itemize}
+	\item \emph{Explicit conceptualization}\\
+	We have created a movie database that supports a simple form of maintenance
+	and browsing interaction. Through this process we have discovered the
+	recursive nature of retrieving model field values from DOM.
+	Less pronounced concepts like the classification of model field types have 
+	been made more concrete.
+	\item \emph{Highlight logical errors}\\
+	We have not uncovered any major logical errors that would require us to
+	rethink the idea for coupling client-side models to server-side templates.
+	\item \emph{Discover additional requirements}\\
+	We not only mapped fields of models that aggregated another single model,
+	but also collections of models. We solved this challenge in the prototype,
+	by simply iterating through the nodes and adding them to
+	a backbone collection. This method will need to be refined in the following
+	iteration.\\
+	We also discovered another major requirement, which will be detailed in the
+	following paragraph.
+\end{itemize}
+
+The function \inline{getComplexType()} illustrates, that we will need some form
+of mapping between ViewModels and templates.
+It will be tedious and error prone for the developer to create those mappings
+by hand. A process, which automates the coupling of the ViewModels with
+server-side templates will be needed in the next iteration.
+
+While developing this application various libraries have been examined for their
+viability. backbone.js has in this case proven itself to be a very good fit.
+Its View prototype is made to bind with the interface while being Model aware.
+Such a component is what is needed to put the information about
+the placement of data in the DOM to good use.
