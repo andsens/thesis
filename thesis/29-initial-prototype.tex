@@ -25,10 +25,12 @@ concrete in the following ways:
 	application at the conclusion of the project.
 \end{itemize}
 
+\section{Architecture}
+
 The server-side back end is based on PHP and MySQL. The client-side uses
 HTML5, JavaScript (+XPath) and CSS as its core technologies.
 
-\section{Libraries}
+\subsection{Libraries}
 In order to speed up the prototyping process a plethora of libraries have been
 used. Excluding basic core technologies like JavaScript, MySQL and PHP, the
 application stack consists of the following:
@@ -50,7 +52,7 @@ application stack consists of the following:
 	database.
 \end{itemize}
 
-\section{Templating}
+\subsection{Templating}
 The application features rudimentary HTML templates, which are note backed by
 any engine. Instead PHP is embedded directly into the HTML files.
 Although PHP allows for more complex templates, we keep them simple in order to
@@ -93,7 +95,7 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 	above(\ref{list:prototype-motivation}).
 \end{itemize}
 
-\section{Models and ViewModels}
+\subsection{Models and ViewModels}
 Every Model on the server-side is linked to the database.
 One instance of a model represents one entity in the database.
 Each of these Models is also represented on the client-side using backbone.js,
@@ -127,8 +129,9 @@ the information retrieved from the templates should be possible.
 The classification of this information is of importance. We will need to know,
 whether a field contains a collection a string or an aggregated model, in order
 to parse the DOM properly.
+
 We have two possible abstractions this information can be attached to and
-used by: The Model and the ViewModel.\\
+used by: The Model and the ViewModel.
 The information specifies where a Model field is located in the DOM, which would
 make the Model the optimal candidate. However, this information is
 contextualized by the server-side templates. There can be more than one template
@@ -153,6 +156,8 @@ interaction with the web application by simply binding to DOM nodes.
 It does however function as a bridge between that DOM and the Model.
 The Model in turn can communicate with the server, which is where user
 interaction can be processed and is made meaningful.
+
+\subsection{Parsing the DOM}
 
 The Models that are to hold the data we want to handle need to be created and
 populated with the data from the DOM when the page has loaded.
@@ -215,7 +220,7 @@ This is necessary because XPath is not an exact query language.
 
 \section{Results - Plans for next iteration}
 
-In the introduction we listed some motivations(\ref{list:prototype-motivation}))
+In the introduction we listed some motivations(\ref{list:prototype-motivation})
 for making this prototype.
 
 \begin{itemize}
