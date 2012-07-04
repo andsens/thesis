@@ -14,7 +14,9 @@
 				<?php echo $poster; ?>
 			</div>
 			<details class="plot">
-				<summary class="synopsis">Synopsis: <span><?php echo $synopsis; ?></span></summary>
+				<summary class="synopsis">
+						Synopsis: <span><?php echo $synopsis; ?></span>
+					</summary>
 				<p><?php echo $plot; ?></p>
 			</details>
 			<table class="cast">
