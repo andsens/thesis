@@ -2,17 +2,17 @@
 First we make a rudimentary prototype. It is an exploratory prototype,
 meaning none of its code is intended to be carried over into the next iteration.
 The initial prototype is an interactive application for maintaining a movie
-library. Details can be edited and actors can be added to that library.
+library. Movie details can be edited and actors can be added to that library.
 It is not very useful in practice, but serves to make the basic idea more
 concrete in the following ways:
 
 \begin{itemize}
 	\label{list:prototype-motivation}
-	\item \emph{Explicit conceptualization}\\
-	The prototype is meant to capture the core of the initial idea (to couple
-	client models with server templates).
-	Many of the less pronounced concepts of the idea will need to be made concrete
-	in order for the core concept to work.
+	\item \emph{Materialize peripheral concepts}\\
+	The prototype is meant to capture the core concept of the initial idea
+	(to couple client models with server templates).
+	Many of the less pronounced concepts of that idea will need to be made
+	concrete in order for the core concept to work.
 	\item \emph{Highlight logical errors}\\
 	Edge cases of an idea can be crucial to its successful implementation.
 	Problems involving those cases may have been erroneously dismissed as trivial.
@@ -22,7 +22,9 @@ concrete in the following ways:
 	\item \emph{Discover additional requirements}\\
 	The implementation of a movie library allows for practical challenges to
 	arise, which might not have been discovered if we implemented such an
-	application at the conclusion of the project.
+	application at the conclusion of the project. The advantage in the
+	first iteration is our ability to course correct in subsequent iterations,
+	if such errors should occur.
 \end{itemize}
 
 \section{Architecture}
@@ -45,7 +47,7 @@ application stack consists of the following:
 	Backbone.js is a JavaScript Model/View framework. It provides the developer
 	with View, Model and Collection prototypes. The View prototype can be
 	considered analogous to the aforementioned ViewModel, while the Model and
-	Collection part make up the Model component and collections thereof
+	Collection part make up the Model component and collections thereof,
 	respectively.
 	\item \emph{php-activerecord}\\
 	PHP ActiveRecord is the server-side library utilized to communicate with the
@@ -53,7 +55,7 @@ application stack consists of the following:
 \end{itemize}
 
 \subsection{Templating}
-The application features rudimentary HTML templates, which are note backed by
+The application features rudimentary HTML templates, which are not backed by
 any engine. Instead PHP is embedded directly into the HTML files.
 Although PHP allows for more complex templates, we keep them simple in order to
 place the same constraints on the templates as we would have when using
@@ -62,6 +64,8 @@ We convert data from the database into HTML by fetching it from the database and
 by forwarding that data to the embedded PHP.
 As an example, figure \ref{fig:movie.view.tpl} illustrates what the template
 for a movie looks like.
+None of the variables are scoped. Every variable can be referred to once it has
+been initialized.
 The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 
 \begin{figure}
@@ -80,8 +84,8 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 	\item \emph{Simple variables}\\
 	Simple variables are inserted via a PHP \inline{echo} command.
 	\item \emph{Objects}\\
-	Objects are converted into arrays so their fields can be placed in the global
-	scope with the \inline{extract} method.
+	Objects are converted into arrays so their fields can be initialized as
+	variables with the \inline{extract} method.
 	\item \emph{Collections}\\
 	Collections (i.e. PHP arrays) are simply iterated through, in this prototype
 	only objects are present in these arrays, the block inside the
@@ -91,8 +95,8 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 	There is a small portion of client-side templates, which are used whenever new
 	data is added.  They do not have any impact on the concept explored in
 	this prototype, instead they are an attempt to explore edge cases as outlined
-	in the motivations for an exploratory prototype in the list
-	above(\ref{list:prototype-motivation}).
+	in the motivations for an exploratory prototype in the introduction of this
+	chapter (\ref{list:prototype-motivation}).
 \end{itemize}
 
 \subsection{Models and ViewModels}
@@ -126,23 +130,24 @@ which server-side field attribute belongs with what content on the HTML page.
 
 Since the client-side model mirrors the server-side model a direct mapping of
 the information retrieved from the templates should be possible.
-The classification of this information is of importance. We will need to know,
-whether a field contains a collection a string or an aggregated model, in order
-to parse the DOM properly.
+The classification of this information is of importance: We will need to know
+whether a field contains a collection, a string, or an aggregated model,
+in order to parse the DOM properly.
 
 We have two possible abstractions this information can be attached to and
 used by: The Model and the ViewModel.
 The information specifies where a Model field is located in the DOM, which would
-make the Model the optimal candidate. However, this information is
-contextualized by the server-side templates. There can be more than one template
-for a server-side model. On the other hand there is only one client-side Model
-(per server-side model).
-This makes the ViewModel a solution, that better suits this problem.
-There can be more than one ViewModel per Model, just like there can be more than
-one server-side template per server-side model.
+make the Model the optimal candidate. However, the information has a
+localized context since there can exist more than one server-side template per
+server-side model.
+This is at odds with the fact that there is only one client-side Model
+per server-side model.
+On the other hand there can be more than one ViewModel per Model.
+The ViewModels may even be coupled one to one with the templates.
+This property renders the ViewModel better suited to tackle this problem.
 
-Storing the information on the ViewModel and letting it utilize it also makes
-more sense because that information is valuable when binding event listeners
+Storing the information on the ViewModel and letting it utilize it is
+advantageous because that information is valuable when binding event listeners
 to the DOM or manipulating DOM nodes otherwise.
 
 In this prototype we will not focus on retrieving the information from
@@ -151,11 +156,11 @@ simply hard-code XPaths into the ViewModels. Each XPath points to a
 position in the DOM where a server-side model field has been inserted.
 The XPath is labeled with the name of that field.
 
-The ViewModel is a means to an end, it does not enable any meaningful
+The ViewModel is a means to an end: It does not enable any meaningful
 interaction with the web application by simply binding to DOM nodes.
 It does however function as a bridge between that DOM and the Model.
-The Model in turn can communicate with the server, which is where user
-interaction can be processed and is made meaningful.
+The Model in turn can communicate with the server, which can process
+the user interaction and return a meaningful response.
 
 \subsection{Parsing the DOM}
 
@@ -169,9 +174,9 @@ is a tree structure.
 We bootstrap the parsing function by giving it a "Root" model and a "RootView"
 ViewModel. Both are prototype objects, that will later be instantiated.
 The RootView has an XPath attached to it, which points to the list of movies
-in the DOM.
-
-The function returns an instantiated ViewModel with a Model attached to it.
+in the DOM. The parsing function returns an instantiated ViewModel with a Model
+attached to it (e.g. the bootstrapping yields a "RootView" object containing
+a "Root" object).
 
 During the process every XPath in the ViewModel is examined.
 Since any XPath is labeled with the name of the corresponding field on the
@@ -183,8 +188,8 @@ We can follow three courses of action depending on the type
 returned by the Model.
 \begin{itemize}
 	\item \emph{The field is a simple type}\\
-	For strings, integers and their like we populate the field of the Model
-	with that value. and proceed to the next XPath
+	For strings, integers and the like we populate the field of the Model
+	with that value, and proceed to the next XPath.
 	\item \emph{The field aggregates another Model}\\
 	The function queries the Model for the type of Model its field aggregates
 	(\inline{getComplexType()}).
@@ -195,7 +200,8 @@ returned by the Model.
 	\todo{This highlights that we need some way of mapping templates to viewmodels}
 	\item \emph{The field is a Collection}\\
 	We query the Model for the type of Model the collection contains.
-	The XPath can return more than one DOM node, for every node, we recurse.
+	The XPath can return more than one DOM node.
+	For each of these nodes, we recurse.
 	The return value of the function is pushed on to the Collection.
 \end{itemize}
 
@@ -220,14 +226,15 @@ This is necessary because XPath is not an exact query language.
 
 \section{Results - Plans for next iteration}
 
-In the introduction we listed some motivations(\ref{list:prototype-motivation})
-for making this prototype.
+In the introduction of this chapter we listed some motivations for making
+this prototype.
 
 \begin{itemize}
-	\item \emph{Explicit conceptualization}\\
-	We have created a movie database that supports a simple form of maintenance
-	and browsing interaction. Through this process we have discovered the
-	recursive nature of retrieving model field values from DOM.
+	\item \emph{Materialize peripheral concepts}\\
+	We have created a movie database that supports a simple interface
+	for maintenance and browsing interaction.
+	Through this process we have discovered the recursive nature of retrieving
+	model field values from the DOM.
 	Less pronounced concepts like the classification of model field types have 
 	been made more concrete.
 	\item \emph{Highlight logical errors}\\
@@ -238,9 +245,9 @@ for making this prototype.
 	but also collections of models. We solved this challenge in the prototype,
 	by simply iterating through the nodes and adding them to
 	a backbone collection. This method will need to be refined in the following
-	iteration.\\
-	We also discovered another major requirement, which will be detailed in the
-	following paragraph.
+	iteration.
+	We also discovered another major requirement, which we elaborate upon in more
+	detail in the following paragraph.
 \end{itemize}
 
 The function \inline{getComplexType()} illustrates, that we will need some form
