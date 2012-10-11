@@ -1,0 +1,263 @@
+\chapter{Revised Requirements}
+\section{}
+\todo{This is hard to split up into paragraphs. Restructure?}
+In this chapter we will analyze which parts of our exploratory prototype we can
+utilize in our next iteration. To that end we will examine every tool used and
+arrive at a subset of these tools, which we will complement with a fresh set of
+parts. Our goal is to have a plan laid out for the next iteration at the end of
+this chapter.
+
+The prototype featured a large amount of moving parts that were constructed for
+the occasion. Among others this includes our templates, that were not mustache
+templates but simple repeatable patterns in PHP. The recursive tree parser,
+building a set of models and views for us to use on the client side is another
+example of an ad-hoc constructed tool.
+
+These parts bring with them their own set of problems and bugs.
+Since they are custom developed in a limited time frame they will have coding
+errors other seasoned related tools do not have.
+Seeing how the last iteration resulted in a prototype,
+we decided to develop these tools regardless,
+because evaluating alternatives that would fit the purpose precisely
+would have taken up more time.
+This is however not a sound strategy going forward, assuming we have the goal to
+develop a reliable tool to realize our concept of binding server-side templates
+to client-side models.
+Succinctly put: There is no reason to reinvent the wheel.
+Most of these parts have nothing to do directly with the concept of this thesis.
+They are rather tools that help achieve the goals of it.
+For a proper tool, that we can consider usable, to emerge from our process,
+we will need to reduce the amount of said custom parts.
+To that end we will first have to identify the superfluous parts of the
+prototype, that can be replaced by existing well maintained tools. Once we have
+achieved this, we can begin concentrating on the core of our concept and define
+it with greater precision.
+
+\subsection{Additional requirements}
+In the prototype we omitted some parts of the concept architecture by "faking"
+them. This holds true especially, when we look at how the information gained
+by parsing the server templates is transmitted to the client.
+The information itself is hard coded into the client, meaning both the part for
+parsing templates and the matter of client communication is missing.
+
+The traversal of the DOM happened in a very limited way, where the parser was
+finely tuned to parse only our specific case but nothing more.
+We will have to analyze which, if any, of these gaps can be filled by generic
+tools and which gaps belong to the core of our concept.
+
+Some gaps may not even need to be filled. This will surely be the case,
+when we consider that the desired end result is a tool and not a framework.
+Many frameworks and tools in the prototype were used to illustrate the concept
+via a demo application. There are a lot more parts needed to create a working
+web-application than there are to create a tools for said application.
+
+
+
+\section{Simplifying the project}
+
+Bear in mind that despite the following simplifications we may still use some
+of the tools. We intend our tool to perform in an ecosystem of other software,
+which can integrate loosely with our tool instead of requiring deep integration
+with it.
+
+\subsection{Server-side}
+We begin our simplification on the server. Here we communicated with a database
+to persist our movies, actors etc. in the MySQL database. The database and the
+object relational mapper (ORM) php-activerecord are not at all necessary for our
+tool to work. They are interchangeable with any other type of software, that can
+persist data on the server. Our concept should work with even ephemeral data.
+
+Our server-side language of choice - PHP -, also belongs to this category.
+The server could have been written in any other server-side language.
+As a consequence, the template engine (mustache), will of course need to be
+able to interface with that language. For the prototype we omitted these
+templates and wrote them directly in PHP instead.
+
+Our plan however is to write the server-side templates in mustache in the next
+iteration.
+Locating placeholders in these templates and outputting their location
+is the solution we proposed in the beginning of this thesis to the problem
+we identified with server side templates.
+By extension parsing server side templates pertains to the core of our concept.
+Since parsing arbitrary template syntaxes, would go out of the scope of this
+thesis we must conclude that mustache belongs to the category of tools that
+cannot be removed.
+
+\subsection{Client-side}
+The client-side tools we have used in our prototype interact with the data we
+"retrieved" (remember: we did not actually retrieve any template information)
+from the server. This makes the setup of the client more intricate. We will have
+to look carefully at each tool and determine by the nature of its interaction
+with that data, whether it is a crucial part of our concept.
+
+Regardless of which tools we remove, we must remember that the information about
+our server-side templates must be used somehow. This would suggest that the
+client can have more than one structure and set of interconnected parts, which
+leverage the additional information.
+
+\begin{itemize}
+\item Beginning with the periphery, we can easily see how a framework to ease
+the development of CSS is not part of our tool.
+\item The Javascript language is required on the basis that we need some form of
+client side programming. We have discussed its alternatives earlier in this
+thesis and are going to keep this choice.
+\item underscore.js helps us to iterate through arrays and manage other
+operations more easily than in pure Javascript. We can solve the same problems
+without it (although it requires more effort). This makes underscore.js a
+non-crucial part of our tool.
+\item jQuery is used to retrieve the values from the DOM. We may later change
+how we retrieve those values, but some method of retrieval will be needed.
+At this point jQuery seems to fit the bill and we must consider jQuery a crucial
+part of our tool.
+\item We use backbone.js to hold the values we retrieve from the DOM. The
+framework enables us to interact with these values. We must therefore categorize
+it as a crucial part of our tool.
+\end{itemize}
+
+This concludes the evaluation of tools we used in our prototype. There is
+however still the matter of categorizing our own custom DOM traverser, which
+takes a root model as input and recursively reads the nested values in the DOM.
+During this traversal it also creates Models attached to corresponding
+ViewModels.
+Using this strategy we obtain a consistent and predictable control flow of the
+initialization process. The disadvantages include rigidity in the way
+the placeholder information from the server is used and a need to specify what
+type of view each placeholder represents.
+We desire a decentralization of responsibility and a more liberal use of
+the template placeholder data. This means that we must replace the parser with
+something else that is not a substitute, but a rethinking of its role in the
+process of utilizing the placeholder data.
+
+\subsection{The consequence of the simplification}
+
+Let us summarize what these changes mean for our next iteration.
+
+We have kept quite a few client libraries and those we deemed non-essential were
+only discounted to reduce complexity.
+The only client side code we decided to remove, was the one we wrote ourselves.
+Similarly we removed from the server-side our ad-hoc implementation of a
+template engine.
+We deemed the ORM and the database backing inconsequential to our tool, although
+many fully fledged web applications of course can not function without it.
+
+These reductions leave us with a clear picture of which tools we carry over into
+the next iteration.
+On the server-side we will only need the mustache template engine
+and our parser, which we will create in the next iteration.
+On the client-side we have a collection of libraries that when combined gives us
+part of the architecture that will allow us to utilize the information generated
+by the server.
+There are however still gaps in this architecture. We require a framework, that
+allows us to organize our models and views properly. It should also support
+the addition of our discarded parsing feature, by supplying a structure to bind
+it to. "Chaplin" will in this case be our framework of choice.
+
+\todo{Figure out if we want to fight the fight and call the view viewmodel}
+\subsection{chaplin}
+Chaplin is a new client side framework, which was created in February 2012.
+The motivation behind it was to create a framework that allows developers to
+follow a set of conventions more easily. Backbone.js has both views and models
+(and routes, for controllers), but does not force any specific way of
+structuring code. In this respect Backbone.js can be seen more as a tool than a
+framework.
+Chaplin extends the models and views from Backbone.js and adds more features.
+It introduces concepts such as "subviews" - views that aggregate other views.
+This allows the developer among other things to better mirror the structure of
+the DOM.
+
+The framework also allows the developer to use any template engine he desires.
+The engine simply needs to return an object, which jQuery can append to the
+wrapping DOM element of the view.
+
+A very useful feature of Chaplin is the automatic memory management.
+When creating single page web-applications, the developer has to dispose each
+view manually. This challenge is best illustrated with regard to eventhandlers.
+Eventhandlers are functions, that are called when an event on a DOM node or
+an other object is trigger. Often this function manipulates and accesses
+properties stored on a view. To allow for this access, the function stores a
+pointer to the view via a closure. Since the function is stored with the
+DOM node or object on which it is listening for events, any view the developer
+wants to dispose needs to stop listening on those events as well.
+Chaplin unbinds these eventhandlers for the developer when the view is disposed,
+allowing the browser to free up memory.
+
+The framework has however a major drawback: A view does not add subview elements
+to its DOM tree by means of the template function. Instead the developer
+must use jQuery to append these elements to an element in the DOM.
+Supposing that these subview elements are not attached directly beneath the root
+element of the view, the developer will need to traverse parts of the DOM tree
+with a jQuery selector to find the correct position to attach a subview element.
+This breaks the fundamental principle of dividing the view(-model) from the
+template data. A view now has to hold information about the layout of the DOM,
+it is hard-coded into the view.
+
+Our tool can solve this problem by supplying the view with those selectors.
+The only requirement would be that the developer wrote placeholders into the
+templates that identified subviews of the corresponding view.
+The view can use the selectors generated for those placeholders
+to pinpoint the exact location where a subview element should be attached.
+
+A quicker solution to this problem would be to insert these placeholders and
+modify the template engine to understand the concept of subviews.
+Unfortunately there is a major drawback to that strategy.
+Every subview will be inserted into the DOM when the parent view is rendered,
+even though the developer may wish to delay that insetion.
+Also, the attachment of subviews that are yet to be created requires a
+rerendering of the entire DOM sub-tree.
+
+We intend to modify Chaplin to take advantage of these placeholder selectors
+automatically. The developer should not be required to interact with the
+selectors.
+
+\todo{Why not simply make the template engine understand subviews?
+Because we at rendering time would have to render eeeeverything}
+
+\todo{MEMORY MANAGEMENT!!!}
+
+\todo{not finished}
+
+Explain how chaplin is a great framework with a fatal flaw: Subviews still need
+to be attached from the parent view. A handlebars template cannot retrieve the
+.el DOM element from the subviews. Even if it could, the would be no way of
+retrieving these elements from the parent view again since no CSS selector is
+available in that view to locate the position of the subview.
+
+Using the files generated by the parser tool, we can integrate the attachment of
+subviews to the DOM in a very transparent way. A concrete view will never need
+to handle any CSS selectors.
+
+Chaplin will need some modifications in order for the concept to work properly.
+By extending its base classes we can achieve a seamless integration with the
+rest of the tools.
+
+\todo{not finished}
+
+The previous subsection is an explanation of how we can make the tool relevant
+even in one page apps. We set out to retrieve information from the dom however.
+Bootstrapping a client application with information in the DOM, put there by the
+server.
+The automated parsing of the DOM and subsequent creation of models is a
+contrived scenario. In fact, reading model information from the DOM without
+knowing what information we are reading in advance is not a useful feature.
+We will always want to give these models to corresponding views that know what
+to do with them. Since a hierarchy of views and subviews is not decided at
+random on pageload but carefully planned at design time, we have no use for a
+framework that automatically instantiates different views depending on what it
+finds in the DOM.
+
+This also means that the recursive nature of the client side parser in the
+initial prototype is unnecessary. Instead we look at the DOM one view at a
+time. At construction time, the views themselves will construct subviews if
+their corresponding elements are present. This way we can keep the parsing
+compartmentalized and simple.
+
+So in essence we still perform a recursive parsing. The DOM is a tree, trees
+are best parsed recursively.
+
+\todo{Not only server side anymore/single page apps}
+
+% \section{Templating language syntax}
+% \subsection{Integrating the parser}
+% \section{Template-aware clients}
+% \subsection{Client-side architecture}
+% \subsection{Transmitting meta-data}
