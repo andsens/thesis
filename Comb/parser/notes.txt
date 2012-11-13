@@ -1,0 +1,2 @@
+Can't just simply do getElementsByTagName and use index.
+There may be subtrees which change that result
