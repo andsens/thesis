@@ -30,16 +30,20 @@ toJSON object (Selector {..}:xs) =
 toJSON object [] = object
 
 jQuery :: CSSPath -> Function -> JSValue
-jQuery path fn = JSString (toJSString path)
+jQuery path fn = JSString $ toJSString $ "function($el) {return $el.find('" ++ path ++ "')." ++ fn ++ "}"
 
 
 
 type CSSPath  = String
 type Function = String
-data Selector = Selector { name :: String, path :: CSSPath, subselector :: Function } deriving Show
+data Selector = Selector { name :: Name, path :: CSSPath, subselector :: Function } deriving Show
 
 createSelector :: Map -> Selector
-createSelector Map{..} = Selector m_name (foldr prependPath "" trail) ""
+createSelector Map{..} = Selector m_name (foldr prependPath "" trail) (createFn position)
+
+createFn :: Position -> Function
+createFn (Data Full) = "text()"
+createFn _ = ""
 
 prependPath :: Location -> String -> String
 prependPath (Loc i (Element (QName {..}) _ _ _)) s
@@ -57,28 +61,45 @@ traverse trail index (x@(Elem el@Element{..}):xs) =
 		current  = inspect ((Loc index el):trail) index x
 		children = traverse ((Loc index el):trail) 0 elContent
 		siblings = traverse trail (index+1) xs
-	in (maybeToList current) ++ children ++ siblings
+	in current ++ children ++ siblings
 traverse trail index (x:xs) =
 	let
 		current  = inspect trail index x
-		siblings = traverse trail (index+1) xs
-	in (maybeToList current) ++ siblings
+		siblings = traverse trail index xs
+	in current ++ siblings
 traverse trail index [] = []
 
 
+type Name = String
+data StrPos   = Substr { before :: Int, after :: Int} | Full deriving Show
+data Position = Attr { attrName :: String, substring :: StrPos } | Data StrPos deriving Show
+data Map = Map { m_name :: Name, trail :: Trail, position :: Position } deriving Show
 
-data Substring = Substr { before :: Int, after :: Int}
-data Attribute = Attr { attrName :: String, substring :: Substring }
-data Position  = Attribute | Substring | Fullstring deriving Show
-data Map = Map { m_name :: String, trail :: Trail, position :: Position } deriving Show
-
-inspect :: Trail -> Int -> Content -> Maybe Map
+inspect :: Trail -> Int -> Content -> [Map]
 inspect trail index (Elem el) = -- Check attributes
-	Nothing
+	[]
 inspect trail index (Text CData{..}) -- Check substrings
-	| length matches > 0 = Just (Map (last $ last matches) trail Fullstring)
-	| otherwise = Nothing
+	| length fullMatches > 0 = [Map (last $ last fullMatches) trail (Data Full)]
+	| length matches > 0 = [Map (last $ last matches) trail (Data (Substr 1 2))]
+	| otherwise = []
 	where
+		fullMatches = (cdData =~ "^{{([^}]+)}}$" :: [[String]])
 		matches = (cdData =~ "{{([^}]+)}}" :: [[String]])
 inspect trail index (CRef string) = -- Do nothing
-	Nothing
+	[]
+
+--findMustaches :: String -> Maybe (Name, StrPos)
+--findMustaches string = findOpenMustache 0 string
+
+--findOpenMustache :: String -> Maybe (Name, StrPos)
+--findOpenMustache '{':'{':xs = Just findCloseMustache xs ""
+--findOpenMustache x:xs = findOpenMustache xs
+--findOpenMustache [] = Nothing
+
+--findCloseMustache :: String -> Name -> (Name, Int)
+--findCloseMustache '}':'}':xs name = (name, length xs)
+--findCloseMustache x:xs name = findCloseMustache x:name xs
+--findCloseMustache _ _ = error "Something went wrong when looking for }}"
+
+
+
