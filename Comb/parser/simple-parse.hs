@@ -9,7 +9,7 @@ import Text.JSON.Pretty(pp_js_object)
 import Text.JSON.Types(JSObject(JSONObject), JSValue(..), toJSString, set_field, get_field)
 import Data.Maybe(maybeToList)
 import Debug.Trace
---import Data.Maybe(isJust)
+import Data.Maybe(isJust)
 
 
 main :: IO ()
@@ -23,15 +23,15 @@ main = do
 
 toJSON :: JSObject JSValue -> [Selector] -> JSObject JSValue
 toJSON object (Selector {..}:xs) =
-	set_field newObject name $ JSArray ( (jQuery path subselector) : (case oldProp of { Just (JSArray x) -> x; _ -> []}) )
+	set_field newObject name $ JSArray ( (jQuery path subselector) : oldArray )
 	where
 		newObject = toJSON object xs
-		oldProp = get_field newObject name
+		oldProp   = get_field newObject name
+		oldArray  = (case oldProp of { Just (JSArray x) -> x; _ -> []})
 toJSON object [] = object
 
 jQuery :: CSSPath -> Function -> JSValue
 jQuery path fn = JSString $ toJSString $ "function($el) {return $el.find('" ++ path ++ "')." ++ fn ++ "}"
-
 
 
 type CSSPath  = String
@@ -43,13 +43,12 @@ createSelector Map{..} = Selector m_name (foldr prependPath "" trail) (createFn 
 
 createFn :: Position -> Function
 createFn (Data Full) = "text()"
-createFn _ = ""
+createFn (Data (Substr {..})) = "substring("++(show before)++", -"++(show after)++")"
 
 prependPath :: Location -> String -> String
 prependPath (Loc i (Element (QName {..}) _ _ _)) s
 	| length s > 0 = s++">"++qName++":nth-child(" ++ show (i+1) ++ ")"
 	| otherwise    = qName++":nth-child(" ++ show (i+1) ++ ")"
-
 
 
 data Location = Loc Int Element deriving Show
@@ -78,28 +77,33 @@ data Map = Map { m_name :: Name, trail :: Trail, position :: Position } deriving
 inspect :: Trail -> Int -> Content -> [Map]
 inspect trail index (Elem el) = -- Check attributes
 	[]
-inspect trail index (Text CData{..}) -- Check substrings
-	| length fullMatches > 0 = [Map (last $ last fullMatches) trail (Data Full)]
-	| length matches > 0 = [Map (last $ last matches) trail (Data (Substr 1 2))]
-	| otherwise = []
+inspect trail index (Text CData{..}) = -- Check substrings
+	case substring of
+		Just substring -> [Map (fst substring) trail (Data $ snd substring)]
+		_ -> []
 	where
-		fullMatches = (cdData =~ "^{{([^}]+)}}$" :: [[String]])
-		matches = (cdData =~ "{{([^}]+)}}" :: [[String]])
+		substring = findMustache cdData
 inspect trail index (CRef string) = -- Do nothing
 	[]
 
---findMustaches :: String -> Maybe (Name, StrPos)
---findMustaches string = findOpenMustache 0 string
+findMustache :: String -> Maybe (Name, StrPos)
+findMustache string = findOpenMustache 0 string
 
---findOpenMustache :: String -> Maybe (Name, StrPos)
---findOpenMustache '{':'{':xs = Just findCloseMustache xs ""
---findOpenMustache x:xs = findOpenMustache xs
---findOpenMustache [] = Nothing
+findOpenMustache :: Int -> String -> Maybe (Name, StrPos)
+findOpenMustache before ('{':'{':xs) =
+	Just (name, position)
+	where
+		closing  = findCloseMustache "" xs
+		name     = fst closing
+		after    = snd closing
+		position = if (before == 0 && after == 0) then Full else Substr before after
+findOpenMustache before (x:xs) = findOpenMustache (before+1) xs
+findOpenMustache _ "" = Nothing
 
---findCloseMustache :: String -> Name -> (Name, Int)
---findCloseMustache '}':'}':xs name = (name, length xs)
---findCloseMustache x:xs name = findCloseMustache x:name xs
---findCloseMustache _ _ = error "Something went wrong when looking for }}"
+findCloseMustache :: Name -> String -> (Name, Int)
+findCloseMustache name ('}':'}':xs) = (reverse name, length xs)
+findCloseMustache name (x:xs) = findCloseMustache (x:name) xs
+findCloseMustache name [] = error "End of string encountered"
 
 
 
