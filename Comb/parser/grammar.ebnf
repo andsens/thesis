@@ -1,0 +1,52 @@
+mst_open       ::= "{{"
+mst_close      ::= "}}"
+ 
+mst_variable   ::= mst_open     mst_name     mst_close
+mst_unescaped  ::= mst_open "{" mst_name "}" mst_close
+mst_section    ::= mst_open "#" mst_name     mst_close content* mst_open "/" mst_name mst_close
+mst_inverted   ::= mst_open "^" mst_name     mst_close content* mst_open "/" mst_name mst_close
+mst_section_s  ::= mst_open "#" mst_name     mst_close string*  mst_open "/" mst_name mst_close
+mst_inverted_s ::= mst_open "^" mst_name     mst_close string*  mst_open "/" mst_name mst_close
+mst_comment    ::= mst_open "!" mst_comment  mst_close
+mst_partial    ::= mst_open ">" mst_name     mst_close
+
+mst            ::= mst_variable | mst_unescaped | mst_section   | mst_inverted   | mst_comment | mst_partial
+mst_s          ::= mst_variable | mst_unescaped | mst_section_s | mst_inverted_s | mst_comment | mst_partial
+
+xml_open       ::= "<"
+xml_close      ::= ">"
+
+xml_tag        ::= xml_open xml_name " " xml_attributes     xml_close
+                     content*
+                   xml_open "/" xml_name xml_close
+                 | xml_open xml_name " " xml_attributes "/" xml_close
+xml_name       ::= word
+xml_attributes ::= xml_name "=\"" string* "\"" | xml_name "=\"" string* "\" " xml_attributes
+
+string         ::=       mst_s | text
+content        ::= xml | mst   | text
+
+mst_template   ::= content*
+
+// problematic
+set_delimiter = {{=open close=}}
+
+variable = {{name}}
+unescaped_variable = {{{name}}} | {{&name}}
+
+// Can be iteration, single "with" or lambda
+section = {{#name}}section_content{{/name}}
+
+inverted_section = {{^name}}section_content{{/name}}
+
+comment = {{!name}}
+
+partial = {{>name}}
+
+mustache_content = variable | unescaped_variable | section | inverted_section | comment | partial
+
+section_content = mustache_or_xml*
+
+mustache_or_xml = mustache_content | xml
+
+xml_file = mustache_or_xml*

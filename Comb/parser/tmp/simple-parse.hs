@@ -19,7 +19,6 @@ main = do
 	--mapM_ print . show $ map createSelector templateMap
 	let json = toJSON (JSONObject []) (map createSelector templateMap)
 	putStrLn $ show (pp_js_object json)
-	--putStrLn ""
 
 toJSON :: JSObject JSValue -> [Selector] -> JSObject JSValue
 toJSON object (Selector {..}:xs) =
