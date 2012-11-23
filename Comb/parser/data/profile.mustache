@@ -1,0 +1,207 @@
+<div class="sectionHeader">
+	<h3>{{name}}</h3>
+</div>
+<div class="content profile-data profile-view">
+	<div class="row-fluid profileActions">
+		<div class="span6">
+			{{#own}}
+			<button class="btn btn-mini edit-profile">
+				<icon class="icon-edit"></icon>
+				Edit
+			</button>
+			{{/own}}{{^own}}
+				&nbsp;
+			{{/own}}
+		</div>
+		<div class="span6">
+			{{#own}}
+			<button class="btn follow-btn btn-mini btn-success pull-right hide">
+				<icon class="icon-eye-open icon-white"></icon> Follow
+			</button>
+			<button class="btn follow-working-btn btn-mini btn-primary pull-right">
+				<icon class="icon-eye-open icon-white"></icon> Working
+			</button>
+			<button class="btn unfollow-btn btn-mini btn-danger pull-right hide">
+				<icon class="icon-eye-open icon-white"></icon> Unfollow
+			</button>
+			{{^own}}
+		</div>
+	</div>
+	<hr/>
+	<div class="row-fluid">
+		<div class="span3">
+			<div class="well well-small">
+				<div class="row-fluid">
+					<div class="personImage profile row-fluid">
+						<div id="profileCarousel{{id}}" class="carousel slide">
+							<!-- Carousel items -->
+							<div class="carousel-inner">
+								{{#standard_photo}}
+								<div class="active item">
+									<div class="image thumbnail">
+										<img alt="Standard photo" src="/profile_photos/{{id}}/standard/160x160/{{standard_photo.name}}">
+									</div>
+								</div>
+								{{/standard_photo}}{{^standard_photo}}
+								<div class="active item">
+									<div class="image thumbnail">					
+											<img alt="" src="http://www.targit.com/en/Resellers/CO_Partners/~/media/Images/Targit/Partners/valcon-web-targit-business-intelligence.ashx?w=207&h=110&as=1" width="160" height="160">
+									</div>
+								</div>
+								{{/standard_photo}}
+								{{#standard_photo}}
+								<div class="item">
+									<div class="image thumbnail"><img alt="Formal photo" src="/profile_photos/{{id}}/formal/160x160/{{formal_photo.name}}"></div>
+								</div>
+								{{/standard_photo}}
+								{{#informal_photo}}
+								<div class="item">
+									<div class="image thumbnail"><img alt="Informal photo" src="/profile_photos/{{id}}/informal/160x160/{{informal_photo.name}}"></div>
+								</div>
+								{{/informal_photo}}
+							</div>
+							<!-- Carousel nav -->
+							<a class="carousel-control left" data-target="#profileCarousel{{id}}" data-slide="prev">&lsaquo;</a>
+							<a class="carousel-control right" data-target="#profileCarousel{{id}}" data-slide="next">&rsaquo;</a>
+						</div>
+					</div>
+
+					<div class="row-fluid">
+						<div class="profile nickname">
+							<span>Nickname</span>
+							{{nickname}}
+						</div>
+						<div class="profile mobile">
+							<span>Mobile</span>
+							{{mobile}}
+						</div>
+<!-- 						<div class="profile extension">
+							<span>Extension</span>
+							{{extension}}
+						</div> -->
+						<div class="profile email">
+							<span>Email</span>
+							<a href="mailto:{{email}}">{{email}}</a>
+						</div>
+						<div class="profile country">
+							<span>Country of employment</span>
+							{{country.name}}
+						</div>
+					</div>
+
+				</div> 
+			</div>
+		</div>
+
+		<div class="span9">
+			<div class="row-fluid profile description">
+				<span>Description</span>
+				{{{description}}}
+			</div>
+
+			<hr class="light" />
+
+			<div class="row-fluid">
+				<div class="span6">
+					<div class="profile manager">
+						<span>Manager</span>
+						<a href="/profiles/{{manager.id}}">{{manager.name}}</a>
+					</div>
+				</div>
+				<div class="span6">
+					<div class="profile company">
+						<span>Business area</span>
+						{{company}}
+					</div>
+				</div>
+			</div>
+
+			<div class="row-fluid">
+				<div class="span6">
+
+					<div class="profile job_title">
+						<span>Job role</span>
+						{{job_title}}
+					</div>
+				</div>
+				<div class="span6">
+					<!-- //i was ordered to switch business units/business area i know it's confusing. this should be right though.. someone needs to fix it in the database and switch it back right here -->
+					<div class="profile businessarea">
+						<span>Business unit</span>
+						{{businessarea.name}}
+					</div>
+				</div>
+			</div>
+
+			<div class="row-fluid">
+				<div class="span6">
+					<div class="profile address">
+						<span>Private address</span>
+						{{address}}
+					</div>
+				</div>
+				<div class="span6">
+					<div class="profile date_of_birth">
+						<span>Date of birth</span>
+						{{formatdate date_of_birth}}
+					</div>
+				</div>
+			</div>
+
+			<div class="row-fluid">
+				<div class="profile span6 date_of_employment">
+					<span>Date of employment</span>
+					<div>{{formatdate}}{{date_of_employment}}{{formatdate}}</div>
+				</div>
+				<div class="profile span6 disc_description">
+					<span>DISC - The way i work</span>
+					<div>{{{disc_description}}}</div>
+				</div>
+			</div>
+
+			<div class="row-fluid">
+				<div class="profile span6">
+					<div class="row-fluid">
+						<div class="span12 expert_skills">
+							<span>Skills - expert level</span>
+							<ul>
+								{{#expert_skills}}
+								<li>{{name}}</li>
+								{{/expert_skills}}
+							</ul>
+						</div>
+					</div>
+					<div class="row-fluid">
+						<div class="span12 resource_skills">
+							<span>Skills - resource level</span>
+							<ul>
+								{{#resource_skills}}
+								<li>{{name}}</li>
+								{{/resource_skills}}
+							</ul>
+						</div>
+					</div>
+					<div class="row-fluid">
+						<div class="span12 developing_skills">
+							<span>Skills - developing level</span>
+							<ul>
+								{{#developing_skills}}
+								<li>{{name}}</li>
+								{{/developing_skills}}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="profile span6">
+					<div class="row-fluid">
+						<div class="profile span12 disc">
+							<span>DISC profile</span>
+							<div class="graph">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

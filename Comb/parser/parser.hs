@@ -1,44 +1,52 @@
 module Mustache where
-import Text.ParserCombinators.Parsec
-import qualified Text.ParserCombinators.Parsec.Token as T
-import qualified Text.ParserCombinators.Parsec.Char as C
-import Text.ParserCombinators.Parsec.Language( emptyDef )
+import Text.Parsec
+import Text.Parsec.Prim
+import qualified Text.Parsec.Token as T
+import qualified Text.Parsec.Char as C
+import Text.Parsec.Language(emptyDef)
+import Text.Parsec.Combinator
+--import CustomCombinators
+import Debug.Trace
 
-run :: Show a => Parser a -> String -> IO ()
-run p input = case (parse p "" input) of
-	Left err -> do {
-		putStr "parse error at ";
-		print err
-	}
-	Right x  -> print x
+--run :: Show a => Parsec a -> String -> IO ()
+run parser input =
+	case (parse parser "" input) of
+		Left err -> do
+			putStr "parse error at ";
+			print err
+		Right x  -> print x
+
+file parser path = do
+	input <- readFile path
+	return (runParser parser () path input)
 
 lexer :: T.TokenParser ()
 lexer  = T.makeTokenParser (
 	emptyDef {
+		T.opLetter        = oneOf "/=",
 		T.reservedOpNames = ["<", "</", "{{", "}}", "/>", ">"],
-		T.caseSensitive = False
+		T.caseSensitive   = False
 	})
 
-identifier = T.identifier lexer
-symbol     = T.symbol lexer
-reservedOp = T.reservedOp lexer
+identifier    = T.identifier lexer
+symbol        = T.symbol lexer
+reservedOp    = T.reservedOp lexer
+operator      = T.operator lexer
+stringLiteral = T.stringLiteral lexer
 
 x_start_ops = ["<", "</"]
 x_end_ops   = [">", "/>"]
-m_start_ops = ["{{", "{{{", "{{#", "{{^", "{{!", "{{>"]
+m_start_ops = ["{{", "{{/", "{{{", "{{#", "{{^", "{{!", "{{>"]
 m_end_ops   = ["}}", "}}}"]
 
-data NodeData = Data String
-
-nodeData = 
+data Text = Data String deriving (Show)
+node_data =
 	do
-		str <- try (manyTill anyChar $ choice . map (try . reservedOp) $ (x_start_ops ++ m_start_ops))
-		return $ Data str
-	<|>
-	do
-		str <- many anyChar
-		return $ Data str
-
+		let ops = map C.string (x_start_ops ++ m_start_ops)
+		notFollowedBy (choice ops)
+		first <- anyChar
+		rest <- manyTill anyChar (choice . map lookAhead $ ops)
+		return $ Data (first:rest)
 
 data GenVariable =
 	  Escaped String
@@ -47,7 +55,7 @@ data GenVariable =
 	| Partial String
 	deriving (Show)
 
-m_escaped   = do { reservedOp "{{"; var_name <- identifier; reservedOp "}}"; return $ Escaped var_name }
+m_escaped   = do { reservedOp  "{{"; var_name <- identifier; reservedOp "}}";  return $ Escaped var_name }
 m_unescaped = do { reservedOp "{{{"; var_name <- identifier; reservedOp "}}}"; return $ Unescaped var_name }
 
 
@@ -57,7 +65,7 @@ data GenSection =
 	deriving (Show)
 
 m_content_section = do
-	reservedOp "{{#"; var_name <- identifier; reservedOp "}}"
+	trace "open" $ reservedOp "{{#"; var_name <- identifier; reservedOp "}}"
 	--trees <- content
 	reservedOp "{{/"; C.string var_name; reservedOp "}}"
 	return (NormalSection var_name)
@@ -74,7 +82,6 @@ data Mustache =
 	| Variable GenVariable
 	deriving (Show)
 
-mustache_content :: GenParser Char () Mustache
 mustache_content =
 	    do {section <- try m_content_section; return $ Section section}
 	<|> do {section <- try m_content_inverted; return $ Section section}
@@ -82,22 +89,30 @@ mustache_content =
 	<|> do {variable <- try m_unescaped; return $ Variable variable}
 
 
-data EmptyXMLTag = EmptyXMLTag String
+data XMLAttribute = XMLAttribute String deriving (Show)
+
+xml_attribute = do
+	name <- identifier
+	symbol "="
+	value <- stringLiteral  -- for now "between" maybe?
+	return $ XMLAttribute name
+
+data EmptyXMLTag = EmptyXMLTag String deriving (Show)
 
 xml_empty_tag = do
 	reservedOp "<";
 	tag_name <- identifier
-	--attrs <- xml_attributes
+	attrs <- sepBy (many1 C.space) xml_attribute
 	reservedOp "/>";
 	return (EmptyXMLTag tag_name)
 
 
-data XMLTag = XMLTag String
+data XMLTag = XMLTag String deriving (Show)
 
 xml_tag = do
 	reservedOp "<";
 	tag_name <- identifier
-	--attrs <- xml_attributes
+	attrs <- sepBy (many1 C.space) xml_attribute
 	reservedOp ">";
 	--trees <- content
 	reservedOp "</"; C.string tag_name; reservedOp ">"
@@ -106,16 +121,24 @@ xml_tag = do
 data XML =
 	  EmptyTag EmptyXMLTag
 	| NormalTag XMLTag
+	deriving (Show)
 
-xml_content :: GenParser Char () XML
 xml_content =
 	    do {tag <- try xml_empty_tag; return $ EmptyTag tag}
 	<|> do {tag <- try xml_tag; return $ NormalTag tag}
 
+data Content =
+	  MustacheContent Mustache
+	| XMLContent XML
+	| TextContent Text
+	deriving (Show)
 
+content = do
+	    do {mst <- trace "mustache" $ try mustache_content; return $ MustacheContent mst}
+	<|> do {xml <- trace "xml" $ try xml_content; return $ XMLContent xml}
+	<|> do {txt <- trace "text" $ try node_data; return $ TextContent txt}
 
---content = do
---	try must
+template = many content
 
 --mst_unescaped  ::= mst_open "{" mst_name "}" mst_close
 --mst_section    ::= mst_open "#" mst_name     mst_close content* mst_open "/" mst_name mst_close
