@@ -39,24 +39,24 @@
                 {{#standard_photo}}
                 <div class="active item">
                   <div class="image thumbnail">
-                    <img alt="Standard photo" src="/profile_photos/{{id}}/standard/160x160/{{standard_photo.name}}">
+                    <img alt="Standard photo" src="/profile_photos/{{id}}/standard/160x160/{{standard_photo.name}}"/>
                   </div>
                 </div>
                 {{/standard_photo}}{{^standard_photo}}
                 <div class="active item">
                   <div class="image thumbnail">         
-                      <img alt="" src="http://www.targit.com/en/Resellers/CO_Partners/~/media/Images/Targit/Partners/valcon-web-targit-business-intelligence.ashx?w=207&h=110&as=1" width="160" height="160">
+                      <img alt="" src="http://www.targit.com/en/Resellers/CO_Partners/~/media/Images/Targit/Partners/valcon-web-targit-business-intelligence.ashx?w=207&h=110&as=1" width="160" height="160"/>
                   </div>
                 </div>
                 {{/standard_photo}}
                 {{#standard_photo}}
                 <div class="item">
-                  <div class="image thumbnail"><img alt="Formal photo" src="/profile_photos/{{id}}/formal/160x160/{{formal_photo.name}}"></div>
+                  <div class="image thumbnail"><img alt="Formal photo" src="/profile_photos/{{id}}/formal/160x160/{{formal_photo.name}}"/></div>
                 </div>
                 {{/standard_photo}}
                 {{#informal_photo}}
                 <div class="item">
-                  <div class="image thumbnail"><img alt="Informal photo" src="/profile_photos/{{id}}/informal/160x160/{{informal_photo.name}}"></div>
+                  <div class="image thumbnail"><img alt="Informal photo" src="/profile_photos/{{id}}/informal/160x160/{{informal_photo.name}}"/></div>
                 </div>
                 {{/informal_photo}}
               </div>
@@ -143,7 +143,7 @@
         <div class="span6">
           <div class="profile date_of_birth">
             <span>Date of birth</span>
-            {{formatdate date_of_birth}}
+            {{#formatdate}}{{date_of_birth}}{{/formatdate}}
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@
       <div class="row-fluid">
         <div class="profile span6 date_of_employment">
           <span>Date of employment</span>
-          <div>{{formatdate}}{{date_of_employment}}{{formatdate}}</div>
+          <div>{{#formatdate}}{{date_of_employment}}{{/formatdate}}</div>
         </div>
         <div class="profile span6 disc_description">
           <span>DISC - The way i work</span>

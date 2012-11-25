@@ -30,10 +30,12 @@ x_end_ops   = [">", "/>", "-->"]
 m_start_ops = ["{{", "{{/", "{{{", "{{#", "{{^", "{{!", "{{>"]
 m_end_ops   = ["}}", "}}}"]
 
-lexer  = T.makeTokenParser (
+lexer = T.makeTokenParser (
 	emptyDef {
 		T.commentStart    = "{{!",
 		T.commentEnd      = "}}",
+		T.identStart      = letter,
+		T.identLetter     = alphaNum <|> oneOf "-",
 		T.opLetter        = oneOf "/",
 		T.reservedOpNames = x_start_ops ++ x_end_ops ++ m_start_ops ++ m_end_ops,
 		T.caseSensitive   = False
@@ -42,6 +44,20 @@ lexer  = T.makeTokenParser (
 identifier    = T.identifier lexer
 symbol        = T.symbol lexer
 reservedOp    = T.reservedOp lexer
+
+mustache_lexer  = T.makeTokenParser (
+	emptyDef {
+		T.commentStart    = "{{!",
+		T.commentEnd      = "}}",
+		T.identStart      = letter <|> oneOf "_",
+		T.identLetter     = alphaNum <|> oneOf "_.",
+		T.opLetter        = oneOf "/",
+		T.reservedOpNames = x_start_ops ++ x_end_ops ++ m_start_ops ++ m_end_ops,
+		T.caseSensitive   = False
+	})
+
+m_identifier    = T.identifier mustache_lexer
+m_reservedOp    = T.reservedOp mustache_lexer
 
 {--
 content ::= {{  id  }}
@@ -89,28 +105,30 @@ data XMLAttribute =
 	} deriving (Show)
 
 m_escaped   = do
-	reservedOp "{{" <?> "mustache variable"
-	name <- identifier
-	reservedOp "}}"
+	m_reservedOp "{{" <?> "mustache variable"
+	name <- m_identifier
+	m_reservedOp "}}"
 	return $ Variable name True
 m_unescaped = do
-	reservedOp "{{{" <?> "mustache variable (unescaped)"
-	name <- identifier
-	reservedOp "}}}"
+	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
+	name <- m_identifier
+	m_reservedOp "}}}"
 	return $ Variable name False
 
 m_section allowed_content = do
 	inverted <-
 		do
-			reservedOp "{{#" <?> "mustache section"
+			m_reservedOp "{{#" <?> "mustache section"
 			return False
 		<|> do
-			reservedOp "{{^" <?> "mustache section (inverted)"
+			m_reservedOp "{{^" <?> "mustache section (inverted)"
 			return True
-	name <- identifier
-	reservedOp "}}"
+	name <- m_identifier
+	m_reservedOp "}}"
 	content <- many allowed_content
-	reservedOp "{{/"; C.string name; reservedOp "}}"
+	m_reservedOp "{{/"
+	C.string name
+	m_reservedOp "}}"
 	return (Section name inverted content)
 
 
