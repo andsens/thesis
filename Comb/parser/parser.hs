@@ -11,7 +11,7 @@ import Debug.Trace
 run parser input =
 	case (parse parser "" input) of
 		Left err -> do
-			putStr "parse error at ";
+			putStr "parse error at "
 			print err
 		Right x  -> print x
 
@@ -19,7 +19,7 @@ file parser path = do
 	input <- readFile path
 	case (runParser parser () path input) of
 		Left err -> do
-			putStr "parse error at ";
+			putStr "parse error at "
 			print err
 		Right x  -> print x
 	return ()
@@ -27,23 +27,24 @@ file parser path = do
 
 x_start_ops = ["<", "</", "<!--"]
 x_end_ops   = [">", "/>", "-->"]
-m_start_ops = ["{{", "{{/", "{{{", "{{#", "{{^", "{{!", "{{>"]
+m_opLetters = "#/^>{!"
+m_start_ops = "{{" : ( map ( ("{{"++) . (:"") ) m_opLetters )
 m_end_ops   = ["}}", "}}}"]
 
-lexer = T.makeTokenParser (
+xml_lexer = T.makeTokenParser (
 	emptyDef {
 		T.commentStart    = "{{!",
 		T.commentEnd      = "}}",
-		T.identStart      = letter,
-		T.identLetter     = alphaNum <|> oneOf "-",
+		T.identStart      = letter <|> oneOf "_-:",
+		T.identLetter     = letter <|> digit <|> oneOf "._-:",
 		T.opLetter        = oneOf "/",
-		T.reservedOpNames = x_start_ops ++ x_end_ops ++ m_start_ops ++ m_end_ops,
+		T.reservedOpNames = x_start_ops ++ x_end_ops,
 		T.caseSensitive   = False
 	})
 
-identifier    = T.identifier lexer
-symbol        = T.symbol lexer
-reservedOp    = T.reservedOp lexer
+x_identifier = T.identifier xml_lexer
+x_symbol     = T.symbol xml_lexer
+x_reservedOp = T.reservedOp xml_lexer
 
 mustache_lexer  = T.makeTokenParser (
 	emptyDef {
@@ -51,13 +52,14 @@ mustache_lexer  = T.makeTokenParser (
 		T.commentEnd      = "}}",
 		T.identStart      = letter <|> oneOf "_",
 		T.identLetter     = alphaNum <|> oneOf "_.",
-		T.opLetter        = oneOf "/",
-		T.reservedOpNames = x_start_ops ++ x_end_ops ++ m_start_ops ++ m_end_ops,
+		T.opLetter        = oneOf m_opLetters,
+		T.reservedOpNames = m_start_ops ++ m_end_ops,
 		T.caseSensitive   = False
 	})
 
-m_identifier    = T.identifier mustache_lexer
-m_reservedOp    = T.reservedOp mustache_lexer
+m_identifier = T.identifier mustache_lexer
+m_reservedOp = T.reservedOp mustache_lexer
+m_symbol     = T.symbol mustache_lexer
 
 {--
 content ::= {{  id  }}
@@ -104,16 +106,19 @@ data XMLAttribute =
 		attr_content :: [Content]
 	} deriving (Show)
 
-m_escaped   = do
-	m_reservedOp "{{" <?> "mustache variable"
-	name <- m_identifier
-	m_reservedOp "}}"
-	return $ Variable name True
+
 m_unescaped = do
 	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
 	name <- m_identifier
-	m_reservedOp "}}}"
+	m_symbol "}}}"
 	return $ Variable name False
+
+m_escaped   = do
+	m_reservedOp "{{" <?> "mustache variable"
+	notFollowedBy (oneOf m_opLetters)
+	name <- m_identifier
+	m_symbol "}}"
+	return $ Variable name True
 
 m_section allowed_content = do
 	inverted <-
@@ -124,11 +129,11 @@ m_section allowed_content = do
 			m_reservedOp "{{^" <?> "mustache section (inverted)"
 			return True
 	name <- m_identifier
-	m_reservedOp "}}"
+	m_symbol "}}"
 	content <- many allowed_content
 	m_reservedOp "{{/"
 	C.string name
-	m_reservedOp "}}"
+	m_symbol "}}"
 	return (Section name inverted content)
 
 
@@ -140,27 +145,27 @@ comment_content =
 
 xml_comment =
 	do
-		reservedOp "<!--"
+		x_reservedOp "<!--"
 		content <- many comment_content
-		reservedOp "-->"
+		x_reservedOp "-->"
 		return $ XMLComment content
 
 xml_tag = do
-	reservedOp "<"
-	name <- identifier
+	x_reservedOp "<"
+	name <- x_identifier
 	attrs <- many xml_attribute
 	content <-
 		do 
-			reservedOp "/>"
+			x_reservedOp "/>"
 			return []
 		<|> do
-			reservedOp ">"
+			x_reservedOp ">"
 			content <- many any_content
-			reservedOp "</"
+			x_reservedOp "</"
 			C.string name
-			reservedOp ">"
+			x_reservedOp ">"
 			return content
-	return (XMLTag name attrs content)
+	return $ XMLTag name attrs content
 
 string_content =
 	    m_section string_content
@@ -169,9 +174,9 @@ string_content =
 	<|> text_data ("\"":m_start_ops)
 
 xml_attribute = do
-	name <- identifier
-	symbol "="
-	value <- between (symbol "\"") (symbol "\"") (many string_content)
+	name <- x_identifier
+	x_symbol "="
+	value <- between (x_symbol "\"") (x_symbol "\"") (many string_content)
 	return $ XMLAttribute name value
 
 text_data disallowed_operators =
