@@ -30,33 +30,18 @@ x_end_ops   = [">", "/>", "-->"]
 m_start_ops = ["{{", "{{/", "{{{", "{{#", "{{^", "{{!", "{{>"]
 m_end_ops   = ["}}", "}}}"]
 
-xml_lexer = T.makeTokenParser (
-	emptyDef {
-		T.nestedComments  = False,
-		T.opStart         = oneOf "<",
-		T.opLetter        = oneOf "/",
-		T.reservedOpNames = x_start_ops ++ x_end_ops,
-		T.caseSensitive   = False
-	})
-
-x_identifier    = T.identifier xml_lexer
-x_symbol        = T.symbol xml_lexer
-x_reservedOp    = T.reservedOp xml_lexer
-
-mustache_lexer = T.makeTokenParser (
+lexer  = T.makeTokenParser (
 	emptyDef {
 		T.commentStart    = "{{!",
 		T.commentEnd      = "}}",
-		T.nestedComments  = False,
-		T.opStart         = oneOf "",
-		T.opLetter        = oneOf "",
-		--T.reservedOpNames = m_start_ops ++ m_end_ops,
+		T.opLetter        = oneOf "/",
+		T.reservedOpNames = x_start_ops ++ x_end_ops ++ m_start_ops ++ m_end_ops,
 		T.caseSensitive   = False
 	})
 
-m_identifier    = T.identifier mustache_lexer
-m_reservedOp    = T.reservedOp mustache_lexer
-m_symbol        = T.symbol mustache_lexer
+identifier    = T.identifier lexer
+symbol        = T.symbol lexer
+reservedOp    = T.reservedOp lexer
 
 {--
 content ::= {{  id  }}
@@ -104,28 +89,28 @@ data XMLAttribute =
 	} deriving (Show)
 
 m_escaped   = do
-	m_reservedOp "{{" <?> "mustache variable"
-	name <- m_identifier
-	m_reservedOp "}}"
+	reservedOp "{{" <?> "mustache variable"
+	name <- identifier
+	reservedOp "}}"
 	return $ Variable name True
 m_unescaped = do
-	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
-	name <- m_identifier
-	m_reservedOp "}}}"
+	reservedOp "{{{" <?> "mustache variable (unescaped)"
+	name <- identifier
+	reservedOp "}}}"
 	return $ Variable name False
 
 m_section allowed_content = do
 	inverted <-
 		do
-			m_reservedOp "{{#" <?> "mustache section"
+			reservedOp "{{#" <?> "mustache section"
 			return False
 		<|> do
-			m_reservedOp "{{^" <?> "mustache section (inverted)"
+			reservedOp "{{^" <?> "mustache section (inverted)"
 			return True
-	name <- m_identifier
-	m_reservedOp "}}"
+	name <- identifier
+	reservedOp "}}"
 	content <- many allowed_content
-	m_reservedOp "{{/"; C.string name; m_reservedOp "}}"
+	reservedOp "{{/"; C.string name; reservedOp "}}"
 	return (Section name inverted content)
 
 
@@ -137,25 +122,25 @@ comment_content =
 
 xml_comment =
 	do
-		x_reservedOp "<!--"
+		reservedOp "<!--"
 		content <- many comment_content
-		x_reservedOp "-->"
+		reservedOp "-->"
 		return $ XMLComment content
 
 xml_tag = do
-	x_reservedOp "<"
-	name <- x_identifier
+	reservedOp "<"
+	name <- identifier
 	attrs <- many xml_attribute
 	content <-
 		do 
-			x_reservedOp "/>"
+			reservedOp "/>"
 			return []
 		<|> do
-			x_reservedOp ">"
+			reservedOp ">"
 			content <- many any_content
-			x_reservedOp "</"
+			reservedOp "</"
 			C.string name
-			x_reservedOp ">"
+			reservedOp ">"
 			return content
 	return (XMLTag name attrs content)
 
@@ -166,9 +151,9 @@ string_content =
 	<|> text_data ("\"":m_start_ops)
 
 xml_attribute = do
-	name <- x_identifier
-	x_symbol "="
-	value <- between (x_symbol "\"") (x_symbol "\"") (many string_content)
+	name <- identifier
+	symbol "="
+	value <- between (symbol "\"") (symbol "\"") (many string_content)
 	return $ XMLAttribute name value
 
 text_data disallowed_operators =
