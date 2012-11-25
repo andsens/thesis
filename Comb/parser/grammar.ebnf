@@ -28,6 +28,9 @@ content        ::= xml | mst   | text
 
 mst_template   ::= content*
 
+
+
+
 // problematic
 set_delimiter = {{=open close=}}
 
