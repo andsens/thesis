@@ -20,11 +20,17 @@ file parser path = do
 	input <- readFile path
 	return (runParser parser () path input)
 
+
+x_start_ops = ["<", "</"]
+x_end_ops   = [">", "/>"]
+m_start_ops = ["{{", "{{/", "{{{", "{{#", "{{^", "{{!", "{{>"]
+m_end_ops   = ["}}", "}}}"]
+
 lexer :: T.TokenParser ()
 lexer  = T.makeTokenParser (
 	emptyDef {
 		T.opLetter        = oneOf "/=",
-		T.reservedOpNames = ["<", "</", "{{", "}}", "/>", ">"],
+		T.reservedOpNames = x_start_ops ++ x_end_ops ++ m_start_ops ++ m_end_ops,
 		T.caseSensitive   = False
 	})
 
@@ -34,12 +40,33 @@ reservedOp    = T.reservedOp lexer
 operator      = T.operator lexer
 stringLiteral = T.stringLiteral lexer
 
-x_start_ops = ["<", "</"]
-x_end_ops   = [">", "/>"]
-m_start_ops = ["{{", "{{/", "{{{", "{{#", "{{^", "{{!", "{{>"]
-m_end_ops   = ["}}", "}}}"]
+{--
+content ::= {{  id  }}
+          | {{{ id }}}
+          | {{# id  }} content {{/ id }}
+          | {{^ id  }} content {{/ id }}
+          | <id [id = str_content]* />
+          | <id [id = str_content]* > content </id>
+          | string
+--}
 
-data Mustache =
+template = many any_content
+
+any_content =
+	    try m_escaped
+	<|> try m_unescaped
+	<|> try m_content_section
+	<|> try xml_empty_tag
+	<|> try xml_tag
+	<|> try node_data
+
+str_content =
+	    try m_escaped
+	<|> try m_unescaped
+	<|> try m_string_section
+	<|> try string_data
+
+data Content =
 	Section {
 		name :: String,
 		inverted :: Bool,
@@ -47,94 +74,83 @@ data Mustache =
 	} | Variable {
 		name :: String,
 		escaped :: Bool
+	} | XMLTag {
+		name :: String,
+		attributes :: [XMLAttribute],
+		content :: [Content]
+	} | Text {
+		text :: String
 	} deriving (Show)
-
-m_escaped   = do { reservedOp  "{{"; var_name <- identifier; reservedOp "}}";  return $ Variable var_name True }
-m_unescaped = do { reservedOp "{{{"; var_name <- identifier; reservedOp "}}}"; return $ Unescaped var_name False }
-
-m_content_section = do
-	reservedOp "{{#"; var_name <- identifier; reservedOp "}}"
-	--trees <- content
-	reservedOp "{{/"; C.string var_name; reservedOp "}}"
-	return (Section var_name False [])
-
-m_content_inverted = do
-	reservedOp "{{^"; var_name <- identifier; reservedOp "}}"
-	--trees <- content
-	reservedOp "{{/"; C.string var_name; reservedOp "}}"
-	return (Section var_name True [])
-
-mustache_content =
-	    try m_content_section
-	<|> try m_content_inverted
-	<|> try m_escaped
-	<|> try m_unescaped
-
 
 data XMLAttribute =
 	XMLAttribute {
 		attr_name :: String,
-		attr_content :: [StrContent]
+		attr_content :: [Content]
 	} deriving (Show)
 
-xml_attribute = do
+m_escaped   = do { reservedOp  "{{"; name <- identifier; reservedOp "}}";  return $ Variable name True }
+m_unescaped = do { reservedOp "{{{"; name <- identifier; reservedOp "}}}"; return $ Variable name False }
+
+m_content_section = do
+	inverted <- ( do { try $ reservedOp "{{#"; return False }
+	          <|> do { try $ reservedOp "{{^"; return True } )
 	name <- identifier
-	symbol "="
-	value <- stringLiteral  -- for now "between" maybe?
-	return $ XMLAttribute name []
+	reservedOp "}}"
+	content <- many any_content
+	reservedOp "{{/"; C.string name; reservedOp "}}"
+	return (Section name inverted content)
 
-data XMLTag =
-	XMLTag {
-		name :: String,
-		attributes :: [XMLAttribute],
-		content :: [Content]
-	} deriving (Show)
+m_string_section = do
+	inverted <- ( do { try $ reservedOp "{{#"; return False }
+	          <|> do { try $ reservedOp "{{^"; return True } )
+	name <- identifier
+	reservedOp "}}"
+	content <- many str_content
+	reservedOp "{{/"; C.string name; reservedOp "}}"
+	return (Section name inverted content)
 
 xml_empty_tag = do
 	reservedOp "<";
 	tag_name <- identifier
-	attrs <- sepBy (many1 C.space) xml_attribute
+	attrs <- xml_attribute `sepBy` (many1 C.space)
 	reservedOp "/>";
-	return (XMLTag tag_name [] [])
+	return (XMLTag tag_name attrs [])
 
 xml_tag = do
 	reservedOp "<";
 	tag_name <- identifier
-	attrs <- sepBy (many1 C.space) xml_attribute
+	attrs <- xml_attribute `sepBy` (many1 C.space)
 	reservedOp ">";
-	--trees <- content
+	content <- many any_content
 	reservedOp "</"; C.string tag_name; reservedOp ">"
-	return (XMLTag tag_name [] [])
+	return (XMLTag tag_name attrs content)
 
-xml_content = try xml_empty_tag <|> try xml_tag
+xml_attribute = do
+	name <- identifier
+	symbol "="
+	value <- between (symbol "\"") (symbol "\"") (many str_content)
+	return $ XMLAttribute name value
 
-data Content =
-	  MustacheContent Mustache
-	| XMLContent XMLTag
-	| TextContent Text
-	deriving (Show)
-
-
-data Text = Data String deriving (Show)
 node_data =
 	do
 		let ops = map C.string (x_start_ops ++ m_start_ops)
 		notFollowedBy (choice ops)
 		first <- anyChar
-		rest <- manyTill anyChar (choice . map lookAhead $ ops)
-		return $ Data (first:rest)
-{--
-content ::= {{  id  }}
-          | {{{ id }}}
-          | {{# id  }} content {{/ id }}
-          | {{^ id  }} content {{/ id }}
-          | <id [id = del_content]* />
-          | <id [id = del_content]* > content </id>
-          | string
---}
-content = do
-	    do {mst <- try mustache_content; return $ MustacheContent mst}
-	<|> do {xml <- try xml_content; return $ XMLContent xml}
-	<|> do {txt <- try node_data; return $ TextContent txt}
+		rest <- manyTill anyChar ( eof <|> do { choice . map lookAhead $ ops; return () } )
+		return $ Text (first:rest)
 
-template = many content
+string_data =
+	do
+		let ops = map C.string (x_start_ops ++ m_start_ops)
+		notFollowedBy (choice ops)
+		first <- anyChar
+		rest <- manyTill anyChar ( choice . map lookAhead $ (C.string "\""):ops )
+		return $ Text (first:rest)
+
+
+
+
+
+
+
+
