@@ -8,12 +8,12 @@ import Text.Parsec.Combinator
 import Data.Functor.Identity(Identity)
 import Debug.Trace
 
-run parser input =
+run parser input = do
 	case (parse parser "" input) of
 		Left err -> do
 			putStr "parse error at "
 			print err
-		Right x  -> print x
+		Right x -> print x
 
 file parser path = do
 	input <- readFile path
@@ -22,14 +22,10 @@ file parser path = do
 			putStr "parse error at "
 			print err
 		Right x  -> print x
-	return ()
 
 
 x_start_ops = ["<", "</", "<!--"]
 x_end_ops   = [">", "/>", "-->"]
-m_opLetters = "#/^>{!"
-m_start_ops = "{{" : ( map ( ("{{"++) . (:"") ) m_opLetters )
-m_end_ops   = ["}}", "}}}"]
 
 xml_lexer = T.makeTokenParser (
 	emptyDef {
@@ -45,6 +41,10 @@ xml_lexer = T.makeTokenParser (
 x_identifier = T.identifier xml_lexer
 x_symbol     = T.symbol xml_lexer
 x_reservedOp = T.reservedOp xml_lexer
+
+m_opLetters = "#/^>{!"
+m_start_ops = "{{" : ( map ( ("{{"++) . (:"") ) m_opLetters )
+m_end_ops   = ["}}", "}}}"]
 
 mustache_lexer  = T.makeTokenParser (
 	emptyDef {
@@ -147,7 +147,7 @@ xml_comment =
 	do
 		x_reservedOp "<!--"
 		content <- many comment_content
-		x_reservedOp "-->"
+		x_symbol "-->"
 		return $ XMLComment content
 
 xml_tag = do
@@ -161,7 +161,7 @@ xml_tag = do
 		<|> do
 			x_reservedOp ">"
 			content <- many any_content
-			x_reservedOp "</"
+			x_reservedOp "</" <?> "closing tag"
 			C.string name
 			x_reservedOp ">"
 			return content
