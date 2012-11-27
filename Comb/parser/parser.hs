@@ -66,9 +66,9 @@ content ::= {{  id  }}
           | {{{ id }}}
           | {{# id  }} content {{/ id }}
           | {{^ id  }} content {{/ id }}
-          | <id [id = string_content]* />
-          | <id [id = string_content]* > content </id>
-          | <!-- comment -->
+          | <id [id = attribute_content]* />
+          | <id [id = attribute_content]* > content </id>
+          | <!-- comment_content -->
           | string
 --}
 
@@ -137,21 +137,8 @@ m_section allowed_content = do
 	return (Section name inverted content)
 
 
-comment_content =
-	    m_section comment_content
-	<|> m_unescaped
-	<|> m_escaped
-	<|> text_data ("-->":m_start_ops)
-
-xml_comment =
-	do
-		x_reservedOp "<!--"
-		content <- many comment_content
-		x_symbol "-->"
-		return $ XMLComment content
-
 xml_tag = do
-	x_reservedOp "<"
+	x_reservedOp "<" <?> "tag"
 	name <- x_identifier
 	attrs <- many xml_attribute
 	content <-
@@ -167,8 +154,8 @@ xml_tag = do
 			return content
 	return $ XMLTag name attrs content
 
-string_content =
-	    m_section string_content
+attribute_content =
+	    m_section attribute_content
 	<|> m_unescaped
 	<|> m_escaped
 	<|> text_data ("\"":m_start_ops)
@@ -176,15 +163,29 @@ string_content =
 xml_attribute = do
 	name <- x_identifier
 	x_symbol "="
-	value <- between (x_symbol "\"") (x_symbol "\"") (many string_content)
+	value <- between (x_symbol "\"") (x_symbol "\"") (many attribute_content)
 	return $ XMLAttribute name value
+
+
+comment_content =
+	    m_section comment_content
+	<|> m_unescaped
+	<|> m_escaped
+	<|> text_data ("-->":m_start_ops)
+
+xml_comment =
+	do
+		x_reservedOp "<!--"
+		content <- many comment_content
+		x_symbol "-->"
+		return $ XMLComment content
 
 text_data disallowed_operators =
 	do
 		let ops = map C.string disallowed_operators
 		notFollowedBy (choice ops)
 		first <- anyChar
-		rest <- manyTill anyChar ( eof <|> do { choice . map lookAhead $ ops; return () } )
+		rest <- manyTill anyChar ( eof <|> do { choice . map (try . lookAhead) $ ops; return () } )
 		return $ Text (first:rest)
 
 
