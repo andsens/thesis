@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+module Comb.Main
+where
 import System.Console.CmdArgs
 
 

@@ -1,12 +1,12 @@
-module Mustache where
+module Comb.Parser (
+	Content(..),
+	XMLAttribute
+) where
 import Text.Parsec
-import Text.Parsec.Prim
 import qualified Text.Parsec.Token as T
 import qualified Text.Parsec.Char as C
 import Text.Parsec.Language(emptyDef)
 import Text.Parsec.Combinator
-import Data.Functor.Identity(Identity)
-import Debug.Trace
 
 run parser input = do
 	case (parse parser "" input) of
@@ -187,10 +187,3 @@ text_data disallowed_operators =
 		first <- anyChar
 		rest <- manyTill anyChar ( eof <|> do { choice . map (try . lookAhead) $ ops; return () } )
 		return $ Text (first:rest)
-
-
-
-
-
-
-
