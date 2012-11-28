@@ -1,6 +1,5 @@
 module Comb.Parser (
-	Content(..),
-	XMLAttribute
+	Content(..)
 ) where
 import Text.Parsec
 import qualified Text.Parsec.Token as T
@@ -86,26 +85,25 @@ data Content =
 	Section {
 		name :: String,
 		inverted :: Bool,
-		content :: [Content]
+		contents :: [Content]
 	} | Variable {
 		name :: String,
 		escaped :: Bool
 	} | XMLTag {
 		name :: String,
-		attributes :: [XMLAttribute],
-		content :: [Content]
+		attributes :: [Content], -- will only ever be XMLAttribute, the parser ensures that
+		contents :: [Content]
+	} | EmptyXMLTag {
+		name :: String,
+		attributes :: [Content] -- will only ever be XMLAttribute, the parser ensures that
 	} | XMLComment {
-		content :: [Content]
+		contents :: [Content]
+	} | XMLAttribute {
+		name :: String,
+		contents :: [Content]
 	} | Text {
 		text :: String
 	} deriving (Show)
-
-data XMLAttribute =
-	XMLAttribute {
-		attr_name :: String,
-		attr_content :: [Content]
-	} deriving (Show)
-
 
 m_unescaped = do
 	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
@@ -130,29 +128,28 @@ m_section allowed_content = do
 			return True
 	name <- m_identifier
 	m_symbol "}}"
-	content <- many allowed_content
+	contents <- many allowed_content
 	m_reservedOp "{{/"
 	C.string name
 	m_symbol "}}"
-	return (Section name inverted content)
+	return (Section name inverted contents)
 
 
 xml_tag = do
 	x_reservedOp "<" <?> "tag"
 	name <- x_identifier
 	attrs <- many xml_attribute
-	content <-
-		do 
+	tag <- do
 			x_reservedOp "/>"
-			return []
+			return $ EmptyXMLTag name attrs
 		<|> do
 			x_reservedOp ">"
-			content <- many any_content
+			contents <- many any_content
 			x_reservedOp "</" <?> "closing tag"
 			C.string name
 			x_reservedOp ">"
-			return content
-	return $ XMLTag name attrs content
+			return $ XMLTag name attrs contents
+	return tag
 
 attribute_content =
 	    m_section attribute_content
@@ -176,9 +173,9 @@ comment_content =
 xml_comment =
 	do
 		x_reservedOp "<!--"
-		content <- many comment_content
+		contents <- many comment_content
 		x_symbol "-->"
-		return $ XMLComment content
+		return $ XMLComment contents
 
 text_data disallowed_operators =
 	do
