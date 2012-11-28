@@ -7,6 +7,7 @@ import qualified Text.Parsec.Token as T
 import qualified Text.Parsec.Char as C
 import Text.Parsec.Language(emptyDef)
 import Text.Parsec.Combinator
+import Text.Parsec.Pos(SourcePos)
 
 run parser input = do
 	case (parse parser "" input) of
@@ -86,42 +87,60 @@ data Content =
 	Section {
 		name :: String,
 		inverted :: Bool,
-		contents :: [Content]
+		contents :: [Content],
+		begin :: SourcePos,
+		end :: SourcePos
 	} | Variable {
 		name :: String,
-		escaped :: Bool
+		escaped :: Bool,
+		begin :: SourcePos,
+		end :: SourcePos
 	} | XMLTag {
 		name :: String,
 		attributes :: [Content], -- will only ever be XMLAttribute, the parser ensures that
-		contents :: [Content]
+		contents :: [Content],
+		begin :: SourcePos,
+		end :: SourcePos
 	} | EmptyXMLTag {
 		name :: String,
-		attributes :: [Content] -- will only ever be XMLAttribute, the parser ensures that
+		attributes :: [Content], -- will only ever be XMLAttribute, the parser ensures that
+		begin :: SourcePos,
+		end :: SourcePos
 	} | XMLComment {
-		contents :: [Content]
+		contents :: [Content],
+		begin :: SourcePos,
+		end :: SourcePos
 	} | XMLAttribute {
 		name :: String,
-		contents :: [Content]
+		contents :: [Content],
+		begin :: SourcePos,
+		end :: SourcePos
 	} | Text {
-		text :: String
+		text :: String,
+		begin :: SourcePos,
+		end :: SourcePos
 	} deriving (Show)
 
 m_unescaped = do
+	begin <- getPosition
 	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
 	name <- m_identifier
 	m_symbol "}}}"
-	return $ Variable name False
+	end <- getPosition
+	return $ Variable name False begin end
 
-m_escaped   = do
+m_escaped = do
+	begin <- getPosition
 	m_reservedOp "{{" <?> "mustache variable"
 	notFollowedBy (oneOf m_opLetters)
 	name <- m_identifier
 	m_symbol "}}"
-	return $ Variable name True
+	end <- getPosition
+	return $ Variable name True begin end
 
 m_section allowed_content = do
-	inverted <-
-		do
+	begin <- getPosition
+	inverted <- do
 			m_reservedOp "{{#" <?> "mustache section"
 			return False
 		<|> do
@@ -133,23 +152,27 @@ m_section allowed_content = do
 	m_reservedOp "{{/"
 	C.string name
 	m_symbol "}}"
-	return (Section name inverted contents)
+	end <- getPosition
+	return $ Section name inverted contents begin end
 
 
 xml_tag = do
+	begin <- getPosition
 	x_reservedOp "<" <?> "tag"
 	name <- x_identifier
 	attrs <- many xml_attribute
 	tag <- do
 			x_reservedOp "/>"
-			return $ EmptyXMLTag name attrs
+			end <- getPosition
+			return $ EmptyXMLTag name attrs begin end
 		<|> do
 			x_reservedOp ">"
 			contents <- many any_content
 			x_reservedOp "</" <?> "closing tag"
 			C.string name
 			x_reservedOp ">"
-			return $ XMLTag name attrs contents
+			end <- getPosition
+			return $ XMLTag name attrs contents begin end
 	return tag
 
 attribute_content =
@@ -159,10 +182,12 @@ attribute_content =
 	<|> text_data ("\"":m_start_ops)
 
 xml_attribute = do
+	begin <- getPosition
 	name <- x_identifier
 	x_symbol "="
 	value <- between (x_symbol "\"") (x_symbol "\"") (many attribute_content)
-	return $ XMLAttribute name value
+	end <- getPosition
+	return $ XMLAttribute name value begin end
 
 
 comment_content =
@@ -171,17 +196,19 @@ comment_content =
 	<|> m_escaped
 	<|> text_data ("-->":m_start_ops)
 
-xml_comment =
-	do
-		x_reservedOp "<!--"
-		contents <- many comment_content
-		x_symbol "-->"
-		return $ XMLComment contents
+xml_comment = do
+	begin <- getPosition
+	x_reservedOp "<!--"
+	contents <- many comment_content
+	x_symbol "-->"
+	end <- getPosition
+	return $ XMLComment contents begin end
 
-text_data disallowed_operators =
-	do
-		let ops = map C.string disallowed_operators
-		notFollowedBy (choice ops)
-		first <- anyChar
-		rest <- manyTill anyChar ( eof <|> do { choice . map (try . lookAhead) $ ops; return () } )
-		return $ Text (first:rest)
+text_data disallowed_operators = do
+	let ops = map C.string disallowed_operators
+	notFollowedBy (choice ops)
+	begin <- getPosition
+	first <- anyChar
+	rest <- manyTill anyChar ( eof <|> do { choice . map (try . lookAhead) $ ops; return () } )
+	end <- getPosition
+	return $ Text (first:rest) begin end
