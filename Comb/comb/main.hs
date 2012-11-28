@@ -2,23 +2,44 @@
 module Comb.Main
 where
 import System.Console.CmdArgs
+import Comb.Parser(template)
+import Text.Parsec(runParser)
+import Comb.Resolver(resolve)
+import Debug.Trace(trace)
 
 
-data SelectorGenerator = SelectorGenerator {
-	files :: [FilePath],
-	encoding :: String
+data CombArgs = CombArgs {
+	files :: [FilePath]
+	--, encoding :: String
 } deriving (Data, Typeable, Show, Eq)
 
-arguments = SelectorGenerator {
-	files = def &= args &= typFile,
-	encoding = def &= typ "ENC" &= opt "utf8" &= help "Choose the text encoding"
+arguments = CombArgs {
+	files = def &= args &= typFile
+	--, encoding = def &= typ "ENC" &= opt "utf8" &= help "Choose the text encoding"
 } &=
 	--verbosity &=
-	program "selector-gen" &=
+	program "comb-gen" &=
 	help "Generate DOM selectors for mustache template variables" &=
-	summary "Selector Generator v0.0.0, (C) Anders Ingemann" &=
-	details ["Selector Generator creates various selectors for each variable in a mustache template."]
+	summary "Comb for Mustache v0.0.0, (C) Anders Ingemann" &=
+	details ["Comb for Mustache creates various selectors for each variable in a mustache template."]
 
 main = do
-	x <- cmdArgs arguments
-	print x
+	args <- cmdArgs arguments
+	trace "test" (do {return ()})
+	comb_file (head $ files args)
+
+comb_file (path) = do
+	input <- readFile path
+	case (runParser template () (trace path path) input) of
+		Left err ->  do
+			putStr "parse error at "
+			print err
+			return Nothing
+		Right ast -> do
+			return $ Just (resolve ast)
+
+--case (runParser parser () path input) of
+--		Left err -> do
+--			putStr "parse error at "
+--			print err
+--		Right x  -> print x

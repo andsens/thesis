@@ -1,5 +1,6 @@
 module Comb.Parser (
-	Content(..)
+	Content(..),
+	template
 ) where
 import Text.Parsec
 import qualified Text.Parsec.Token as T
@@ -62,19 +63,19 @@ m_symbol     = T.symbol mustache_lexer
 
 {--
 content ::= {{  id  }}
-          | {{{ id }}}
-          | {{# id  }} content {{/ id }}
-          | {{^ id  }} content {{/ id }}
-          | <id [id = attribute_content]* />
-          | <id [id = attribute_content]* > content </id>
-          | <!-- comment_content -->
-          | string
+					| {{{ id }}}
+					| {{# id  }} content {{/ id }}
+					| {{^ id  }} content {{/ id }}
+					| <id [id = attribute_content]* />
+					| <id [id = attribute_content]* > content </id>
+					| <!-- comment_content -->
+					| string
 --}
 
 template = many any_content
 
 any_content =
-	    m_section any_content
+			m_section any_content
 	<|> m_unescaped
 	<|> m_escaped
 	<|> xml_comment
@@ -152,7 +153,7 @@ xml_tag = do
 	return tag
 
 attribute_content =
-	    m_section attribute_content
+			m_section attribute_content
 	<|> m_unescaped
 	<|> m_escaped
 	<|> text_data ("\"":m_start_ops)
@@ -165,7 +166,7 @@ xml_attribute = do
 
 
 comment_content =
-	    m_section comment_content
+			m_section comment_content
 	<|> m_unescaped
 	<|> m_escaped
 	<|> text_data ("-->":m_start_ops)
