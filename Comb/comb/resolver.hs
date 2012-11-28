@@ -5,39 +5,45 @@ module Comb.Resolver (
 ) where
 import qualified Comb.Parser as P
 
---data Value = Value {
---	name :: String,
---	get_value :: DependencyChain
---	is_false :: DependencyChain
---}
+data Value = Value {
+	name :: String,
+	get_value :: DependencyChain,
+	is_false :: DependencyChain
+}
 
---data DependencyChain = Chain | Path
+data DependencyChain = NoDeps Path
 
-data Value = Value { name :: String } deriving (Show)
+type Path = [P.Content]
+
 data Unresolved = Unresolved { message :: String } deriving (Show)
 
 type Resolutions = ([Value], [Unresolved])
 
 resolve :: [P.Content] -> Resolutions
-resolve (x:xs) = siblings ([Value "blah"], []) (Crumb [] x xs, [])
+resolve (x:xs) = siblings ([], []) (Crumb [] x xs, [])
 resolve []     = ([], [])
 
 type Zipper = (Crumb, [Crumb])
 data Crumb = Crumb {left :: [P.Content], current :: P.Content, right :: [P.Content]}
 
-siblings res z@(Crumb l x (y:r), trail) = siblings (inspect x res z) (Crumb (x:l) y r, trail)
-siblings res z@(Crumb {right=[],..}, trail) = inspect current res z
+siblings :: Resolutions -> Zipper -> Resolutions
+siblings res z@(Crumb l x (y:r), trail) = siblings (inspect res z x) (Crumb (x:l) y r, trail)
+siblings res z@(Crumb {right=[],..}, trail) = inspect res z current
 
+down :: Resolutions -> Zipper -> [P.Content] -> Resolutions
 down res (c, trail) (x:xs) = siblings res (Crumb [] x xs, c:trail)
 down res _ [] = res
 
-inspect P.Variable {..}     res z = variable res z
-inspect P.Section {..}      res z = down (section res z) z contents
-inspect P.XMLTag {..}       res z = down (down res z attributes) z contents
-inspect P.EmptyXMLTag {..}  res z = down res z attributes
-inspect P.XMLAttribute {..} res z = down res z contents
-inspect P.XMLComment {..}   res z = down res z contents
-inspect P.Text {..}         res z = res
+inspect :: Resolutions -> Zipper -> P.Content -> Resolutions
+inspect res z P.Variable {..}     = variable res z
+inspect res z P.Section {..}      = down (section res z) z contents
+inspect res z P.XMLTag {..}       = down (down res z attributes) z contents
+inspect res z P.EmptyXMLTag {..}  = down res z attributes
+inspect res z P.XMLAttribute {..} = down res z contents
+inspect res z P.XMLComment {..}   = down res z contents
+inspect res z P.Text {..}         = res
 
+variable :: Resolutions -> Zipper -> Resolutions
 variable res z = res
+section :: Resolutions -> Zipper -> Resolutions
 section  res z = res

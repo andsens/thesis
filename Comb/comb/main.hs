@@ -5,7 +5,6 @@ import System.Console.CmdArgs
 import Comb.Parser(template)
 import Text.Parsec(runParser)
 import Comb.Resolver(resolve)
-import Debug.Trace(trace)
 
 
 data CombArgs = CombArgs {
@@ -25,12 +24,11 @@ arguments = CombArgs {
 
 main = do
 	args <- cmdArgs arguments
-	trace "test" (do {return ()})
 	comb_file (head $ files args)
 
 comb_file (path) = do
 	input <- readFile path
-	case (runParser template () (trace path path) input) of
+	case (runParser template () path input) of
 		Left err ->  do
 			putStr "parse error at "
 			print err
