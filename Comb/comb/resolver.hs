@@ -53,6 +53,7 @@ data Resolution =
 		content :: P.Content,
 		path :: Path,
 		stack :: [Resolution]
+		right_siblings :: [P.Content]
 	} | Warning {
 		content :: P.Content,
 		message :: String,
@@ -71,10 +72,18 @@ data Index = Index { index :: Int, offset :: [Resolution] } deriving (Show)
 
 resolve_mustache :: Resolutions -> Zipper -> Resolutions
 resolve_mustache res z@(Crumb {..}, p:trail) =
-	(Selector current (path) stack):res
+	(Selector current (path) stack right_s):res
 	where
 		stack = get_stack res (up z)
 		path = get_path res z
+		right_s = filter r
+			\x -> case x of
+				P.Variable {escaped=False,..} = True
+				P.Section {contents=c:cs} = True
+				XMLTag {} = True
+				EmptyXMLTag{} = True
+				XMLComment = True
+				_ = False
 
 get_stack :: Resolutions -> Zipper -> [Resolution]
 get_stack res z@(Crumb _ s@(P.Section {}) _, p:trail) = (find_res res s):(get_stack res (up z))
@@ -100,13 +109,15 @@ get_index res (Crumb {l=[],..}, _) = Index 0 []
 get_index' res z@(Crumb (l:ls) x@(P.Variable {escaped=False,..}) r, _) =
 	(i, (find_res res x):o)
 	where (i, o) = get_index' res (left z)
-get_index' res z@(Crumb (l:ls) x@(P.Section {}) r, _) =
+get_index' res z@(Crumb (l:ls) x@(P.Section {contents=c:cs}) r, _) =
 	(i, (find_res res x):o)
 	where (i, o) = get_index' res (left z)
-get_index' res z@(Crumb (l:ls) (P.Text {}) r, _) = get_index' res (left z)
 get_index' res z@(Crumb (l:ls) x r, _) =
 	(i+1, o)
 	where (i, o) = get_index' res (left z)
+get_index' res z@(Crumb (l:ls) x@(P.Variable {escaped=True,..}) r, _) = get_index' res (left z)
+get_index' res z@(Crumb (l:ls) x@(P.Section {contents=[]}) r, _) = get_index' res (left z)
+get_index' res z@(Crumb (l:ls) (P.Text {}) r, _) = get_index' res (left z)
 get_index' res (Crumb [] _ _, _) = (0, [])
 
 
