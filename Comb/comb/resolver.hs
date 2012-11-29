@@ -89,7 +89,7 @@ find_res (r:res) needle
 find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
 
 get_path :: Resolutions -> Zipper -> Path
-get_path res z@(Crumb {..}, p:trail) = Path (get_index res z) get_path res (up z)
+get_path res z@(Crumb {..}, p:trail) = Path (get_index res z) (get_path res (up z))
 get_path res z@(Crumb {..}, []) = Path (get_index res z) End
 
 get_index res z@(Crumb {l=x:xs,..}, _) =
@@ -97,7 +97,7 @@ get_index res z@(Crumb {l=x:xs,..}, _) =
 	in Index (i+1) o
 get_index res (Crumb {l=[],..}, _) = Index 0 []
 
-get_index' res z@(Crumb (l:ls) x@(P.Variable {}) r, _) =
+get_index' res z@(Crumb (l:ls) x@(P.Variable {escaped=False,..}) r, _) =
 	(i, (find_res res x):o)
 	where (i, o) = get_index' res (left z)
 get_index' res z@(Crumb (l:ls) x@(P.Section {}) r, _) =
