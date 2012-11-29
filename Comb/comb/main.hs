@@ -5,7 +5,7 @@ import System.Console.CmdArgs
 import Comb.Parser(template)
 import Text.Parsec(runParser)
 import Comb.Resolver(resolve)
-
+import Debug.Trace
 
 data CombArgs = CombArgs {
 	files :: [FilePath]
@@ -24,7 +24,10 @@ arguments = CombArgs {
 
 main = do
 	args <- cmdArgs arguments
-	comb_file (head $ files args)
+	resolutions <- comb_file (head $ files args)
+	case resolutions of
+		Just res -> mapM_ print res
+		Nothing -> return ()
 
 comb_file (path) = do
 	input <- readFile path

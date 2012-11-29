@@ -119,7 +119,7 @@ data Content =
 		text :: String,
 		begin :: SourcePos,
 		end :: SourcePos
-	} deriving (Show)
+	} deriving (Show, Eq)
 
 m_unescaped = do
 	begin <- getPosition

@@ -6,82 +6,115 @@ module Comb.Resolver (
 ) where
 import qualified Comb.Parser as P
 import Text.Parsec.Pos(sourceLine)
+import Debug.Trace
 
-type Resolutions = ([Selector], [Warning])
+type Resolutions = [Resolution]
 
 resolve :: [P.Content] -> Resolutions
-resolve (x:xs) = siblings ([], []) (Crumb [] x xs, [])
-resolve []     = ([], [])
+resolve (x:xs) = siblings [] (Crumb [] x xs, [])
+resolve []     = []
 
 
 type Zipper = (Crumb, [Crumb])
-data Crumb = Crumb {left :: [P.Content], current :: P.Content, right :: [P.Content]}
+data Crumb = Crumb {l :: [P.Content], current :: P.Content, r :: [P.Content]}
+
+left :: Zipper -> Zipper
+left (Crumb (y:l) x r, trail) = (Crumb l y (x:r), trail)
+left (Crumb [] _ _, _) = error "Cannot go left, no more siblings."
+
+right :: Zipper -> Zipper
+right (Crumb l x (y:r), trail) = (Crumb (x:l) y r, trail)
+right (Crumb _ _ [], _) = error "Cannot go right, no more siblings."
+
+up :: Zipper -> Zipper
+up (_, p:trail) = (p, trail)
+up (_, []) = error "Cannot go up, no more parents."
 
 siblings :: Resolutions -> Zipper -> Resolutions
-siblings res z@(Crumb l x (y:r), trail) = siblings (inspect res z x) (Crumb (x:l) y r, trail)
-siblings res z@(Crumb {right=[],..}, trail) = inspect res z current
-
-down :: Resolutions -> Zipper -> [P.Content] -> Resolutions
-down res (c, trail) (x:xs) = siblings res (Crumb [] x xs, c:trail)
-down res _ [] = res
+siblings res z@(Crumb {r=x:xs,..}, _) = siblings (inspect res z current) (right z)
+siblings res z@(Crumb {r=[],..}, _) = inspect res z current
 
 inspect :: Resolutions -> Zipper -> P.Content -> Resolutions
-inspect res z P.Variable {..}     = resolve_mustache res z
-inspect res z P.Section {..}      = down (resolve_mustache res z) z contents
-inspect res z P.XMLTag {..}       = down (down res z attributes) z contents
-inspect res z P.EmptyXMLTag {..}  = down res z attributes
-inspect res z P.XMLAttribute {..} = down res z contents
-inspect res z P.XMLComment {..}   = down res z contents
-inspect res z P.Text {..}         = res
+inspect res z P.Variable {}       = resolve_mustache res z
+inspect res z P.Section {..}      = inspect_contents (resolve_mustache res z) z contents
+inspect res z P.XMLTag {..}       = inspect_contents (inspect_contents res z attributes) z contents
+inspect res z P.EmptyXMLTag {..}  = inspect_contents res z attributes
+inspect res z P.XMLAttribute {..} = inspect_contents res z contents
+inspect res z P.XMLComment {..}   = inspect_contents res z contents
+inspect res z P.Text {}           = res
+
+inspect_contents :: Resolutions -> Zipper -> [P.Content] -> Resolutions
+inspect_contents res (c, trail) (x:xs) = siblings res (Crumb [] x xs, c:trail)
+inspect_contents res _ [] = res
 
 
-data Selector = Selector {
-	content :: P.Content,
-	path :: Path,
-	stack :: [Selector]
-} deriving (Show)
-data Warning = Warning {
-	w_content :: P.Content,
-	message :: String,
-	w_stack :: [Selector]
-} deriving (Show)
+data Resolution =
+	Selector {
+		content :: P.Content,
+		path :: Path,
+		stack :: [Resolution]
+	} | Warning {
+		content :: P.Content,
+		message :: String,
+		stack :: [Resolution]
+	}
+
+instance Show Resolution where  
+	show Selector {..} =
+		(show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " " ++ (show path)
+	show Warning {..} =
+		(show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " " ++ message
 
 data Path = Path { position :: Index, parent :: Path } | End deriving (Show)
 
-data Index = Index { index :: Int, offset :: [Selector] } deriving (Show)
+data Index = Index { index :: Int, offset :: [Resolution] } deriving (Show)
 
 resolve_mustache :: Resolutions -> Zipper -> Resolutions
-resolve_mustache res@(selects,warns) z@(Crumb {..}, trail) =
-	let path = get_path res z
-	in case path of
-		Left message ->
-			(selects,w:warns)
-			where w = Warning current message stack
-		Right path ->
-			(s:selects,warns)
-			where s = Selector current path stack
+resolve_mustache res z@(Crumb {..}, p:trail) =
+	(Selector current (path) stack):res
 	where
-		stack = get_stack selects z
+		stack = get_stack res (up z)
+		path = get_path res z
 
-get_stack :: Resolutions -> Zipper -> Resolutions
-get_stack res (Crumb l s@(P.Section {..}) r, p:trail) = (get_resolution res s):(get_stack res (p, trail))
-get_stack res (Crumb l s@(P.Section {..}) r, [])      = get_resolution res s
-get_stack res (Crumb (x:l) current        r, trail)   = get_stack res (Crumb l x (current:r))
-get_stack res (c, []) = []
-
-
-get_resolution :: Resolutions -> P.Content -> Resolutions
-get_resolution (s:selects,warns) needle
-	| (content s) == needle = s
-	| otherwise = get_resolution (selects,warns) needle
-get_resolution ([],w:warns) needle
-	| (content w) == needle = w
-	| otherwise = get_resolution ([],warns) needle
-get_resolution ([], []) needle = error ("Resolution for " ++ (show needle) ++ " not found")
-
-get_path :: Resolutions -> Zipper -> Either String Path
-get_path res z = Right Path (Index 0 []) End
+get_stack :: Resolutions -> Zipper -> [Resolution]
+get_stack res z@(Crumb _ s@(P.Section {}) _, p:trail) = (find_res res s):(get_stack res (up z))
+get_stack res z@(_, p:trail) = get_stack res (up z)
+get_stack res (_, []) = []
 
 
+find_res :: Resolutions -> P.Content -> Resolution
+find_res (r:res) needle
+	| (content r) == needle = r
+	| otherwise = find_res res needle
+find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
 
+get_path :: Resolutions -> Zipper -> Path
+get_path res z@(Crumb {..}, p:trail) = Path (get_index res z) get_path res (up z)
+get_path res z@(Crumb {..}, []) = Path (get_index res z) End
+
+get_index res z@(Crumb {l=x:xs,..}, _) =
+	let (i, o) = get_index' res (left z)
+	in Index (i+1) o
+get_index res (Crumb {l=[],..}, _) = Index 0 []
+
+get_index' res z@(Crumb (l:ls) x@(P.Variable {}) r, _) =
+	(i, (find_res res x):o)
+	where (i, o) = get_index' res (left z)
+get_index' res z@(Crumb (l:ls) x@(P.Section {}) r, _) =
+	(i, (find_res res x):o)
+	where (i, o) = get_index' res (left z)
+get_index' res z@(Crumb (l:ls) (P.Text {}) r, _) = get_index' res (left z)
+get_index' res z@(Crumb (l:ls) x r, _) =
+	(i+1, o)
+	where (i, o) = get_index' res (left z)
+get_index' res (Crumb [] _ _, _) = (0, [])
+
+
+
+--get_stack :: Resolutions -> Zipper -> [Resolution]
+--get_stack res (Crumb _ s@(P.Section {..}) _, p:trail) = (find_res res s):(get_stack res (p, trail))
+--get_stack res (Crumb _ s@(P.Section {..}) _, []) = [find_res res s]
+--get_stack res (Crumb (x:l) current r, trail) = get_stack res (Crumb l x (current:r), trail)
+--get_stack res (Crumb [] _ _, p:trail) = get_stack res (p, trail)
+--get_stack res (_, []) = []
 
