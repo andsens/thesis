@@ -61,14 +61,19 @@ data Resolution =
 	}
 
 instance Show Resolution where  
-	show Selector {..} =
-		(show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " " ++ (show path)
-	show Warning {..} =
-		(show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " " ++ message
+	show Selector {..} = (show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " | " ++ (show path)
+	show Warning {..} = (show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " " ++ message
 
-data Path = Path { position :: Index, parent :: Path } | End deriving (Show)
+data Path = Path { index :: Index, parent :: Path } | End
 
-data Index = Index { index :: Int, offset :: [Resolution] } deriving (Show)
+instance Show Path where  
+	show Path {..} = "Path - " ++ (show index) ++ " > parent: " ++ (show parent)
+	show End = "End"
+
+data Index = Index { i :: Int, offset :: [Resolution] }
+
+instance Show Index where  
+	show Index {..} = "#" ++ (show i) ++ " with " ++ (show (length offset)) ++ " offsets"
 
 resolve_mustache :: Resolutions -> Zipper -> Resolutions
 resolve_mustache res z@(Crumb {..}, p:trail) =
@@ -128,11 +133,4 @@ get_index' res z@(Crumb (l:ls) (P.Text {}) r, _) = get_index' res (left z)
 get_index' res (Crumb [] _ _, _) = (0, [])
 
 
-
---get_stack :: Resolutions -> Zipper -> [Resolution]
---get_stack res (Crumb _ s@(P.Section {..}) _, p:trail) = (find_res res s):(get_stack res (p, trail))
---get_stack res (Crumb _ s@(P.Section {..}) _, []) = [find_res res s]
---get_stack res (Crumb (x:l) current r, trail) = get_stack res (Crumb l x (current:r), trail)
---get_stack res (Crumb [] _ _, p:trail) = get_stack res (p, trail)
---get_stack res (_, []) = []
 

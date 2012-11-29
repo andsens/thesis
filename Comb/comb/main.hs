@@ -26,7 +26,7 @@ main = do
 	args <- cmdArgs arguments
 	resolutions <- comb_file (head $ files args)
 	case resolutions of
-		Just res -> return () --mapM_ print res
+		Just res -> mapM_ print (reverse res)
 		Nothing -> return ()
 
 comb_file (path) = do
