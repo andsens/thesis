@@ -60,28 +60,29 @@ data Resolution =
 		stack :: [Resolution]
 	}
 
-instance Show Resolution where  
+instance Show Resolution where
 	show Selector {..} = (show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " | " ++ (show path)
 	show Warning {..} = (show (sourceLine $ P.begin content)) ++ " " ++ (P.name content) ++ " " ++ message
 
 data Path = Path { index :: Index, parent :: Path } | End
 
-instance Show Path where  
+instance Show Path where
 	show Path {..} = "Path - " ++ (show index) ++ " > parent: " ++ (show parent)
 	show End = "End"
 
 data Index = Index { i :: Int, offset :: [Resolution] }
 
-instance Show Index where  
+instance Show Index where
 	show Index {..} = "#" ++ (show i) ++ " with " ++ (show (length offset)) ++ " offsets"
 
 resolve_mustache :: Resolutions -> Zipper -> Resolutions
-resolve_mustache res z@(Crumb {..}, p:trail) =
+resolve_mustache res z@(Crumb {..}, trail) =
 	(Selector current (path) stack right_s):res
 	where
-		stack = get_stack res (up z)
+		stack = case trail of [] -> []; x:xs -> get_stack res (up z)
 		path = get_path res z
-		right_s = (flip filter) r $ \x -> case x of
+		right_s = get_right_siblings z
+		(flip filter) r $ \x -> case x of
 			P.Variable {escaped=False,..} -> True
 			P.Section {contents=c:cs} -> True
 			P.XMLTag {} -> True
@@ -111,7 +112,6 @@ get_index res z@(Crumb {l=x:xs,..}, _) =
 get_index res (Crumb {l=[],..}, _) = Index 0 []
 
 
-
 get_index' res z@(Crumb (l:ls) x@(P.Variable {escaped=False,..}) r, _) =
 	(i, (find_res res x):o)
 	where (i, o) = get_index' res (left z)
@@ -131,6 +131,18 @@ get_index' res z@(Crumb (l:ls) x@(P.Variable {escaped=True,..}) r, _) = get_inde
 get_index' res z@(Crumb (l:ls) x@(P.Section {contents=[]}) r, _) = get_index' res (left z)
 get_index' res z@(Crumb (l:ls) (P.Text {}) r, _) = get_index' res (left z)
 get_index' res (Crumb [] _ _, _) = (0, [])
+
+
+get_right_siblings (Crumb {r=x@(P.XMLTag {}):rs,..}, trail) = [x] -- What if last element in loop is an unescaped variable?
+get_right_siblings (Crumb {r=[],..}, trail) = []
+	
+
+first_child P.Section{contents=c:cs..} = first_tag contents
+first_child P.XMLTag{..} = first_tag contents
+first_child P.EmptyXMLTag{..} = first_tag contents
+first_child P.XMLComment{} = Nothing
+first_child P.Variable{} = Nothing
+first_child P.Text{} = Nothing
 
 
 
