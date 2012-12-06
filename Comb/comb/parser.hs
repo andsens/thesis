@@ -62,9 +62,8 @@ mustache_lexer  = T.makeTokenParser (
 	})
 
 m_identifier = T.identifier mustache_lexer
-m_reservedOp str = try (do
-	C.string str
-	notFollowedBy (oneOf m_opLetters))
+m_reservedOp = T.reservedOp mustache_lexer
+m_symbol     = T.symbol mustache_lexer
 
 {--
 content ::= {{  id  }}
@@ -181,11 +180,11 @@ xml_tag = do
 			end <- getPosition
 			return $ EmptyXMLTag name attrs begin end
 		<|> do
-			x_reservedOp ">"
+			C.string ">"
 			contents <- many any_content
 			x_reservedOp "</" <?> "closing tag"
 			C.string name
-			x_reservedOp ">"
+			C.string ">"
 			end <- getPosition
 			return $ XMLTag name attrs contents begin end
 	return tag
