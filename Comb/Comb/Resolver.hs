@@ -2,9 +2,12 @@
 module Comb.Resolver (
 	resolve,
 	Resolutions,
-	Resolution(..)
+	Resolution(..),
+	Path(..),
+	fq_name
 ) where
 import qualified Comb.Parser as P
+import Text.Parsec.Pos(sourceLine)
 import Data.Maybe
 import Debug.Trace
 
@@ -68,7 +71,22 @@ data Resolution =
 		node :: P.Content,
 		parent_section :: Maybe Resolution,
 		message :: String
-	} deriving (Show)
+	}
+
+
+instance Show Resolution where
+	show s@SectionSelector{node=P.Section{inverted=False,..},..} = '#':fq_name s
+	show s@SectionSelector{node=P.Section{inverted=True,..},..} = '^':fq_name s
+	show v@VariableSelector{node=P.Variable{escaped=True,..},..} = fq_name v
+	show v@VariableSelector{node=P.Variable{escaped=False,..},..} = '{':fq_name v
+	show w@Warning{..} = '!':fq_name w
+
+fq_name :: Resolution -> String
+fq_name res = (scope $ parent_section res) ++ (P.name (node res))
+
+scope :: Maybe Resolution -> String
+scope (Just SectionSelector{..}) = (scope parent_section) ++ (P.name node) ++ "."
+scope Nothing = ""
 
 find_res :: Resolutions -> P.Content -> Resolution
 find_res (r:res) needle
@@ -86,13 +104,6 @@ resolve_m res z =
 		parent = get_parent res z
 
 make_selector :: Resolutions -> Zipper -> Resolutions
-make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
-	(VariableSelector c path parent prev next):res
-	where
-		path   = get_path res z 0
-		parent = get_parent res z
-		prev   = listToMaybe l
-		next   = listToMaybe r
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
 	(SectionSelector c path parent prev next first_c last_c):res
 	where
@@ -102,19 +113,26 @@ make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
 		next    = listToMaybe r
 		first_c = listToMaybe contents
 		last_c  = case contents of [] -> Nothing; _ -> Just $ last contents
+make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
+	(VariableSelector c path parent prev next):res
+	where
+		path   = get_path res z 0
+		parent = get_parent res z
+		prev   = listToMaybe l
+		next   = listToMaybe r
 
 resolvable :: Resolutions -> Zipper -> Maybe String
 resolvable res z@(Crumb (l:ls) _ _, _) = resolvable' res (left z)
 resolvable res z@(Crumb [] _ _, p:trail) = resolvable' res (up z)
 resolvable res z@(Crumb [] _ _, []) = Nothing
-
+-- Extend this... A LOT
 resolvable' :: Resolutions -> Zipper -> Maybe String
+resolvable' res z@(Crumb _ s@(P.Section{}) _, _) =
+	case (find_res res s) of Warning{} -> Just "Unresolved section found in path"; _ -> resolvable res z
 resolvable' res z@(Crumb _ v@(P.Variable{escaped=False}) _, _) =
 	Just "Path contains unescaped variable"
 resolvable' res z@(Crumb _ v@(P.Variable{escaped=True}) _, _) =
 	case (find_res res v) of Warning{} -> Just "Unresolved variable found in path"; _ -> resolvable res z
-resolvable' res z@(Crumb _ s@(P.Section{}) _, _) =
-	case (find_res res s) of Warning{} -> Just "Unresolved section found in path"; _ -> resolvable res z
 resolvable' res z = resolvable res z
 
 get_parent :: Resolutions -> Zipper -> Maybe Resolution
@@ -124,18 +142,20 @@ get_parent res (_, []) = Nothing
 
 data Path =
 	  Index { index :: Int, parent :: Path }
+	| Attribute { name :: String, parent :: Path }
 	| Offset { index :: Int, offset_res :: Resolution }
-	| Top { index :: Int } deriving (Show)
+	| Root { index :: Int } deriving (Show)
 
 get_path :: Resolutions -> Zipper -> Int -> Path
 get_path res z@(Crumb {l=l:ls,..}, _) i = get_path' res (left z) i
 get_path res z@(Crumb {l=[],..}, p:trail) i = Index i (get_path' res (up z) 0)
-get_path res z@(Crumb {l=[],..}, []) i = Top i
+get_path res z@(Crumb {l=[],..}, []) i = Root i
 
 get_path' :: Resolutions -> Zipper -> Int -> Path
-get_path' res z@(Crumb _ v@(P.Variable{}) _, _) i = Offset i (find_res res v)
 get_path' res z@(Crumb _ s@(P.Section{}) _, _) i = Offset i (find_res res s)
-get_path' res z@(Crumb _ current _, _) i = get_path res z ((ix_count current) + i)
+get_path' res z@(Crumb _ v@(P.Variable{}) _, _) i = Offset i (find_res res v)
+get_path' res z@(Crumb _ a@(P.XMLAttribute{..}) _, _) i = Attribute name (get_path res z 0)
+get_path' res z@(Crumb _ current _, _) i = get_path res z (i+1)
 
 ix_count :: P.Content -> Int
 ix_count P.XMLTag{} = 1

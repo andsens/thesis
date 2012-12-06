@@ -1,9 +1,10 @@
 {-# LANGUAGE NamedFieldPuns, RecordWildCards #-}
 module Comb.Parser (
 	Content(..),
-	template
+	Comb.Parser.parse,
+	parse_file
 ) where
-import Text.Parsec
+import Text.Parsec as Parsec
 import qualified Text.Parsec.Token as T
 import qualified Text.Parsec.Char as C
 import Text.Parsec.Language(emptyDef)
@@ -12,21 +13,18 @@ import Text.Parsec.Pos(SourcePos)
 import Data.List
 import Debug.Trace
 
-run parser input = do
-	case (parse parser "" input) of
-		Left err -> do
-			putStr "parse error at "
-			print err
-		Right x -> print x
+parse :: String -> Either ParseError [Content]
+parse input = Parsec.parse template "" input
 
-file parser path = do
+parse_file :: String -> IO [Content]
+parse_file path = do
 	input <- readFile path
-	case (runParser parser () path input) of
+	case (runParser template () path input) of
 		Left err -> do
 			putStr "parse error at "
-			print err
-		Right x  -> print x
-
+			error (show err)
+		Right ast ->
+			return ast
 
 x_start_ops = ["<", "</", "<!--"]
 x_end_ops   = [">", "/>", "-->"]
@@ -125,13 +123,13 @@ data Content =
 	} deriving (Eq)
 
 instance Show Content where
-	show Section{inverted=False,..} = "{{#"++name++"}}" ++ (concat $ map show contents) ++ "{{/"++name++"}}"
-	show Section{inverted=True,..} = "{{^"++name++"}}" ++ (concat $ map show contents) ++ "{{/"++name++"}}"
-	show Variable{escaped=True,..} = "{{"++name++"}}"
-	show Variable{escaped=False,..} = "{{{"++name++"}}}"
-	show XMLTag{..} = "<"++name++(concat $ map show attributes)++">" ++ (concat $ map show contents) ++ "</"++name++">"
-	show EmptyXMLTag{..} = "<"++name++(concat $ map show attributes)++"/>"
-	show XMLComment{..} = "<!--" ++ (concat $ map show contents) ++ "-->"
+	show Section{inverted=False,..} = "(#"++name++")" ++ (concat $ map show contents) ++ "(/"++name++")"
+	show Section{inverted=True,..} = "(^"++name++")" ++ (concat $ map show contents) ++ "(/"++name++")"
+	show Variable{escaped=True,..} = "("++name++")"
+	show Variable{escaped=False,..} = "(("++name++"))"
+	show XMLTag{..} = "["++name++(concat $ map show attributes)++"]" ++ (concat $ map show contents) ++ "[/"++name++"]"
+	show EmptyXMLTag{..} = "["++name++(concat $ map show attributes)++"/]"
+	show XMLComment{..} = "[!--" ++ (concat $ map show contents) ++ "--]"
 	show XMLAttribute{..} = " " ++ name ++ "=\"" ++ (concat $ map show contents) ++ "\""
 	show Text{..} = text
 

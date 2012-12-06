@@ -2,9 +2,10 @@
 module Comb.Main
 where
 import System.Console.CmdArgs
-import Comb.Parser(template)
-import Text.Parsec(runParser)
-import Comb.Resolver
+import Comb.Parser(parse_file)
+import Comb.Resolver(resolve)
+import Comb.Generator(generate)
+import Text.JSON.Pretty(pp_js_object)
 import Debug.Trace
 
 data CombArgs = CombArgs {
@@ -21,28 +22,12 @@ arguments = CombArgs {
 	help "Generate DOM selectors for mustache template variables" &=
 	summary "Comb for Mustache v0.0.0, (C) Anders Ingemann" &=
 	details ["Comb for Mustache creates various selectors for each variable in a mustache template."]
-	
+
 main = do
 	args <- cmdArgs arguments
-	resolutions <- comb_file (head $ files args)
-	case resolutions of
-		--Just res -> mapM_ print (filter (\x -> case x of Warning{} -> True; _ -> False ) $ reverse res)
-		Just res -> mapM_ print (res)
-		Nothing -> return ()
-
-comb_file (path) = do
-	input <- readFile path
-	case (runParser template () path input) of
-		Left err ->  do
-			putStr "parse error at "
-			print err
-			return Nothing
-		Right ast -> do
-			--return $ Just (resolve ast)
-			return $ Just ast
-
---case (runParser parser () path input) of
---		Left err -> do
---			putStr "parse error at "
---			print err
---		Right x  -> print x
+	ast <- parse_file (head $ files args)
+	--mapM_ print ast
+	let resolutions = (resolve ast)
+	--mapM_ print (reverse resolutions)
+	let json = (generate resolutions)
+	putStrLn $ show (pp_js_object json)
