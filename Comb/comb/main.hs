@@ -4,7 +4,7 @@ where
 import System.Console.CmdArgs
 import Comb.Parser(template)
 import Text.Parsec(runParser)
-import Comb.Resolver(resolve)
+import Comb.Resolver
 import Debug.Trace
 
 data CombArgs = CombArgs {
@@ -26,7 +26,7 @@ main = do
 	args <- cmdArgs arguments
 	resolutions <- comb_file (head $ files args)
 	case resolutions of
-		Just res -> mapM_ print (reverse res)
+		Just res -> mapM_ print (filter (\x -> case x of Warning{} -> True; _ -> False ) $ reverse res)
 		Nothing -> return ()
 
 comb_file (path) = do
