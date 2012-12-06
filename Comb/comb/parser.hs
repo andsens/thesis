@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns, RecordWildCards #-}
 module Comb.Parser (
 	Content(..),
 	template
@@ -8,6 +9,8 @@ import qualified Text.Parsec.Char as C
 import Text.Parsec.Language(emptyDef)
 import Text.Parsec.Combinator
 import Text.Parsec.Pos(SourcePos)
+import Data.List
+import Debug.Trace
 
 run parser input = do
 	case (parse parser "" input) of
@@ -59,8 +62,9 @@ mustache_lexer  = T.makeTokenParser (
 	})
 
 m_identifier = T.identifier mustache_lexer
-m_reservedOp = T.reservedOp mustache_lexer
-m_symbol     = T.symbol mustache_lexer
+m_reservedOp str = try (do
+	C.string str
+	notFollowedBy (oneOf m_opLetters))
 
 {--
 content ::= {{  id  }}
@@ -119,13 +123,24 @@ data Content =
 		text :: String,
 		begin :: SourcePos,
 		end :: SourcePos
-	} deriving (Show, Eq)
+	} deriving (Eq)
+
+instance Show Content where
+	show Section{inverted=False,..} = "{{#"++name++"}}" ++ (concat $ map show contents) ++ "{{/"++name++"}}"
+	show Section{inverted=True,..} = "{{^"++name++"}}" ++ (concat $ map show contents) ++ "{{/"++name++"}}"
+	show Variable{escaped=True,..} = "{{"++name++"}}"
+	show Variable{escaped=False,..} = "{{{"++name++"}}}"
+	show XMLTag{..} = "<"++name++(concat $ map show attributes)++">" ++ (concat $ map show contents) ++ "</"++name++">"
+	show EmptyXMLTag{..} = "<"++name++(concat $ map show attributes)++"/>"
+	show XMLComment{..} = "<!--" ++ (concat $ map show contents) ++ "-->"
+	show XMLAttribute{..} = " " ++ name ++ "=\"" ++ (concat $ map show contents) ++ "\""
+	show Text{..} = text
 
 m_unescaped = do
 	begin <- getPosition
 	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
 	name <- m_identifier
-	m_symbol "}}}"
+	C.string "}}}"
 	end <- getPosition
 	return $ Variable name False begin end
 
@@ -134,7 +149,7 @@ m_escaped = do
 	m_reservedOp "{{" <?> "mustache variable"
 	notFollowedBy (oneOf m_opLetters)
 	name <- m_identifier
-	m_symbol "}}"
+	C.string "}}"
 	end <- getPosition
 	return $ Variable name True begin end
 
@@ -147,11 +162,11 @@ m_section allowed_content = do
 			m_reservedOp "{{^" <?> "mustache section (inverted)"
 			return True
 	name <- m_identifier
-	m_symbol "}}"
+	C.string "}}"
 	contents <- many allowed_content
 	m_reservedOp "{{/"
 	C.string name
-	m_symbol "}}"
+	C.string "}}"
 	end <- getPosition
 	return $ Section name inverted contents begin end
 

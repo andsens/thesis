@@ -5,7 +5,6 @@ module Comb.Resolver (
 	Resolution(..)
 ) where
 import qualified Comb.Parser as P
-import Text.Parsec.Pos(sourceLine)
 import Data.Maybe
 import Debug.Trace
 
@@ -142,7 +141,7 @@ ix_count :: P.Content -> Int
 ix_count P.XMLTag{} = 1
 ix_count P.EmptyXMLTag{} = 1
 ix_count P.XMLComment{} = 1
+ix_count P.Text{} = 1
 ix_count P.XMLAttribute{} = 0
-ix_count P.Text{} = 0
 ix_count el = error $ "Don't know whether index should be incremented on " ++ (show el) ++ " or not."
 

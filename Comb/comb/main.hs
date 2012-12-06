@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, NamedFieldPuns, RecordWildCards #-}
 module Comb.Main
 where
 import System.Console.CmdArgs
@@ -21,12 +21,13 @@ arguments = CombArgs {
 	help "Generate DOM selectors for mustache template variables" &=
 	summary "Comb for Mustache v0.0.0, (C) Anders Ingemann" &=
 	details ["Comb for Mustache creates various selectors for each variable in a mustache template."]
-
+	
 main = do
 	args <- cmdArgs arguments
 	resolutions <- comb_file (head $ files args)
 	case resolutions of
-		Just res -> mapM_ print (filter (\x -> case x of Warning{} -> True; _ -> False ) $ reverse res)
+		--Just res -> mapM_ print (filter (\x -> case x of Warning{} -> True; _ -> False ) $ reverse res)
+		Just res -> mapM_ print (res)
 		Nothing -> return ()
 
 comb_file (path) = do
@@ -37,7 +38,8 @@ comb_file (path) = do
 			print err
 			return Nothing
 		Right ast -> do
-			return $ Just (resolve ast)
+			--return $ Just (resolve ast)
+			return $ Just ast
 
 --case (runParser parser () path input) of
 --		Left err -> do
