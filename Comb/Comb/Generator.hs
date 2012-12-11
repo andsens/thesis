@@ -12,10 +12,7 @@ import Numeric
 import Debug.Trace
 
 generate resolutions =
-	toJSObject $ map make_selector (filter no_warnings resolutions)
-
-no_warnings R.Warning{} = False
-no_warnings _ = True
+	toJSObject $ map make_selector resolutions
 
 jstring = JSString . toJSString
 jobj = JSObject . toJSObject
