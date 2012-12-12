@@ -41,18 +41,32 @@ filter_resolutions resolutions =
 run_checks resolutions set (check:checks) = run_checks resolutions (check resolutions set) checks
 run_checks resolutions set [] = set
 
-checks = [run_check unescaped_offset, path_with_errors []]
+checks = [
+	  run_check unescaped_offset
+	--, run_check unescaped_is_last
+	, path_with_errors []
+	]
 
 run_check check (r:rs) set = run_check check rs (check r set)
 run_check check [] set = set
 
-
+-- Unescaped offsets
 unescaped_offset resolution set@(warns, errs) =
 	case get_path_top (R.path resolution) of
-		R.Offset i (R.VariableSelector{node=P.Variable{escaped=False}}) ->
+		R.Offset (R.VariableSelector{node=P.Variable{escaped=False}}) ->
 			(warns, (Error "Path contains unescaped variable" resolution):errs)
 		_ -> set
 
+---- Unescaped variable is the last child
+--unescaped_at_end R.VariableSelector{node=P.Variable{escaped=False},zipper=(crumb, trail),..} set@(warns, errs) =
+--	R.r
+--	case path of
+--		R.Index 0 p -> (warns, errs)
+--		_ -> (warns, (Error "Path contains unescaped variable" resolution):errs)
+--		(warns, (Error "Path contains unescaped variable" resolution):errs)
+--	_ -> set
+
+-- Path with errors
 path_with_errors valid_rs resolutions@(r:rs) set@(warns, errs) =
 	case find_path_error errs r of
 		Just err -> path_with_errors [] (valid_rs ++ rs) (warns, err:errs)

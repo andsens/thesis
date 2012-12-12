@@ -115,18 +115,19 @@ get_parent res (_, []) = Nothing
 data Path =
 	  Index { index :: Int, parent :: Path }
 	| Attribute { name :: String, parent :: Path }
-	| Offset { index :: Int, offset_res :: Resolution }
-	| Root { index :: Int } deriving (Show)
+	| Offset { offset_res :: Resolution }
+	| Root deriving (Show)
 
 get_path :: Resolutions -> Zipper -> Int -> Path
 get_path res z@(Crumb {l=l:ls,..}, _) i = get_path' res (left z) i
 get_path res z@(Crumb {l=[],..}, p:trail) i = Index i (get_path' res (up z) 0)
-get_path res z@(Crumb {l=[],..}, []) i = Root i
+get_path res z@(Crumb {l=[],..}, []) i = Index i Root
 
 get_path' :: Resolutions -> Zipper -> Int -> Path
-get_path' res z@(Crumb _ s@(P.Section{}) _, _) i = Offset i (find_res res s)
-get_path' res z@(Crumb _ v@(P.Variable{}) _, _) i = Offset i (find_res res v)
+get_path' res z@(Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
+get_path' res z@(Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
 get_path' res z@(Crumb _ a@(P.XMLAttribute{..}) _, _) i = Attribute name (get_path res z 0)
+get_path' res z@(Crumb _ a@(P.Text{..}) _, _) i = get_path res z i
 get_path' res z@(Crumb _ current _, _) i = get_path res z (i+1)
 
 ix_count :: P.Content -> Int

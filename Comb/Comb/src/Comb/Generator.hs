@@ -43,10 +43,10 @@ make_path (R.Index i parent) =
 	(jobj [("type", jstring "index"), ("i", jint i)]):(make_path parent)
 make_path (R.Attribute name parent) =
 	(jobj [("type", jstring "attribute"), ("name", jstring name)]):(make_path parent)
-make_path (R.Offset i o) =
-	[jobj [("type", jstring "offset"), ("i", jint i), ("node", jstring $ node_id (R.node o))]]
-make_path (R.Root i) =
-	[jobj [("type", jstring "root"), ("i", jint i)]]
+make_path (R.Offset o) =
+	[jobj [("type", jstring "offset"), ("node", jstring $ node_id (R.node o))]]
+make_path R.Root =
+	[jobj [("type", jstring "root")]]
 
 --node_id :: P.Content -> ShowS
 node_id node =

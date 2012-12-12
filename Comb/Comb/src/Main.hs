@@ -1,6 +1,4 @@
 {-# LANGUAGE DeriveDataTypeable, NamedFieldPuns, RecordWildCards #-}
-module Comb.Main
-where
 import System.Console.CmdArgs
 import System.IO
 import Comb.Parser(parse_file)
