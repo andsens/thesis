@@ -8,5 +8,4 @@ define [
 			
 		get: (name) ->
 			
-		set: (name) ->
 			
