@@ -120,21 +120,13 @@ data Path =
 
 get_path :: Resolutions -> Zipper -> Int -> Path
 get_path res z@(Crumb {l=l:ls,..}, _) i = get_path' res (left z) i
-get_path res z@(Crumb {l=[],..}, p:trail) i = Index i (get_path' res (up z) 0)
+get_path res z@(Crumb {l=[],..}, p:trail) i = Index i (get_path res (up z) 0)
 get_path res z@(Crumb {l=[],..}, []) i = Index i Root
 
 get_path' :: Resolutions -> Zipper -> Int -> Path
 get_path' res z@(Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
 get_path' res z@(Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
 get_path' res z@(Crumb _ a@(P.XMLAttribute{..}) _, _) i = Attribute name (get_path res z 0)
-get_path' res z@(Crumb _ a@(P.Text{..}) _, _) i = get_path res z i
+--get_path' res z@(Crumb _ a@(P.Text{..}) _, _) i = get_path res z i
 get_path' res z@(Crumb _ current _, _) i = get_path res z (i+1)
-
-ix_count :: P.Content -> Int
-ix_count P.XMLTag{} = 1
-ix_count P.EmptyXMLTag{} = 1
-ix_count P.XMLComment{} = 1
-ix_count P.Text{} = 1
-ix_count P.XMLAttribute{} = 0
-ix_count el = error $ "Don't know whether index should be incremented on " ++ (show el) ++ " or not."
 

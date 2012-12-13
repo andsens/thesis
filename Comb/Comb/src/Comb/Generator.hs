@@ -21,7 +21,9 @@ jint = (JSRational True) . toRational
 make_selector r@(R.SectionSelector{..}) =
 	(node_id node,
 	jobj [
-		("name", jstring $ R.fq_name r),
+		("name", jstring $ P.name node),
+		("stack", JSArray $ make_stack parent_section),
+		("type", jstring "section"),
 		("path", JSArray $ make_path path),
 		("inverted", JSBool $ P.inverted node),
 		("prev", make_node previous_sibling),
@@ -33,6 +35,8 @@ make_selector r@(R.VariableSelector{..}) =
 	(node_id node,
 	jobj [
 		("name", jstring $ R.fq_name r),
+		("stack", JSArray $ make_stack parent_section),
+		("type", jstring "variable"),
 		("path", JSArray $ make_path path),
 		("escaped", JSBool $ P.escaped node),
 		("prev", make_node previous_sibling),
@@ -52,6 +56,9 @@ make_path R.Root =
 node_id node =
 	let nid = hash . show $ P.begin node
 	in if nid >= 0 then showHex nid "1" else showHex (-nid) "0"
+
+make_stack (Just R.SectionSelector{..}) = (jstring $ P.name node):(make_stack parent_section)
+make_stack Nothing = []
 
 make_node (Just s@P.Section{..})   = jobj [("type", jstring "section"), ("id", jstring $ node_id s)]
 make_node (Just v@P.Variable{..})  = jobj [("type", jstring "variable"), ("id", jstring $ node_id v)]

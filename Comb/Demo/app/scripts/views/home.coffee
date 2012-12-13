@@ -1,16 +1,29 @@
 define [
 	'views/base/view'
 	'text!templates/home.mustache'
-], (View, template) ->
+	
+	'views/input'
+	'views/viewer'
+], (View, template,
+	InputView, ViewerView) ->
 	'use strict'
 	
-	class Home extends View
+	class HomeView extends View
 		
 		template: template
 		template = null
-		container: "body"
+		container: "#main"
 		
-		tagName: "div"
 		className: "row-fluid"
 		
 		autoRender: true
+		
+		initialize: ->
+			super
+			@subview 'input', new InputView()
+			@subview 'viewer', new ViewerView()
+		
+		afterRender: ->
+			super
+			@$('.view-input').append (@subview 'input').render().$el
+			@$('.view-viewer').append (@subview 'viewer').render().$el
