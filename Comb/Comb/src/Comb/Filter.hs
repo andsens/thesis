@@ -55,7 +55,7 @@ run_check check [] set = set
 -- Unescaped offsets
 unescaped_offset resolution set@(warns, errs) =
 	case get_path_top (R.path resolution) of
-		R.Offset (R.VariableSelector{node=P.Variable{escaped=False}}) ->
+		R.Offset _ (R.VariableSelector{node=P.Variable{escaped=False}}) ->
 			(warns, (Error "Path contains unescaped variable" resolution):errs)
 		_ -> set
 
@@ -78,7 +78,7 @@ path_with_errors valid_rs [] set = set
 find_path_error errs r =
 	case get_path_top (R.path r) of
 		top@R.Offset{..} ->
-			if has_error errs offset_res
+			if has_error errs offset
 				then Just (Error "Unresolved offset found in path" r)
 				else Nothing
 		_ -> Nothing
