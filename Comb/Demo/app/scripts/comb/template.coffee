@@ -6,17 +6,17 @@ define [
 	
 	class Template
 		
-		constructor: (@spec) ->
-			@root = new Section null, {
+		constructor: (@spec, @dom) ->
+			@root = new Section {
+					id: null
 					stack: []
-				}, @spec
+					path: []
+					content_length: @dom.childNodes.length
+				}, @spec, @dom.childNodes, 0
 		
-		get: (name, dom) ->
+		get: (name) ->
 			query = name.split '>'
-			result = @root.get query, dom
-			if result?
-				return result
-			return []
+			@root.get query
 		
-		set: (name, dom) ->
+		set: (name) ->
 			

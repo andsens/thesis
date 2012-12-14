@@ -22,6 +22,7 @@ make_selector r@(R.SectionSelector{..}) =
 	(node_id node,
 	jobj [
 		("name", jstring $ P.name node),
+		("id", jstring $ node_id node),
 		("stack", JSArray $ make_stack parent_section),
 		("type", jstring "section"),
 		("path", JSArray $ make_path path),
@@ -29,12 +30,14 @@ make_selector r@(R.SectionSelector{..}) =
 		("prev", make_node previous_sibling),
 		("next", make_node next_sibling),
 		("first", make_node first_child),
-		("last", make_node last_child)
+		("last", make_node last_child),
+		("content_length", jint content_length)
 	])
 make_selector r@(R.VariableSelector{..}) =
 	(node_id node,
 	jobj [
-		("name", jstring $ R.fq_name r),
+		("name", jstring $ P.name node),
+		("id", jstring $ node_id node),
 		("stack", JSArray $ make_stack parent_section),
 		("type", jstring "variable"),
 		("path", JSArray $ make_path path),
@@ -57,7 +60,7 @@ node_id node =
 	let nid = hash . show $ P.begin node
 	in if nid >= 0 then showHex nid "1" else showHex (-nid) "0"
 
-make_stack (Just R.SectionSelector{..}) = (jstring $ P.name node):(make_stack parent_section)
+make_stack (Just R.SectionSelector{..}) = (jstring $ node_id node):(make_stack parent_section)
 make_stack Nothing = []
 
 make_node (Just s@P.Section{..})   = jobj [("type", jstring "section"), ("id", jstring $ node_id s)]

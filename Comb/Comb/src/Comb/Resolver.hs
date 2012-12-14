@@ -59,7 +59,8 @@ data Resolution =
 		previous_sibling :: Maybe P.Content,
 		next_sibling :: Maybe P.Content,
 		first_child :: Maybe P.Content,
-		last_child :: Maybe P.Content
+		last_child :: Maybe P.Content,
+		content_length :: Int
 	} | VariableSelector {
 		node :: P.Content,
 		path :: Path,
@@ -91,14 +92,15 @@ find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
 
 make_selector :: Resolutions -> Zipper -> Resolutions
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
-	(SectionSelector c path z parent prev next first_c last_c):res
+	(SectionSelector c path z parent prev next first_c last_c c_length):res
 	where
-		path    = get_path res z 0
-		parent  = get_parent res z
-		prev    = listToMaybe l
-		next    = listToMaybe r
-		first_c = listToMaybe contents
-		last_c  = case contents of [] -> Nothing; _ -> Just $ last contents
+		path     = get_path res z 0
+		parent   = get_parent res z
+		prev     = listToMaybe l
+		next     = listToMaybe r
+		first_c  = listToMaybe contents
+		last_c   = case contents of [] -> Nothing; _ -> Just $ last contents
+		c_length = length contents
 make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
 	(VariableSelector c path z parent prev next):res
 	where
@@ -118,15 +120,20 @@ data Path =
 	| Offset { offset_res :: Resolution }
 	| Root deriving (Show)
 
+-- This is done this way because.... yeah I don't even know anymore. It works, so there.
 get_path :: Resolutions -> Zipper -> Int -> Path
 get_path res z@(Crumb {l=l:ls,..}, _) i = get_path' res (left z) i
-get_path res z@(Crumb {l=[],..}, p:trail) i = Index i (get_path res (up z) 0)
+get_path res z@(Crumb {l=[],..}, p:trail) i = Index i (backtrack res (up z) 0)
 get_path res z@(Crumb {l=[],..}, []) i = Index i Root
+
+backtrack res z@(Crumb _ s@(P.Section{}) _, _) i = Offset (find_res res s)
+backtrack res z@(Crumb _ v@(P.Variable{}) _, _) i = Offset (find_res res v)
+backtrack res z@(Crumb {l=l:ls,..}, _) i = get_path' res (left z) i
+backtrack res z@(Crumb {l=[],..}, p:trail) i = Index i (backtrack res (up z) 0)
+backtrack res z@(Crumb {l=[],..}, []) i = Index i Root
 
 get_path' :: Resolutions -> Zipper -> Int -> Path
 get_path' res z@(Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
 get_path' res z@(Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
-get_path' res z@(Crumb _ a@(P.XMLAttribute{..}) _, _) i = Attribute name (get_path res z 0)
---get_path' res z@(Crumb _ a@(P.Text{..}) _, _) i = get_path res z i
-get_path' res z@(Crumb _ current _, _) i = get_path res z (i+1)
-
+get_path' res z@(Crumb _ a@(P.XMLAttribute{..}) _, _) i = Attribute name (backtrack res z 0)
+get_path' res z@(Crumb _ current _, _) i = backtrack res z (i+1)

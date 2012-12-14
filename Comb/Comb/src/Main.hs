@@ -26,6 +26,7 @@ arguments = CombArgs {
 main = do
 	args <- cmdArgs arguments
 	ast <- parse_file (head $ files args)
+	--mapM_ print ast
 	let unfiltered_resolutions = resolve ast
 	let (resolutions, warnings, errors) = filter_resolutions unfiltered_resolutions
 	let json = (generate resolutions)

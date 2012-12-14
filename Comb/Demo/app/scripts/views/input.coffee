@@ -21,7 +21,11 @@ define [
 			Chaplin.mediator.subscribe 'templateLoaded', @templateLoaded
 		
 		renderForm: (info) =>
-			@comb = new CombTpl info.comb
+			@spec = info.comb
 		
-		templateLoaded: (doc) =>
-			console.log (@comb.get 'name', doc)
+		templateLoaded: (dom) =>
+			@comb = new CombTpl @spec, dom
+			# console.log 'get name', (@comb.get 'name', doc)
+			# console.log 'get description', (@comb.get 'description', dom)
+			# console.log 'get expert skills', (@comb.get 'expert_skills', dom)
+			console.log 'get expert skills', (@comb.get 'expert_skills>name')

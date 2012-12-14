@@ -174,7 +174,7 @@ xml_tag = do
 	name <- x_identifier
 	attrs <- many xml_attribute
 	tag <- do
-			x_reservedOp "/>"
+			C.string "/>"
 			end <- getPosition
 			return $ EmptyXMLTag name attrs begin end
 		<|> do

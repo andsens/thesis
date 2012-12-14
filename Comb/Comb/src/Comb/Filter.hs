@@ -21,15 +21,15 @@ instance Show Error where
 	show (Error message res) = (location res) ++ "\n" ++ message
 
 location r@R.VariableSelector{..} =
-	"Variable " ++ (R.fq_name r) ++ " in " ++ filename ++ ":" ++ line
+	"Variable " ++ (P.name node) ++ " in " ++ filename ++ ":" ++ line
 	where
-		filename = (sourceName . P.begin . R.node) r
-		line = show $ (sourceLine . P.begin . R.node) r
+		filename = (sourceName . P.begin) node
+		line = show $ (sourceLine . P.begin) node
 location r@R.SectionSelector{..} =
-	"Section " ++ (R.fq_name r) ++ " in " ++ filename ++ ":" ++ line
+	"Section " ++ (P.name node) ++ " in " ++ filename ++ ":" ++ line
 	where
-		filename = (sourceName . P.begin . R.node) r
-		line = show $ (sourceLine . P.begin . R.node) r
+		filename = (sourceName . P.begin) node
+		line = show $ (sourceLine . P.begin) node
 
 
 
@@ -43,7 +43,9 @@ run_checks resolutions set [] = set
 
 checks = [
 	  run_check unescaped_offset
-	--, run_check unescaped_is_last
+	--, run_check unescaped_is_encapsulated
+	--, check if two variables in the same text section
+	--, check if a section has prev and first == 'text' or next and last == 'text' => warning
 	, path_with_errors []
 	]
 
@@ -57,7 +59,7 @@ unescaped_offset resolution set@(warns, errs) =
 			(warns, (Error "Path contains unescaped variable" resolution):errs)
 		_ -> set
 
----- Unescaped variable is the last child
+---- Unescaped variable is always encapsulated
 --unescaped_at_end R.VariableSelector{node=P.Variable{escaped=False},zipper=(crumb, trail),..} set@(warns, errs) =
 --	R.r
 --	case path of

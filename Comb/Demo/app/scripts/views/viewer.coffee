@@ -21,6 +21,23 @@ define [
 			Chaplin.mediator.subscribe 'loadTemplate', @renderTemplate
 		
 		renderTemplate: (info) =>
-			@$el.empty().append (Mustache.render info.template, {})
+			data =
+				name: 'test'
+				description: 'quite a long piece of text'
+				own: [
+						deeper:
+							deepvar: 'uno'
+					,
+						deeper:
+							deepvar: 'dos'
+					,
+						deeper:
+							deepvar: 'tres'
+					]
+				expert_skills: [
+					  name: 'coding'
+					, name: 'architecture'
+				]
+			@$el.empty().append (Mustache.render info.template, data)
 			Chaplin.mediator.publish 'templateLoaded', @$el[0]
 			
