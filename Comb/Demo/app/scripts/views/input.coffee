@@ -23,8 +23,8 @@ define [
 		renderForm: (info) =>
 			@spec = info.comb
 		
-		templateLoaded: (dom) =>
-			@comb = new CombTpl @spec, dom
+		templateLoaded: (node) =>
+			@comb = new CombTpl @spec, node
 			# console.log 'get name', (@comb.get 'name', doc)
 			# console.log 'get description', (@comb.get 'description', dom)
 			# console.log 'get expert skills', (@comb.get 'expert_skills', dom)

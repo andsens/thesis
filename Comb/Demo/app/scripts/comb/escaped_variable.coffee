@@ -2,14 +2,13 @@ define [
 ], () ->
 	'use strict'
 	
-	class Variable
+	class EscapedVariable
 		
-		constructor: (item, @spec, @childNodes, @strOffset, @nodeOffset) ->
+		constructor: (item, @spec, @root, @nodeStart, @strStart) ->
 			@[prop] = val for prop, val of item
-			if @escaped
-				@string = @getString()
-			else
-				throw new Error "Not handled yet"
+		
+		parse: (@nodes, @nodeOffset, @strOffset) ->
+			
 		
 		getString: ->
 			# if index is >0 and type of prev is text, reduce index by one and use substring of prev

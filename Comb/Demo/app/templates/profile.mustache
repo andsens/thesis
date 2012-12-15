@@ -1,6 +1,7 @@
-<div class="sectionHeader">
+<div class="sectionHeader{{afterHeader}}">
   <h3>{{name}}</h3>
 </div>
+{{#begin}}{{end}}{{/begin}}
 <div class="content profile-data profile-view">
   <div class="row-fluid profileActions">
     <div class="span6">
@@ -11,6 +12,7 @@
       </button>
       {{#deeper}}
         {{deepvar}}
+        {{deepvar2}}
       {{/deeper}}
       {{/own}}
       {{^own}}

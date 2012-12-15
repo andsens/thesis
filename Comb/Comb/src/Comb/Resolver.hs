@@ -13,7 +13,7 @@ import Data.Maybe
 type Resolutions = [Resolution]
 
 resolve :: [P.Content] -> Resolutions
-resolve (x:xs) = siblings [] (Crumb [] x xs, [])
+resolve (x:xs) = reverse (siblings [] (Crumb [] x xs, []))
 resolve []     = []
 
 type Zipper = (Crumb, [Crumb])
@@ -123,13 +123,13 @@ get_path res (Crumb [] _ _, []) = Root 0
 backtrack :: Resolutions -> Zipper -> Int -> Path
 backtrack res (Crumb _ s@(P.Section{}) _, _) i = Offset i (find_res res s)
 backtrack res (Crumb _ v@(P.Variable{}) _, _) i = Offset i (find_res res v)
-backtrack res (Crumb _ a@(P.XMLAttribute{..}) _, p:trail) i = Attribute name (backtrack res (p, trail) 0)
 backtrack res (Crumb (y:l) x r, trail) i = backtrack res (Crumb l y (x:r), trail) (i+1)
 backtrack res (Crumb [] x r, p:trail) i = Index i (backtrack_parent res (p, trail))
 backtrack res (Crumb [] x r, []) i = Root i
 
 backtrack_parent res (Crumb _ s@(P.Section{}) _, _) = Child (find_res res s)
 backtrack_parent res (Crumb (y:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 1
+backtrack_parent res (Crumb _ P.XMLAttribute{..} _, p:trail) = Attribute name (backtrack_parent res (p, trail))
 backtrack_parent res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
 backtrack_parent res (Crumb [] _ _, []) = Root 0
 

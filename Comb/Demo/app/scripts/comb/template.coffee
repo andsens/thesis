@@ -6,13 +6,14 @@ define [
 	
 	class Template
 		
-		constructor: (@spec, @dom) ->
+		constructor: (@spec, @node) ->
 			@root = new Section {
 					id: null
 					stack: []
 					path: []
-					content_length: @dom.childNodes.length
-				}, @spec, @dom.childNodes, 0
+					prev: null
+					next: null
+				}, @spec, @node, 0, 0
 		
 		get: (name) ->
 			query = name.split '>'

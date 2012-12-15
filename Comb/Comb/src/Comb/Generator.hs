@@ -11,21 +11,37 @@ import Data.List
 import Numeric
 import Debug.Trace
 
-generate resolutions =
-	toJSObject $ map make_selector resolutions
-
 jstring = JSString . toJSString
 jobj = JSObject . toJSObject
 jint = (JSRational True) . toRational
+
+generate resolutions =
+	toJSObject $ root_selector:(map make_selector resolutions)
+
+root_selector =
+	("root",
+	jobj [
+		("name", JSNull),
+		("id", jstring "root"),
+		("stack", JSArray []),
+		("type", jstring "section"),
+		("path", JSArray $ [jobj [("type", jstring "index"), ("i", jint 0)]]),
+		("inverted", JSBool False),
+		("prev", JSNull),
+		("next", JSNull),
+		("first", JSNull),
+		("last", JSNull),
+		("content_length", JSNull)
+	])
 
 make_selector r@(R.SectionSelector{..}) =
 	(node_id node,
 	jobj [
 		("name", jstring $ P.name node),
 		("id", jstring $ node_id node),
-		("stack", JSArray $ make_stack parent_section),
+		("stack", JSArray $ (reverse . make_stack) parent_section),
 		("type", jstring "section"),
-		("path", JSArray $ make_path path),
+		("path", JSArray $ (reverse . make_path) path),
 		("inverted", JSBool $ P.inverted node),
 		("prev", make_node previous_sibling),
 		("next", make_node next_sibling),
@@ -38,13 +54,13 @@ make_selector r@(R.VariableSelector{..}) =
 	jobj [
 		("name", jstring $ P.name node),
 		("id", jstring $ node_id node),
-		("stack", JSArray $ make_stack parent_section),
-		("type", jstring "variable"),
-		("path", JSArray $ make_path path),
-		("escaped", JSBool $ P.escaped node),
+		("stack", JSArray $ (reverse . make_stack) parent_section),
+		("type", jstring $ if is_escaped then "escaped" else "unescaped"),
+		("path", JSArray $ (reverse . make_path) path),
 		("prev", make_node previous_sibling),
 		("next", make_node next_sibling)
 	])
+	where is_escaped = P.escaped node
 
 make_path (R.Index i parent) =
 	(jobj [("type", jstring "index"), ("i", jint i)]):(make_path parent)
@@ -55,23 +71,23 @@ make_path (R.Offset i o) =
 make_path (R.Child o) =
 	[jobj [("type", jstring "child"), ("node", jstring $ node_id (R.node o))]]
 make_path (R.Root i) =
-	[jobj [("type", jstring "root"), ("i", jint i)]]
+	[jobj [("type", jstring "index"), ("i", jint i)], jobj [("type", jstring "child"), ("node", jstring "root")]]
 
---node_id :: P.Content -> ShowS
 node_id node =
 	let nid = hash . show $ P.begin node
 	in if nid >= 0 then showHex nid "1" else showHex (-nid) "0"
 
 make_stack (Just R.SectionSelector{..}) = (jstring $ node_id node):(make_stack parent_section)
-make_stack Nothing = []
+make_stack Nothing = [jstring "root"]
 
 make_node (Just s@P.Section{..})   = jobj [("type", jstring "section"), ("id", jstring $ node_id s)]
-make_node (Just v@P.Variable{..})  = jobj [("type", jstring "variable"), ("id", jstring $ node_id v)]
+make_node (Just v@P.Variable{escaped=True,..}) = jobj [("type", jstring "escaped"), ("id", jstring $ node_id v)]
+make_node (Just v@P.Variable{escaped=False,..}) = jobj [("type", jstring "unescaped"), ("id", jstring $ node_id v)]
 make_node (Just P.XMLTag{..})      = jobj [("type", jstring "node"), ("name", jstring name)]
 make_node (Just P.EmptyXMLTag{..}) = jobj [("type", jstring "emptynode"), ("name", jstring name)]
 make_node (Just P.XMLComment{..})  = jobj [("type", jstring "comment")]
 make_node (Just P.Text{..})        = jobj [("type", jstring "text"), ("value", jstring text)]
-make_node Nothing                  = JSNull
+make_node Nothing                  = jobj [("type", jstring "null")]
 
 
 

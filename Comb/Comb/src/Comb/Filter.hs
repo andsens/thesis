@@ -43,6 +43,7 @@ run_checks resolutions set [] = set
 
 checks = [
 	  run_check unescaped_offset
+	--, remove sections without children
 	--, run_check unescaped_is_encapsulated
 	--, check if two variables in the same text section
 	--, check if a section has prev and first == 'text' or next and last == 'text' => warning

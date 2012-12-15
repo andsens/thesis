@@ -1,8 +1,9 @@
 define [
-	'comb/variable'
+	'comb/escaped_variable'
+	'comb/unescaped_variable'
 	'comb/section'
 	'underscore'
-], (Variable, Section,
+], (UnescapedVariable, EscapedVariable, Section,
 	_) ->
 	'use strict'
 	
@@ -10,25 +11,122 @@ define [
 		
 		separator: '.'
 		
-		constructor: (item, @spec, @childNodes, @strOffset, @nodeOffset) ->
-			@[prop] = val for prop, val of item
+		constructor: (item, @spec, @root, @nodeStart, @strStart) ->
+			@[prop]     = val for prop, val of item
+			@parent     = @root
+			@nodeOffset = @nodeStart
+			@strOffset  = @strStart
+			@children   = (for id, child of @spec when _.last child.stack is @id)
+			@iterations = []
 			
-			@itemsById = {}
-			@itemsByName = {}
-			if @path.length isnt 0
-				index = @path[0]
-				nodePos = index.i
-				if @prev?.type is 'text' and @first?.type is 'text'
-					nodePos--
-			else
-				nodePos = 0
-			@nodeOffset += nodePos
+			if @id isnt 'root'
+				switch @path[0].type
+					when "offset", "child"
+					else throw new Error "Expected first part of path to be offset or child"
+				switch @path[1].type
+					when "index"
+					else throw new Error "Expected second part of path to be an index"
 			
-			@parsed = @parse()
+			for part, i in @path
+				continue if i is 0
+				if part.type is 'index'
+					@nodeOffset += part.i
+				break if i is @path.length-2
+				if part.type is 'attribute'
+					@parent = @parent.attributes.getNamedItem(part.name)
+				else
+					@parent = @parent.childNodes[part.i + @nodeOffset]
+				@nodeOffset = 0
 			
+			@nodes = @parent.childNodes
+			
+			unless @nodeMatches @prev
+				throw new Error "The previous node did not match the expected value"
+			
+			switch @prev.type
+				when 'text' then @strOffset += @prev.value.length
+				when 'node', 'emptynode', 'comment' then @nodeOffset += 1
+			
+			iterate = ->
+				return false if @nodeMatches @next
+				if @id isnt 'root' and not @nodeMatches @first
+					throw new Error "Unable to find first node in iteration #{i}"
+				return true
+			
+			i = 0
+			while iterate()
+				
+				iteration = {}
+				
+				for child in @children when child.path[0].type is 'child'
+					if child.path[0].node isnt @id then throw new Error "Unexpected path in list of children"
+						if child.type is 'escaped'
+							iteration[child.id] = new EscapedVariable child, @spec, @parent, @nodeOffset, @strOffset
+						if child.type is 'unescaped'
+							throw new Error "Unescaped variables are not yet supported"
+						if child.type is 'section'
+							iteration[child.id] = new Section child, @spec, @parent, @nodeOffset, @strOffset
+				
+				remaining = (for child in @children when child.path[0].type is 'offset')
+				
+				while remaining.length isnt 0
+					child = remaining.shift()
+					offsetNode = iteration[child.path[0].node]
+					unless offsetNode?
+						remaining.push child
+						throw new Error "Something is wrong with the ordering of the offset children"
+						continue
+					nodeEnd = offsetNode.nodeEnd
+					strEnd = offsetNode.strEnd
+					if child.type is 'escaped'
+						iteration[child.id] = new EscapedVariable child, @spec, @parent, nodeEnd, strEnd
+					if child.type is 'unescaped'
+						throw new Error "Unescaped variables are not yet supported"
+					if child.type is 'section'
+						iteration[child.id] = new Section child, @spec, @parent, nodeEnd, strEnd
+				
+				for id, obj of iteration when obj.parent is @parent
+					
+				
+				iterations.push iteration
+					
+		
+		
+		nodeMatches = (match) ->
+			node = @nodes[@nodeOffset]
+			switch match.type
+				when 'section'  then throw new Error "Unsupported matching type"
+				when 'escaped_variable' then throw new Error "Unsupported matching type"
+				when 'unescaped_variable' then throw new Error "Unsupported matching type"
+				when 'node', 'emptynode' then return node.nodeType is 1 and node.tagName is match.name
+				when 'comment' then return node.nodeType is 8
+				when 'text' then return node.nodeType is 3 and node.data.substring(@strOffset).indexOf(match.value) is 0
+				when 'null' then return node?
+		
+		
+			# @variables = []
+			# @sections = []
+			# for id, child of @spec
+			# 	continue unless _.last child.stack is @id
+			# 	if child.type is 'variable'
+			# 		if child.escaped
+			# 			@variables.push new EscapedVariable item
+			# 		else
+			# 			@variables.push new UnescapedVariable item
+			# 	else
+			# 		@sections.push new Section item, @spec
+		
+		
+		
+		
+		
+		
+		
 		
 		parse: () ->
-			parsedItems = []
+			
+			
+			
 			
 			path_matches = (path, offsetId, itemPath) ->
 				return false unless path.length+2 is itemPath.length
