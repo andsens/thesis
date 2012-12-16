@@ -7,15 +7,16 @@ define [
 		
 		constructor: ->
 			@initialize arguments...
-			@parse()
+			@runParse()
 		
-		initialize: (item, @spec, @root, @nodeStart, @strStart) ->
+		initialize: (item, @spec, @parent, @nodeOffset, @strOffset) ->
 			@[prop]     = val for prop, val of item
-			console.log "Construct #{@type}: '#{@name}' (#{@id}) parent:", @root, "nodeOffset:", @nodeStart, "strOffset:", @strStart
+			console.log "Construct #{@type}: '#{@name}' (#{@id}) nodeOffset:", @nodeOffset, "strOffset:", @strOffset
 			
 			if @id isnt 'root'
 				switch @path[0].type
-					when "offset", "child"
+					when "offset" then
+					when "child"
 					else throw new Error "Expected first part of path to be offset or child"
 				switch @path[1].type
 					when "index"
@@ -24,36 +25,47 @@ define [
 			switch @first?.type
 				when 'section' then throw new Error "Section as first child not yet supported"
 				when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-			
-			@parent     = @root
-			@nodeOffset = @nodeStart
-			@strOffset  = @strStart
 		
-		parse: ->
+		runParse: ->
 			@findParent()
 			@verifyPrevious()
+			@parse()
+			@verifyNext()
+		
+		parse: ->
+			
 		
 		findParent: ->
 			for part, i in @path when i isnt 0
 				if part.type is 'index'
-					@nodeOffset += part.i
-					if i is 1
+					if i is 1 and part.i > 0
 						# reset the string offset if we have skipped over a tag, that does not include the previous node
-						for offset in [@nodeStart..@nodeOffset-1] when @parent.childNodes[offset].nodeType is 1
-							console.log @parent.childNodes[offset]
+						for offset in [0..part.i] when @parent.childNodes[@nodeOffset+offset].nodeType is 1
 							@strOffset = 0
-							console.log 'reset'
+							console.log [0..part.i]
+							console.log 'reset', @parent.childNodes[@nodeOffset+offset]
 							break
-				break if i is @path.length-1
-				if part.type is 'attribute'
-					@parent = @parent.attributes.getNamedItem(part.name)
-				else
-					@parent = @parent.childNodes[@nodeOffset]
+					@nodeOffset += part.i
+				if i is @path.length-1
+					break
+				switch part.type
+					when 'attribute' then @parent = @parent.attributes.getNamedItem(part.name)
+					when 'index'     then @parent = @parent.childNodes[@nodeOffset]
+					else                  throw new Error "Unexpected path type #{part.type}"
 				@nodeOffset = 0
 			
-			if @prev.type is 'text'
-				@nodeOffset = Math.max(@nodeOffset-1, 0)
-		
+			# if @prev.type is 'text'
+			# 	@nodeOffset -= 1
+			# 	if @nodeOffset < 0
+			# 		throw new Error "Previous correction got the nodeOffset down to #{@nodeOffset}"
+			# else if @path[0].type is 'offset'
+			# 	console.log 'dec'
+			# 	# We want to point at the previous node and not the element itself
+			# 	@nodeOffset -= 1
+			# 	if @nodeOffset < 0
+			# 		throw new Error "Offset correction got the nodeOffset down to #{@nodeOffset}"
+				
+				
 		verifyPrevious: ->
 			@verifying 'previous', @prev
 			
@@ -74,6 +86,11 @@ define [
 				nodeOffset: @nodeOffset
 				strOffset: @strOffset
 				, "to", match
+		
+		verifyNext: ->
+			@verifying 'next', @next
+			unless @nodeMatches @next
+				throw new Error "Unable to match section end"
 		
 		nodeMatches: (match) ->
 			node = @parent.childNodes[@nodeOffset]

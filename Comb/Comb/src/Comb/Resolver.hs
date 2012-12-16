@@ -106,6 +106,8 @@ data Path =
 	deriving (Show)
 
 get_path :: Resolutions -> Zipper -> Path
+-- Don't include previous textnodes, they will be merged with the section or variable
+get_path res (Crumb (y@P.Text{}:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 0
 get_path res (Crumb (y:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 1
 get_path res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
 get_path res (Crumb [] _ _, []) = Index 0 Root
