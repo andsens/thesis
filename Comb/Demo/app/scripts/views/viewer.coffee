@@ -24,6 +24,9 @@ define [
 			data =
 				name: 'test'
 				description: 'quite a long piece of text'
+				blah: 'blahtext'
+				begin:
+					end: 'endtext'
 				own: [
 						deeper:
 							deepvar: 'uno'

@@ -8,7 +8,7 @@ module Comb.Resolver (
 	fq_name
 ) where
 import qualified Comb.Parser as P
-import Data.Maybe
+import Data.Maybe(listToMaybe)
 
 type Resolutions = [Resolution]
 
@@ -41,20 +41,15 @@ data Resolution =
 	SectionSelector {
 		node :: P.Content,
 		path :: Path,
-		zipper :: Zipper,
-		parent_section :: Maybe Resolution,
-		previous_sibling :: Maybe P.Content,
-		next_sibling :: Maybe P.Content,
-		first_child :: Maybe P.Content,
-		last_child :: Maybe P.Content,
-		content_length :: Int
+		section :: Maybe Resolution,
+		prev :: Maybe P.Content,
+		next :: Maybe P.Content
 	} | VariableSelector {
 		node :: P.Content,
 		path :: Path,
-		zipper :: Zipper,
-		parent_section :: Maybe Resolution,
-		previous_sibling :: Maybe P.Content,
-		next_sibling :: Maybe P.Content
+		section :: Maybe Resolution,
+		prev :: Maybe P.Content,
+		next :: Maybe P.Content
 	}
 
 
@@ -65,10 +60,10 @@ instance Show Resolution where
 	show v@VariableSelector{node=P.Variable{escaped=False,..},..} = '{':fq_name v
 
 fq_name :: Resolution -> String
-fq_name res = (scope $ parent_section res) ++ (P.name (node res))
+fq_name res = (scope $ section res) ++ (P.name (node res))
 
 scope :: Maybe Resolution -> String
-scope (Just SectionSelector{..}) = (scope parent_section) ++ (P.name node) ++ ">"
+scope (Just SectionSelector{..}) = (scope section) ++ (P.name node) ++ ">"
 scope Nothing = ""
 
 find_res :: Resolutions -> P.Content -> Resolution
@@ -79,59 +74,50 @@ find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
 
 make_selector :: Resolutions -> Zipper -> Resolutions
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
-	(SectionSelector c path z parent prev next first_c last_c c_length):res
+	(SectionSelector c path section prev next):res
 	where
-		path     = get_path res z
-		parent   = get_parent res z
-		prev     = listToMaybe l
-		next     = listToMaybe r
-		first_c  = listToMaybe contents
-		last_c   = case contents of [] -> Nothing; _ -> Just $ last contents
-		c_length = get_length contents
+		path    = get_path res z
+		section = get_section res z
+		prev    = listToMaybe l
+		next    = listToMaybe r
 make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
-	(VariableSelector c path z parent prev next):res
+	(VariableSelector c path section prev next):res
 	where
-		path   = get_path res z
-		parent = get_parent res z
-		prev   = listToMaybe l
-		next   = listToMaybe r
+		path    = get_path res z
+		section = get_section res z
+		prev    = listToMaybe l
+		next    = listToMaybe r
 
-get_parent :: Resolutions -> Zipper -> Maybe Resolution
-get_parent res (_, (Crumb _ s@(P.Section {}) _):trail) = Just (find_res res s)
-get_parent res (_, p:trail) = get_parent res (p, trail)
-get_parent res (_, []) = Nothing
-
-get_length :: [P.Content] -> Int
-get_length (P.Section{}:cs) = get_length cs
-get_length (P.Variable{}:cs) = get_length cs
-get_length (_:cs) = (get_length cs)+1
-get_length [] = 0
+get_section :: Resolutions -> Zipper -> Maybe Resolution
+get_section res (_, (Crumb _ s@(P.Section {}) _):trail) = Just (find_res res s)
+get_section res (_, p:trail) = get_section res (p, trail)
+get_section res (_, []) = Nothing
 
 data Path =
 	  Attribute { name :: String, parent :: Path }
 	| Index { index :: Int, parent :: Path }
-	| Offset { index :: Int, offset :: Resolution }
+	| Offset { offset :: Resolution }
 	| Child { offset :: Resolution }
-	| Root { index :: Int }
+	| Root
 	deriving (Show)
 
 get_path :: Resolutions -> Zipper -> Path
 get_path res (Crumb (y:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 1
 get_path res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
-get_path res (Crumb [] _ _, []) = Root 0
+get_path res (Crumb [] _ _, []) = Index 0 Root
 
 backtrack :: Resolutions -> Zipper -> Int -> Path
-backtrack res (Crumb _ s@(P.Section{}) _, _) i = Offset i (find_res res s)
-backtrack res (Crumb _ v@(P.Variable{}) _, _) i = Offset i (find_res res v)
+backtrack res (Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
+backtrack res (Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
 backtrack res (Crumb (y:l) x r, trail) i = backtrack res (Crumb l y (x:r), trail) (i+1)
 backtrack res (Crumb [] x r, p:trail) i = Index i (backtrack_parent res (p, trail))
-backtrack res (Crumb [] x r, []) i = Root i
+backtrack res (Crumb [] x r, []) i = Index i Root
 
 backtrack_parent res (Crumb _ s@(P.Section{}) _, _) = Child (find_res res s)
 backtrack_parent res (Crumb (y:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 1
 backtrack_parent res (Crumb _ P.XMLAttribute{..} _, p:trail) = Attribute name (backtrack_parent res (p, trail))
 backtrack_parent res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
-backtrack_parent res (Crumb [] _ _, []) = Root 0
+backtrack_parent res (Crumb [] _ _, []) = Index 0 Root
 
 
 

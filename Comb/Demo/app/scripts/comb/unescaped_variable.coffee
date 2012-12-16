@@ -1,10 +1,9 @@
 define [
-], () ->
+	'comb/mustache'
+], (Mustache) ->
 	'use strict'
 	
-	class UnescapedVariable
+	class UnescapedVariable extends Mustache
 		
-		constructor: (item, @spec, @childNodes, @strOffset, @nodeOffset) ->
+		initialize: ->
 			throw new Error "Unsupported"
-			@[prop] = val for prop, val of item
-		

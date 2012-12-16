@@ -29,3 +29,5 @@ define [
 			# console.log 'get description', (@comb.get 'description', dom)
 			# console.log 'get expert skills', (@comb.get 'expert_skills', dom)
 			console.log 'get expert skills', (@comb.get 'expert_skills>name')
+			Chaplin.mediator.publish 'templateParsed'
+			
