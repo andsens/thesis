@@ -28,8 +28,13 @@ define [
 				begin:
 					end: 'endtext'
 				own: [
-						deeper:
-							deepvar: 'uno'
+						deeper: [
+								deepvar: 'uno1'
+								deepvar2: 'due1'
+							,
+								deepvar: 'uno2'
+								deepvar2: 'due2'
+						]
 					,
 						deeper:
 							deepvar: 'dos'
@@ -42,6 +47,6 @@ define [
 					, name: 'architecture'
 				]
 			@$el.empty().append (Mustache.render info.template, data)
-			# console.log Mustache.render info.template, data
+			console.log Mustache.render info.template, data
 			Chaplin.mediator.publish 'templateLoaded', @$el[0]
 			

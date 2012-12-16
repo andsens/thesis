@@ -43,11 +43,11 @@ define [
 				for child in @children when child.path[0].type is 'child'
 					if child.path[0].node isnt @id
 						throw new Error {msg: "Unexpected path in list of children", path: child.path[0]}
-					# parent.childNodes[0].childNodes[0] is quite different from parent.childNodes[0+0]
+					# parent.childNodes[3].childNodes[2] is quite different from parent.childNodes[3+2]
 					# This happens when we are using an offset for initialization
+					# We only need to correct it for root children though
 					childNodeOffset = @nodeOffset
-					# We only need to correct it for the first child though
-					if childNodeOffset > 0 and @path[0].type is 'child'
+					if childNodeOffset > 0 and @path[0].node is 'root'
 						childNodeOffset += 1
 					switch child.type
 						when 'section'
@@ -100,10 +100,14 @@ define [
 					@strOffset += @last.value.length
 				
 				
-				if @nodeMatches @next
-					break
+				nextWasMatched = @nodeMatches @next
 				@nodeOffset += 1 unless last_first_joined
-				return unless @nodeMatches @first
+				@verifying 'first', @first
+				if @nodeMatches @first
+					if nextWasMatched
+						throw new Error "Was able to both match a continuation and an end of the iteration"
+				else
+					break
 				@nodeOffset -= 1 unless last_first_joined
 				
 				i++	

@@ -74,14 +74,14 @@ define [
 				console.log @parent.childNodes
 				throw new Error "The previous node did not match the expected value"
 		
-		verifying: (name, match) ->
-			node = @parent.childNodes[@nodeOffset]
+		verifying: (name, match, offset = 0) ->
+			node = @parent.childNodes[@nodeOffset+offset]
 			if node?.nodeType is 3
 				node = node.data
 			console.log "Verifying #{name}",
 				name: @name,
 				node: node,
-				nodeOffset: @nodeOffset
+				nodeOffset: @nodeOffset+offset
 				strOffset: @strOffset
 				, "to", match
 		
@@ -90,8 +90,8 @@ define [
 			unless @nodeMatches @next
 				throw new Error "Unable to match section end"
 		
-		nodeMatches: (match) ->
-			node = @parent.childNodes[@nodeOffset]
+		nodeMatches: (match, offset = 0) ->
+			node = @parent.childNodes[@nodeOffset+offset]
 			return switch match.type
 				when 'section'  then throw new Error "Unsupported matching type"
 				when 'escaped' then throw new Error "Unsupported matching type"
