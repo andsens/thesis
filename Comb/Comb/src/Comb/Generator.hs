@@ -45,8 +45,8 @@ make_selector r@(R.SectionSelector{..}) =
 		("inverted", JSBool $ P.inverted node),
 		("prev", make_node prev),
 		("next", make_node next),
-		("first", make_node (listToMaybe contents)),
-		("last", make_node (case contents of [] -> Nothing; _ -> Just $ last contents)),
+		("first", make_node first_c),
+		("last", make_node last_c),
 		("contents", JSArray $ make_content contents)
 	])
 	where contents = P.contents node

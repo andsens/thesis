@@ -43,7 +43,9 @@ data Resolution =
 		path :: Path,
 		section :: Maybe Resolution,
 		prev :: Maybe P.Content,
-		next :: Maybe P.Content
+		next :: Maybe P.Content,
+		first_c :: Maybe P.Content,
+		last_c :: Maybe P.Content
 	} | VariableSelector {
 		node :: P.Content,
 		path :: Path,
@@ -74,12 +76,14 @@ find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
 
 make_selector :: Resolutions -> Zipper -> Resolutions
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
-	(SectionSelector c path section prev next):res
+	(SectionSelector c path section prev next first_c last_c):res
 	where
 		path    = get_path res z
 		section = get_section res z
 		prev    = listToMaybe l
 		next    = listToMaybe r
+		first_c = listToMaybe contents
+		last_c  = case contents of [] -> Nothing; _ -> Just $ last contents
 make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
 	(VariableSelector c path section prev next):res
 	where
@@ -107,8 +111,9 @@ get_path res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
 get_path res (Crumb [] _ _, []) = Index 0 Root
 
 backtrack :: Resolutions -> Zipper -> Int -> Path
-backtrack res (Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
-backtrack res (Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
+-- Offsets are special in terms of indexes, because we do not count the offset node itself
+backtrack res (Crumb _ s@(P.Section{}) _, _) i = Index (i-1) (Offset (find_res res s))
+backtrack res (Crumb _ v@(P.Variable{}) _, _) i = Index (i-1) (Offset (find_res res v))
 backtrack res (Crumb (y:l) x r, trail) i = backtrack res (Crumb l y (x:r), trail) (i+1)
 backtrack res (Crumb [] x r, p:trail) i = Index i (backtrack_parent res (p, trail))
 backtrack res (Crumb [] x r, []) i = Index i Root

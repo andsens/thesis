@@ -13,44 +13,42 @@ define [
 	class Section extends Mustache
 		
 		initialize: ->
+			super
 			@children   = (child for id, child of @spec when (_.last child.stack) is @id)
 			@iterations = []
-			super
 		
 		parse: ->
 			super
 			
 			# move the offset up to the first node
-			switch @prev.type
-				when 'text'
-					@strOffset += @prev.value.length
-					switch @first.type
-						when 'section' then throw new Error "Section as first child not yet supported"
-						when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-						when 'text', 'escaped' then # The first node is part of the previous node
-						else @nodeOffset += 1
-				when 'node', 'emptynode', 'comment'
-					@strOffset = 0
-					@nodeOffset += 1
+			# switch @prev.type
+			# 	when 'text'
+			# 		unless @first.type is 'text' or @first.type is 'escaped'
+			# 			@nodeOffset += 1
+			# 			console.log 'inc'
+			# 		@strOffset += @prev.value.length
+			# 	when 'node', 'emptynode', 'comment'
+			# 		@nodeOffset += 1
+			# 		@strOffset = 0
 			
-			iterate = =>
+			firstMatches = =>
 				if @id is 'root'
-					return false unless @parent.childNodes[@nodeOffset+1]?
+					return @parent.childNodes[@nodeOffset+1]?
+				@verifying 'first', @first
+				if @nodeMatches @first
 					return true
-				return true if @nodeMatches @first
-				return false if @nodeMatches @next
-				console.log @first, @nodeOffset, @parent.childNodes[@nodeOffset]
-				throw new Error "Unable to find first node in iteration #{i}"
-			
-			i = 0
-			while iterate()
-				unless @id is 'root'
-					# The mergepoint between two iterations is counted only once
-					if i > 0 and @first.type is 'text' and @last.type is 'text'
-						@nodeOffset--
-						@size--
-					
 				
+				if @next.type isnt 'text' then @nodeOffset += 1
+				unless @nodeMatches @next
+					console.log 'firstMatches',
+						next: @next
+						first: @first
+						nodeOffset: @nodeOffset
+						strOffset: @strOffset
+						node: @parent.childNodes[@nodeOffset]
+					throw new Error "Unable to find first node"
+			
+			while firstMatches()
 				iteration = {}
 				
 				# Parse the children that are not offset by preceeding items
@@ -66,54 +64,55 @@ define [
 							throw new Error "Unescaped variables are not yet supported"
 					iteration[child.id] = obj
 				
-				remaining = (child for child in @children when child.path[0].type is 'offset')
-				
 				# Parse the children that are offset by preceeding items
-				while remaining.length isnt 0
-					child = remaining.shift()
+				for child in @children when child.path[0].type is 'offset'
 					offsetNode = iteration[child.path[0].node]
 					unless offsetNode?
 						throw new Error "Something is wrong with the ordering of the offset children"
-						remaining.push child
-						continue
-					endNode = offsetNode.endNode
-					strEnd = offsetNode.strEnd
 					switch child.type
 						when 'section'
-							iteration[child.id] = new Section child, @spec, @parent, endNode, strEnd
+							obj = new Section child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'escaped'
-							iteration[child.id] = new EscapedVariable child, @spec, @parent, endNode, strEnd
+							obj = new EscapedVariable child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'unescaped'
 							throw new Error "Unescaped variables are not yet supported"
+					iteration[child.id] = obj
 				
-				unless @id is 'root'
-					# Check how much the children have affected the length of this section
-					for content, j in @contents
-						switch content
-							when '#node', '#emptynode', "#comment"
-								@nodeOffset += 1
-								@strOffset = 0
-							when "#text"
-								if j is 0 and i > 0
-									@nodeOffset += 1
-									break
-								if j is content.length - 1
-									if @next.type isnt 'text'
-										@nodeOffset += 1
-										break
-									@strOffset += @last.value.length
-							else
-								offsetNode = iteration[content]
-								switch offsetNode.type
-									when 'section'
-										@nodeOffset += offsetNode.size
-										@strOffset += offsetNode.lastStr.length
-									when 'escaped'
-										@strOffset += offsetNode.outerLength
-									when 'unescaped'
-										throw new Error "Unescaped variables are not yet supported"
+				# Check how much the children have affected the length of this section
+				for content, j in @contents
+					switch content
+						when '#node', '#emptynode', "#comment"
+							@nodeOffset += 1
+							@strOffset = 0
+						when "#text"
+							@nodeOffset += 1
+						else
+							offsetNode = iteration[content]
+							@nodeOffset = offsetNode.nodeOffset
+							@strOffset = offsetNode.strOffset
+				
+				if @last.type is 'text'
+					@strOffset += @last.value.length
 				
 				@iterations.push iteration
-				i++
+				
+				
+				# The mergepoint between two last and first or next is counted only once
+				if @next.type is 'text' and @last.type is 'text'
+					@nodeOffset -= 1
+				if @nodeMatches @next
+					break
+				if @next.type is 'text' and @last.type is 'text'
+					@nodeOffset += 1
+				
+				if @first.type is 'text' and @last.type is 'text'
+					@nodeOffset -= 1
+				
+				console.log 'ITERATE'
+			
 			console.log @iterations
 		
+
+
+
+
