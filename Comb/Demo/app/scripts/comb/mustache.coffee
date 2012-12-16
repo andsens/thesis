@@ -42,8 +42,6 @@ define [
 						# reset the string offset if we have skipped over a tag, that does not include the previous node
 						for offset in [0..part.i] when @parent.childNodes[@nodeOffset+offset].nodeType is 1
 							@strOffset = 0
-							console.log [0..part.i]
-							console.log 'reset', @parent.childNodes[@nodeOffset+offset]
 							break
 					@nodeOffset += part.i
 				if i is @path.length-1

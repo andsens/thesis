@@ -42,5 +42,6 @@ define [
 					, name: 'architecture'
 				]
 			@$el.empty().append (Mustache.render info.template, data)
+			# console.log Mustache.render info.template, data
 			Chaplin.mediator.publish 'templateLoaded', @$el[0]
 			

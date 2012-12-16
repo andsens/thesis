@@ -24,13 +24,14 @@ define [
 			if @prev.type is 'text'
 				@strOffset += @prev.value.length
 			
-			prev_first_joined = @prev in ['text', 'escaped'] and @first in ['text', 'escaped']
-			last_first_joined = @last in ['text', 'escaped'] and @first in ['text', 'escaped']
-			last_next_joined = @last in ['text', 'escaped'] and @next in ['text', 'escaped']
-			
 			# @nodeOffset always points at @prev
 			if @id isnt 'root'
+				prev_first_joined = @prev.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
+				last_first_joined = @last.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
+				last_next_joined = @last.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
+				
 				@nodeOffset += 1 unless prev_first_joined
+				@verifying 'first', @first
 				return unless @nodeMatches @first
 				@nodeOffset -= 1 unless prev_first_joined
 			
@@ -46,7 +47,6 @@ define [
 					# This happens when we are using an offset for initialization
 					childNodeOffset = @nodeOffset
 					# We only need to correct it for the first child though
-					# if childNodeOffset > 0
 					if childNodeOffset > 0 and @path[0].type is 'child'
 						childNodeOffset += 1
 					switch child.type
@@ -92,12 +92,14 @@ define [
 							@nodeOffset = offsetNode.nodeOffset
 							@strOffset = offsetNode.strOffset
 				
+				@verifying 'last', @last
+				unless @nodeMatches @last
+					throw new Error "Unable to verify last element in iteration"
+				
 				if @last.type in ['text', 'escaped']
 					@strOffset += @last.value.length
 				
 				
-				# The mergepoint between last and first or next is counted only once
-				@nodeOffset -= 1 if last_next_joined
 				if @nodeMatches @next
 					break
 				@nodeOffset += 1 unless last_first_joined
