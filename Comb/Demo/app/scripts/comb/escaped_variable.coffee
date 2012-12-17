@@ -38,4 +38,7 @@ define [
 					@string = @string.substring 0, nextIndex
 			
 			@strOffset += @string.length
+			@verifying 'next', @next
+			unless @nodeMatches @next
+				throw new Error "Unable to match section end"
 			console.log "Result:", "'#{@string}'"

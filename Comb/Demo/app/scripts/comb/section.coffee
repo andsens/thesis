@@ -27,13 +27,19 @@ define [
 			# @nodeOffset always points at @prev
 			if @id isnt 'root'
 				prev_first_joined = @prev.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
+				prev_next_joined  = @prev.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
 				last_first_joined = @last.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
-				last_next_joined = @last.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
+				last_next_joined  = @last.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
 				
-				@nodeOffset += 1 unless prev_first_joined
-				@verifying 'first', @first
-				return unless @nodeMatches @first
-				@nodeOffset -= 1 unless prev_first_joined
+				prev_first_joined = prev_first_joined or @prev.type is 'null'
+				prev_next_joined  = prev_next_joined or @prev.type is 'null'
+				last_next_joined  = last_next_joined or @next.type is 'null'
+				
+				@verifying 'first', @first, !prev_first_joined
+				unless @nodeMatches @first, !prev_first_joined
+					@verifying 'next', @next, !prev_next_joined
+					nextWasMatched = @nodeMatches @next
+					return
 			
 			i = 0
 			while true
@@ -45,10 +51,13 @@ define [
 						throw new Error {msg: "Unexpected path in list of children", path: child.path[0]}
 					# parent.childNodes[3].childNodes[2] is quite different from parent.childNodes[3+2]
 					# This happens when we are using an offset for initialization
-					# We only need to correct it for root children though
+					# We only need to correct it for root children though, the rest will be propagated
 					childNodeOffset = @nodeOffset
-					if childNodeOffset > 0 and @path[0].node is 'root'
-						childNodeOffset += 1
+					# if childNodeOffset > 0 and @path[0].node is 'root'
+					# 	childNodeOffset += 1
+					if @id isnt 'root'
+						if (i is 0 and !prev_first_joined) or (i > 0 and !last_first_joined)
+							childNodeOffset += 1
 					switch child.type
 						when 'section'
 							obj = new Section child, @spec, @parent, childNodeOffset, @strOffset
@@ -100,15 +109,14 @@ define [
 					@strOffset += @last.value.length
 				
 				
-				nextWasMatched = @nodeMatches @next
-				@nodeOffset += 1 unless last_first_joined
-				@verifying 'first', @first
-				if @nodeMatches @first
+				@verifying 'next', @next, !last_next_joined
+				nextWasMatched = @nodeMatches @next, !last_next_joined
+				@verifying 'first', @first, !last_first_joined
+				unless @nodeMatches @first, !last_first_joined
+					break
+				else
 					if nextWasMatched
 						throw new Error "Was able to both match a continuation and an end of the iteration"
-				else
-					break
-				@nodeOffset -= 1 unless last_first_joined
 				
 				i++	
 				console.log 'ITERATE'

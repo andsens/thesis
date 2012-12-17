@@ -2,21 +2,21 @@
   <h3>{{name}}</h3>
   {{blah}}
 </div>
-  1{{#begin}}<br/> {{end}} {{/begin}}2
+  1<hr/>{{#begin}}<br/> {{end}} {{/begin}}2
   3{{#begin}}<br/>{{end}} {{/begin}}4
   {{#begin}} {{end}} <br/> {{/begin}}
 <div class="content profile-data profile-view">
   <div class="row-fluid profileActions">
     <div class="span6">
-      {{#own}}
+      {{#own}}<!-- wrgwrg -->
       <button class="btn btn-mini edit-profile">
         <icon class="icon-edit"></icon>
         Edit
       </button>
-      {{#deeper}}
+      <span>{{#deeper}}
         {{deepvar}}
         {{deepvar2}}
-      {{/deeper}}
+      {{/deeper}}</span>
       {{/own}}
       {{^own}}
         &nbsp;
