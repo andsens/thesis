@@ -82,7 +82,7 @@
  "3763d7603fa03d520": {"name": "deeper", "id": "3763d7603fa03d520",
                        "stack": ["root", "69318b149e29b5581"], "type": "section",
                        "path": [{"type": "child", "node": "69318b149e29b5581"},
-                                {"type": "index", "i": 4}, {"type": "index", "i": 1},
+                                {"type": "index", "i": 3}, {"type": "index", "i": 1},
                                 {"type": "index", "i": 1}],
                        "inverted": false,
                        "prev": {"type": "text", "value": "\u000a          "},
