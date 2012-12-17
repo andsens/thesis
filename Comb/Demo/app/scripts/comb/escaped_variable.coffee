@@ -17,17 +17,12 @@ define [
 				@string = ""
 			else
 				switch @prev.type
-					when 'null', 'section', 'escaped' then
+					when 'null', 'section', 'escaped', 'text' then
 					when 'unescaped'
 						throw new Error "Unsupported matching type"
 					when 'node', 'emptynode', 'comment'
 						@nodeOffset += 1
 						node = @parent.childNodes[@nodeOffset]
-					when 'text'
-						prevIndex = node.data.indexOf @prev.value
-						if prevIndex is -1
-							throw new Error "Unable to find previous text"
-						@strOffset += @prev.value.length
 				
 				@string = node.data.substring @strOffset
 				

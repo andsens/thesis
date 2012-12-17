@@ -29,8 +29,25 @@ define [
 		
 		runParse: ->
 			@findParent()
+			
 			@verifyPrevious()
+			
+			if @path[1]?.i > 0
+				# reset the string offset if we have skipped over a tag
+				for offset in [0..@path[1].i-1] when @parent.childNodes[@nodeOffset+offset].nodeType is 1
+					@strOffset = 0
+					console.log {resetnode: @parent.childNodes[@nodeOffset+offset]}
+					break
+			
+			# move the strOffset over the previous text
+			if @prev.type is 'text'
+				@strOffset += @prev.value.length
+				console.log @strOffset
+			
 			@parse()
+			# Reset the strOffset for offset nodes
+			switch @next.type
+				when 'node, emptynode, comment, null' then @strOffset = 0
 		
 		parse: ->
 			
@@ -38,13 +55,7 @@ define [
 		findParent: ->
 			for part, i in @path when i isnt 0
 				if part.type is 'index'
-					if i is 1 and part.i > 0
-						# reset the string offset if we have skipped over a tag, that does not include the previous node
-						for offset in [0..part.i] when @parent.childNodes[@nodeOffset+offset].nodeType is 1
-							@strOffset = 0
-							break
 					@nodeOffset += part.i
-					console.log @parent.childNodes[@nodeOffset]
 				if i is @path.length-1
 					break
 				switch part.type
@@ -54,7 +65,7 @@ define [
 				@nodeOffset = 0
 			
 			# Always point at the previous node
-			unless @prev.type in ['text', 'escaped', 'null']
+			unless @prev.type in ['null']
 				@nodeOffset -= 1
 		
 		verifyPrevious: ->

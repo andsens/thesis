@@ -19,11 +19,7 @@ define [
 		
 		parse: ->
 			super
-			
-			# move the strOffset up to the first node
-			if @prev.type is 'text'
-				@strOffset += @prev.value.length
-			
+			iterate = true
 			# @nodeOffset always points at @prev
 			if @id isnt 'root'
 				prev_first_joined = @prev.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
@@ -38,11 +34,12 @@ define [
 				@verifying 'first', @first, !prev_first_joined
 				unless @nodeMatches @first, !prev_first_joined
 					@verifying 'next', @next, !prev_next_joined
-					nextWasMatched = @nodeMatches @next
-					return
+					unless @nodeMatches @next
+						throw new Error "Unable to match the next node"
+					iterate = false
 			
 			i = 0
-			while true
+			while iterate
 				iteration = {}
 				
 				# Parse the children that are not offset by preceeding items
@@ -109,17 +106,23 @@ define [
 					@strOffset += @last.value.length
 				
 				
-				@verifying 'next', @next, !last_next_joined
-				nextWasMatched = @nodeMatches @next, !last_next_joined
 				@verifying 'first', @first, !last_first_joined
-				unless @nodeMatches @first, !last_first_joined
-					break
-				else
-					if nextWasMatched
+				if @nodeMatches @first, !last_first_joined
+					@verifying 'next', @next, !last_next_joined
+					if @nodeMatches @next, !last_next_joined
 						throw new Error "Was able to both match a continuation and an end of the iteration"
-				
+					console.log 'ITERATE'
+				else
+					iterate = false
 				i++	
-				console.log 'ITERATE'
+			
+			@verifying 'next', @next, !last_next_joined
+			unless @nodeMatches @next, !last_next_joined
+				throw new Error "Unable to match the next node"
+			if @next.type is 'text'
+				length = @parent.childNodes[@nodeOffset+!last_next_joined].data.length
+				if @strOffset+@next.value.length is length
+					@strOffset = 0
 			
 			console.log @iterations
 		
