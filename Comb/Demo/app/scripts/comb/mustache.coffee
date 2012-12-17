@@ -45,9 +45,6 @@ define [
 				console.log @strOffset
 			
 			@parse()
-			# Reset the strOffset for offset nodes
-			switch @next.type
-				when 'node, emptynode, comment, null' then @strOffset = 0
 		
 		parse: ->
 			

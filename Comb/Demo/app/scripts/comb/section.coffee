@@ -119,10 +119,6 @@ define [
 			@verifying 'next', @next, !last_next_joined
 			unless @nodeMatches @next, !last_next_joined
 				throw new Error "Unable to match the next node"
-			if @next.type is 'text'
-				length = @parent.childNodes[@nodeOffset+!last_next_joined].data.length
-				if @strOffset+@next.value.length is length
-					@strOffset = 0
 			
 			console.log @iterations
 		
