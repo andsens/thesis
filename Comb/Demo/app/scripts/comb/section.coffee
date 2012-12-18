@@ -21,7 +21,12 @@ define [
 			super
 			iterate = true
 			# @nodeOffset always points at at @prev
+			prev_first_joined = false
+			prev_next_joined  = false
+			last_first_joined = false
+			last_next_joined  = false
 			if @id isnt 'root'
+				# True / False, potato / potahto
 				prev_first_joined = @prev.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
 				prev_next_joined  = @prev.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
 				last_first_joined = @last.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
@@ -30,11 +35,16 @@ define [
 				prev_first_joined = prev_first_joined or @prev.type is 'null'
 				prev_next_joined  = prev_next_joined or @prev.type is 'null'
 				last_next_joined  = last_next_joined or @next.type is 'null'
-				
-				@verifying 'first', @first, !prev_first_joined # True / False, potato / potahto
-				unless @nodeMatches @first, !prev_first_joined
-					@verifying 'next', @next, !prev_next_joined
-					unless @nodeMatches @next, !prev_next_joined
+			
+				prev_first_offset = if prev_first_joined then 0 else 1
+				prev_next_offset  = if prev_next_joined  then 0 else 1
+				last_first_offset = if last_first_joined then 0 else 1
+				last_next_offset  = if last_next_joined  then 0 else 1
+			
+				@verifying 'first', @first, prev_first_offset
+				unless @nodeMatches @first, prev_first_offset
+					@verifying 'next', @next, prev_next_offset
+					unless @nodeMatches @next, prev_next_offset
 						throw new Error "Unable to match the next node"
 					iterate = false
 			
@@ -49,8 +59,7 @@ define [
 					# Child nodes have no idea whether @prev/@last count towards the nodeOffset or not
 					childNodeOffset = @nodeOffset
 					if @id isnt 'root'
-						if (i is 0 and not prev_first_joined) or (i > 0 and not last_first_joined)
-							childNodeOffset += 1
+						childNodeOffset += if (i is 0) then prev_first_offset else last_first_offset
 					switch child.type
 						when 'section'
 							obj = new Section child, @spec, @parent, childNodeOffset, @strOffset
@@ -102,18 +111,18 @@ define [
 					@strOffset += @last.value.length
 				
 				
-				@verifying 'first', @first, !last_first_joined
-				if @nodeMatches @first, !last_first_joined
-					@verifying 'next', @next, !last_next_joined
-					if @nodeMatches @next, !last_next_joined
+				@verifying 'first', @first, last_first_offset
+				if @nodeMatches @first, last_first_offset
+					@verifying 'next', @next, last_next_offset
+					if @nodeMatches @next, last_next_offset
 						throw new Error "Was able to both match a continuation and an end of the iteration"
 					console.log 'ITERATE'
 				else
 					iterate = false
 				i++	
 			
-			@verifying 'next', @next, !last_next_joined
-			unless @nodeMatches @next, !last_next_joined
+			@verifying 'next', @next, last_next_offset
+			unless @nodeMatches @next, last_next_offset
 				throw new Error "Unable to match the next node"
 			
 			console.log @iterations

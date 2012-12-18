@@ -9,10 +9,12 @@ define [
 			@initialize arguments...
 			@parse()
 		
-		initialize: (item, @spec, @parent, @nodeOffset, @strOffset) ->
+		initialize: (item, @spec, @rootNode, @nodeOffset, @strOffset) ->
 			@[prop]     = val for prop, val of item
 			console.log "Construct #{@type}: '#{@name}' (#{@id})",
-				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset, "index: ", @path[1]?.i
+				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset, "index: ", @path[1]?.i, @rootNode
+			
+			@parent = @rootNode
 			
 			if @id isnt 'root'
 				switch @path[0].type
@@ -34,8 +36,8 @@ define [
 						skipRange = [0..part.i]
 						if i is @path.length-1 and @prev.type in ['section', 'escaped', 'text']
 							skipRange = [0..part.i-1] # Won't be negative since @prev is text
-						for offset in skipRange when @parent.childNodes[@nodeOffset+offset].nodeType is 1
-							console.log 'reset', {node: @parent.childNodes[@nodeOffset+offset]}
+						for offset in skipRange when @node(offset).nodeType in [1, 8]
+							console.log 'reset', {node: @node(offset)}
 							@strOffset = 0
 							break
 					# If this is the last index and the previous node is a text node, we will correct this later on
@@ -44,7 +46,7 @@ define [
 					break
 				switch part.type
 					when 'attribute' then @parent = @parent.attributes.getNamedItem(part.name)
-					when 'index'     then @parent = @parent.childNodes[@nodeOffset]
+					when 'index'     then @parent = @node()
 					else                  throw new Error "#{@id}: Unexpected path type #{part.type} at #{i}"
 				@nodeOffset = 0
 			
@@ -69,8 +71,8 @@ define [
 			
 		
 		verifying: (name, match, offset = 0) ->
-			node = @parent.childNodes[@nodeOffset+offset] if @parent?
-			if node?.nodeType is 3
+			node = @node(offset)
+			if node?.nodeType in [3, 8]
 				node = (node.data.substring 0, @strOffset)+'|'+node.data.substring @strOffset
 			inverted = ''
 			inverted = 'inverted ' if @inverted
@@ -85,7 +87,7 @@ define [
 			unless @parent?
 				throw new Error "Cannot match node, @parent is undefined!"
 			if offset > 0
-				current = @parent.childNodes[@nodeOffset]
+				current = @node()
 				if current.nodeType is 3 and current.data.length isnt @strOffset
 					console.log 'string not gobbled up',
 						string: (current.data.substring 0, @strOffset)+'|'+current.data.substring @strOffset
@@ -93,7 +95,7 @@ define [
 			if offset < 0 and @strOffset > 0
 				throw new Error "Request to compare previous node, but strOffset is not 0"
 			
-			node = @parent.childNodes[@nodeOffset+offset]
+			node = @node(offset)
 			
 			unless node?
 				unless match.type is 'null'
@@ -105,7 +107,22 @@ define [
 				when 'unescaped' then throw new Error "Unsupported matching type"
 				when 'node', 'emptynode' then node.nodeType is 1 and node.tagName is match.name.toUpperCase()
 				when 'comment' then node.nodeType is 8
-				when 'text' then node.nodeType is 3 and node.data.substring(@strOffset).indexOf(match.value) is 0
+				when 'text' then node.nodeType in [3, 8] and node.data.substring(@strOffset).indexOf(match.value) is 0
 				when 'null' then node?
 			console.log result
 			return result
+		
+		node: (offset = 0) ->
+			offset += @nodeOffset
+			return switch @parent.nodeType
+				when 1, 2
+					@parent.childNodes[offset]
+				when 3
+					throw new Error "Attempted to childNodes from text node"
+				when 8
+					if offset > 0
+						throw new Error "Attempted to get offset > 0 from comment node"
+					# @parent.childNodes[offset]
+					@parent
+			
+		
