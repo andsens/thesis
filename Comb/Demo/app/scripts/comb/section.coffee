@@ -20,7 +20,7 @@ define [
 		parse: ->
 			super
 			iterate = true
-			# @nodeOffset always points at @prev
+			# @nodeOffset always points at at @prev
 			if @id isnt 'root'
 				prev_first_joined = @prev.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
 				prev_next_joined  = @prev.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
@@ -31,10 +31,10 @@ define [
 				prev_next_joined  = prev_next_joined or @prev.type is 'null'
 				last_next_joined  = last_next_joined or @next.type is 'null'
 				
-				@verifying 'first', @first, !prev_first_joined
+				@verifying 'first', @first, !prev_first_joined # True / False, potato / potahto
 				unless @nodeMatches @first, !prev_first_joined
 					@verifying 'next', @next, !prev_next_joined
-					unless @nodeMatches @next
+					unless @nodeMatches @next, !prev_next_joined
 						throw new Error "Unable to match the next node"
 					iterate = false
 			
@@ -46,12 +46,8 @@ define [
 				for child in @children when child.path[0].type is 'child'
 					if child.path[0].node isnt @id
 						throw new Error {msg: "Unexpected path in list of children", path: child.path[0]}
-					# parent.childNodes[3].childNodes[2] is quite different from parent.childNodes[3+2]
-					# This happens when we are using an offset for initialization
-					# We only need to correct it for root children though, the rest will be propagated
+					# Child nodes have no idea whether @prev/@last count towards the nodeOffset or not
 					childNodeOffset = @nodeOffset
-					# if childNodeOffset > 0 and @path[0].node is 'root'
-					# 	childNodeOffset += 1
 					if @id isnt 'root'
 						if (i is 0 and !prev_first_joined) or (i > 0 and !last_first_joined)
 							childNodeOffset += 1

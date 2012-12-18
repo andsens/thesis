@@ -53,7 +53,10 @@ data Resolution =
 		prev :: Maybe P.Content,
 		next :: Maybe P.Content
 	}
+	deriving (Eq)
 
+instance Ord Resolution where
+	compare x y = compare (node x) (node y)
 
 instance Show Resolution where
 	show s@SectionSelector{node=P.Section{inverted=False,..},..} = '#':fq_name s
@@ -78,7 +81,7 @@ make_selector :: Resolutions -> Zipper -> Resolutions
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
 	(SectionSelector c path section prev next first_c last_c):res
 	where
-		path    = get_path res z
+		path    = backtrack res z
 		section = get_section res z
 		prev    = listToMaybe l
 		next    = listToMaybe r
@@ -87,7 +90,7 @@ make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
 make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
 	(VariableSelector c path section prev next):res
 	where
-		path    = get_path res z
+		path    = backtrack res z
 		section = get_section res z
 		prev    = listToMaybe l
 		next    = listToMaybe r
@@ -103,38 +106,21 @@ data Path =
 	| Offset { offset :: Resolution }
 	| Child { offset :: Resolution }
 	| Root
-	deriving (Show)
+	deriving (Eq, Show)
 
-get_path :: Resolutions -> Zipper -> Path
-get_path res (Crumb (y:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 1
-get_path res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
-get_path res (Crumb [] _ _, []) = Index 0 Root
 
-backtrack :: Resolutions -> Zipper -> Int -> Path
--- Offsets are special in terms of indexes, because we do not count the offset node itself
-backtrack res (Crumb _ s@(P.Section{}) _, _) i = Index (i-1) (Offset (find_res res s))
-backtrack res (Crumb _ v@(P.Variable{}) _, _) i = Index (i-1) (Offset (find_res res v))
-backtrack res (Crumb (y:l) x r, trail) i = backtrack res (Crumb l y (x:r), trail) (i+1)
-backtrack res (Crumb [] x r, p:trail) i = Index i (backtrack_parent res (p, trail))
-backtrack res (Crumb [] x r, []) i = Index i Root
+backtrack res (Crumb (y:l) x r, trail) = backtrack_left res (Crumb l y (x:r), trail) 0
+backtrack res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
+backtrack res (Crumb [] _ _, []) = Index 0 Root
+
+backtrack_left res (Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
+backtrack_left res (Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
+backtrack_left res (Crumb (y:l) x r, trail) i = backtrack_left res (Crumb l y (x:r), trail) (i+1)
+backtrack_left res (Crumb [] x r, p:trail) i = Index (i+1) (backtrack_parent res (p, trail))
+backtrack_left res (Crumb [] x r, []) i = Index (i+1) Root
 
 backtrack_parent res (Crumb _ s@(P.Section{}) _, _) = Child (find_res res s)
 backtrack_parent res (Crumb _ P.XMLAttribute{..} _, p:trail) = Attribute name (backtrack_parent res (p, trail))
-backtrack_parent res (Crumb (y:l) x r, trail) = backtrack res (Crumb l y (x:r), trail) 1
+backtrack_parent res (Crumb (y:l) x r, trail) = backtrack_left res (Crumb l y (x:r), trail) 0
 backtrack_parent res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
 backtrack_parent res (Crumb [] _ _, []) = Index 0 Root
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

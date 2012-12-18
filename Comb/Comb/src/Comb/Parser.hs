@@ -120,7 +120,11 @@ data Content =
 		text :: String,
 		begin :: SourcePos,
 		end :: SourcePos
-	} deriving (Eq)
+	}
+	deriving (Eq)
+
+instance Ord Content where
+	compare x y = compare (begin x) (begin y)
 
 instance Show Content where
 	show Section{inverted=False,..} = "(#"++name++")" ++ (concat $ map show contents) ++ "(/"++name++")"
@@ -212,7 +216,7 @@ xml_comment = do
 	begin <- getPosition
 	x_reservedOp "<!--"
 	contents <- many comment_content
-	x_symbol "-->"
+	C.string "-->"
 	end <- getPosition
 	return $ XMLComment contents begin end
 

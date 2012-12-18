@@ -10,20 +10,18 @@ define [
 		
 		parse: ->
 			super
-			node = @parent.childNodes[@nodeOffset]
-			if not node?
-				if @prev.type is 'text' or @next.type is 'text'
-					throw new Error "Expected a node but found none"
+			node = @node()
+			switch @prev.type
+				when 'null', 'section', 'escaped', 'text' then
+				when 'unescaped'
+					throw new Error "Unsupported matching type"
+				when 'node', 'emptynode', 'comment'
+					@nodeOffset += 1
+					node = @node()
+			
+			unless node?
 				@string = ""
 			else
-				switch @prev.type
-					when 'null', 'section', 'escaped', 'text' then
-					when 'unescaped'
-						throw new Error "Unsupported matching type"
-					when 'node', 'emptynode', 'comment'
-						@nodeOffset += 1
-						node = @parent.childNodes[@nodeOffset]
-				
 				@string = node.data.substring @strOffset
 				
 				if @next?.type is 'text'
