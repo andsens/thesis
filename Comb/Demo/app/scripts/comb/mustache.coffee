@@ -12,14 +12,13 @@ define [
 		initialize: (item, @spec, @rootNode, @nodeOffset, @strOffset) ->
 			@[prop]     = val for prop, val of item
 			console.log "Construct #{@type}: '#{@name}' (#{@id})",
-				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset, "index: ", @path[1]?.i, @rootNode
+				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
 			
 			@parent = @rootNode
 			
 			if @id isnt 'root'
 				switch @path[0].type
-					when "offset" then
-					when "child"
+					when "child", "offset" then
 					else throw new Error "Expected first part of path to be offset or child"
 				switch @path[1].type
 					when "index"
@@ -66,7 +65,8 @@ define [
 			# move the strOffset over the previous text
 			if @prev.type is 'text'
 				@strOffset += @prev.value.length
-		
+			@strStart = @strOffset
+			
 		parse: ->
 			
 		
@@ -105,7 +105,7 @@ define [
 					# throw new Error "The node to match does not exist"
 			
 			result = switch match.type
-				when 'section'  then throw new Error "Unsupported matching type"
+				when 'section' then throw new Error "Unsupported matching type"
 				when 'escaped' then throw new Error "Unsupported matching type" #node.nodeType is 3
 				when 'unescaped' then throw new Error "Unsupported matching type"
 				when 'node', 'emptynode' then node.nodeType is 1 and node.tagName is match.name.toUpperCase()
@@ -125,7 +125,7 @@ define [
 				when 8
 					if offset > 0
 						throw new Error "Attempted to get offset > 0 from comment node"
-					# We act like a comment node has childNodes
+					# We act like a comment node has childNodes, this assumes only .data is accessed on it
 					@parent
 			
 		

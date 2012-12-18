@@ -4,6 +4,7 @@ module Comb.Resolver (
 	Resolutions,
 	Resolution(..),
 	Zipper(..),
+	Crumb(..),
 	Path(..),
 	fq_name
 ) where
@@ -40,6 +41,7 @@ inspect_contents res _ [] = res
 data Resolution =
 	SectionSelector {
 		node :: P.Content,
+		zipper :: Zipper,
 		path :: Path,
 		section :: Maybe Resolution,
 		prev :: Maybe P.Content,
@@ -48,15 +50,18 @@ data Resolution =
 		last_c :: Maybe P.Content
 	} | VariableSelector {
 		node :: P.Content,
+		zipper :: Zipper,
 		path :: Path,
 		section :: Maybe Resolution,
 		prev :: Maybe P.Content,
 		next :: Maybe P.Content
 	}
-	deriving (Eq)
 
 instance Ord Resolution where
 	compare x y = compare (node x) (node y)
+
+instance Eq Resolution where
+	x == y = (node x) == (node y)
 
 instance Show Resolution where
 	show s@SectionSelector{node=P.Section{inverted=False,..},..} = '#':fq_name s
@@ -79,7 +84,7 @@ find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
 
 make_selector :: Resolutions -> Zipper -> Resolutions
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
-	(SectionSelector c path section prev next first_c last_c):res
+	(SectionSelector c z path section prev next first_c last_c):res
 	where
 		path    = backtrack res z
 		section = get_section res z
@@ -88,7 +93,7 @@ make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
 		first_c = listToMaybe contents
 		last_c  = case contents of [] -> Nothing; _ -> Just $ last contents
 make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
-	(VariableSelector c path section prev next):res
+	(VariableSelector c z path section prev next):res
 	where
 		path    = backtrack res z
 		section = get_section res z

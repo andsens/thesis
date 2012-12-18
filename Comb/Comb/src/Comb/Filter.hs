@@ -50,7 +50,7 @@ run_checks resolutions set [] = set
 checks = [
 	  run_check unescaped_offset
 	--, run_check empty_section
-	--, run_check unescaped_is_encapsulated
+	, run_check unescaped_pos
 	--, check if two variables in the same text section
 	--, check if a section has prev and first == 'text' or next and last == 'text' => warning
 	, run_check ambiguous_boundaries
@@ -67,19 +67,21 @@ unescaped_offset resolution set@(warns, errs) =
 			(warns, (Error "Path contains unescaped variable" resolution):errs)
 		_ -> set
 
----- Unescaped variable is always encapsulated
---unescaped_at_end R.VariableSelector{node=P.Variable{escaped=False},zipper=(crumb, trail),..} set@(warns, errs) =
---	R.r
---	case path of
---		R.Index 0 p -> (warns, errs)
---		_ -> (warns, (Error "Path contains unescaped variable" resolution):errs)
---		(warns, (Error "Path contains unescaped variable" resolution):errs)
---	_ -> set
+---- Unescaped variable is always the last child of a proper XMLTag, Comment or Root
+unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},next=(Just something)} set@(warns, errs) =
+	(warns, (Error "An unescaped variable must be the last child of a node" r):errs)
+unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},..} set@(warns, errs)
+	| parent_is_section zipper = (warns, (Error "An unescaped variable may not be a immediate child of a section" r):errs)
+	| otherwise = set
+unescaped_pos _ set = set
 
--- Unescaped offsets
+parent_is_section :: R.Zipper -> Bool
+parent_is_section (_, (R.Crumb _ P.Section{} _):_) = True
+parent_is_section _ = False
+
+-- Ambiguous boundaries
 ambiguous_boundaries resolution@R.SectionSelector{..} set@(warns, errs)
 	| ambiguous first_c next = (warns, (Error "The first child and next node are indistinguishable" resolution):errs)
-	-- | ambiguous last_c first_c = (warns, (Error "The last child and next node are indistinguishable" resolution):errs)
 	| otherwise = set
 ambiguous_boundaries _ set = set
 
@@ -90,16 +92,14 @@ ambiguous (Just a) Nothing = False
 ambiguous Nothing Nothing = True
 
 is_ambiguous :: P.Content -> P.Content -> Bool
-is_ambiguous P.Section{} P.Section{} = True
+is_ambiguous P.Section{} _ = True -- We can't look into sections yet, so their content can be anything
 is_ambiguous P.Variable{} P.Variable{} = True
-is_ambiguous P.Section{} P.Variable{} = True
+is_ambiguous P.Variable{} P.Text{} = True
 is_ambiguous tag1@P.XMLTag{} tag2@P.XMLTag{} = (P.name tag1) == (P.name tag2)
-is_ambiguous tag1@P.EmptyXMLTag{} tag2@P.EmptyXMLTag{} = (P.name tag1) == (P.name tag2)
 is_ambiguous tag1@P.XMLTag{} tag2@P.EmptyXMLTag{} = (P.name tag1) == (P.name tag2)
+is_ambiguous tag1@P.EmptyXMLTag{} tag2@P.EmptyXMLTag{} = (P.name tag1) == (P.name tag2)
 is_ambiguous P.XMLComment{} P.XMLComment{} = True
 is_ambiguous text1@P.Text{} text2@P.Text{} = t1 == (take (length t1) (P.text text2)) where t1 = P.text text1
-is_ambiguous P.Text{} P.Section{} = True
-is_ambiguous P.Text{} P.Variable{} = True
 is_ambiguous _ _ = False
 
 

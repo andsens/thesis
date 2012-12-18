@@ -23,7 +23,7 @@ define [
 		renderTemplate: (info) =>
 			data =
 				name: 'test'
-				description: 'quite a long piece of text'
+				description: 'LAAADIDA<h1>blaaahrg</h1><br/>'
 				blah: 'blahtext'
 				begin:
 					end: 'endtext'

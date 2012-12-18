@@ -66,7 +66,7 @@ define [
 						when 'escaped'
 							obj = new EscapedVariable child, @spec, @parent, childNodeOffset, @strOffset
 						when 'unescaped'
-							throw new Error "Unescaped variables are not yet supported"
+							obj = new UnescapedVariable child, @spec, @parent, childNodeOffset, @strOffset
 					iteration[child.id] = obj
 				
 				# Parse the children that are offset by preceeding items
@@ -80,7 +80,7 @@ define [
 						when 'escaped'
 							obj = new EscapedVariable child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'unescaped'
-							throw new Error "Unescaped variables are not yet supported"
+							obj = new UnescapedVariable child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
 					iteration[child.id] = obj
 				
 				@iterations.push iteration
