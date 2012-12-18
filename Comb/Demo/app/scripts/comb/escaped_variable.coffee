@@ -19,19 +19,25 @@ define [
 					@nodeOffset += 1
 					node = @node()
 			
-			unless node?
-				@string = ""
-			else
+			nextOffset = 0
+			if node?
 				@string = node.data.substring @strOffset
 				
-				if @next?.type is 'text'
+				if @next.type is 'text'
 					nextIndex = @string.indexOf @next.value
 					if nextIndex is -1
 						throw new Error "Unable to find next text"
 					@string = @string.substring 0, nextIndex
+				
+				if @next.type in ['node', 'emptynode', 'comment', 'null']
+					nextOffset += 1
+			else
+				@string = ""
 			
 			@strOffset += @string.length
-			@verifying 'next', @next
-			unless @nodeMatches @next
+			
+			
+			@verifying 'next', @next, nextOffset
+			unless @nodeMatches @next, nextOffset
 				throw new Error "Unable to match section end"
 			console.log "Result:", "'#{@string}'"

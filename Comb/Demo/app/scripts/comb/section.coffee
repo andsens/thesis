@@ -121,9 +121,10 @@ define [
 					iterate = false
 				i++	
 			
-			@verifying 'next', @next, last_next_offset
-			unless @nodeMatches @next, last_next_offset
-				throw new Error "Unable to match the next node"
+			if @id isnt 'root'
+				@verifying 'next', @next, last_next_offset
+				unless @nodeMatches @next, last_next_offset
+					throw new Error "Unable to match the next node"
 			
 			console.log @iterations
 		

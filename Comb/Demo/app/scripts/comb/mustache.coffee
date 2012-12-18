@@ -86,20 +86,23 @@ define [
 		nodeMatches: (match, offset = 0) ->
 			unless @parent?
 				throw new Error "Cannot match node, @parent is undefined!"
-			if offset > 0
+			if offset isnt 0
 				current = @node()
-				if current.nodeType is 3 and current.data.length isnt @strOffset
+				unless current?
+					throw new Error "Tried to get offset #{offset} when current node is undefined already"
+				if offset > 0 and current.nodeType is 3 and current.data.length isnt @strOffset
 					console.log 'string not gobbled up',
 						string: (current.data.substring 0, @strOffset)+'|'+current.data.substring @strOffset
 					return false
-			if offset < 0 and @strOffset > 0
-				throw new Error "Request to compare previous node, but strOffset is not 0"
+				if offset < 0 and @strOffset > 0
+					throw new Error "Request to compare previous node, but strOffset is not 0"
 			
 			node = @node(offset)
 			
 			unless node?
 				unless match.type is 'null'
-					throw new Error "The node to match does not exist"
+					return false
+					# throw new Error "The node to match does not exist"
 			
 			result = switch match.type
 				when 'section'  then throw new Error "Unsupported matching type"
@@ -108,7 +111,7 @@ define [
 				when 'node', 'emptynode' then node.nodeType is 1 and node.tagName is match.name.toUpperCase()
 				when 'comment' then node.nodeType is 8
 				when 'text' then node.nodeType in [3, 8] and node.data.substring(@strOffset).indexOf(match.value) is 0
-				when 'null' then node?
+				when 'null' then not node?
 			console.log result
 			return result
 		
@@ -122,7 +125,7 @@ define [
 				when 8
 					if offset > 0
 						throw new Error "Attempted to get offset > 0 from comment node"
-					# @parent.childNodes[offset]
+					# We act like a comment node has childNodes
 					@parent
 			
 		

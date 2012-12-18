@@ -201,7 +201,7 @@ xml_attribute = do
 	begin <- getPosition
 	name <- x_identifier
 	x_symbol "="
-	value <- between (x_symbol "\"") (x_symbol "\"") (many attribute_content)
+	value <- between (C.string "\"") (x_symbol "\"") (many attribute_content)
 	end <- getPosition
 	return $ XMLAttribute name value begin end
 
@@ -214,7 +214,7 @@ comment_content =
 
 xml_comment = do
 	begin <- getPosition
-	x_reservedOp "<!--"
+	try (C.string "<!--")
 	contents <- many comment_content
 	C.string "-->"
 	end <- getPosition

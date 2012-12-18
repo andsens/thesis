@@ -1,10 +1,11 @@
-<div class="sectionHeader{{afterHeader}}">
+<div class=" sectionHeader{{afterHeader}}">
   <h3>{{name}}</h3>
   {{blah}}
 </div>
   1<hr/>{{#begin}}<br/> {{end}} {{/begin}}2
   3{{#begin}}<img/>{{end}} {{/begin}}4
   {{#begin}} {{end}} <ll/> {{/begin}}
+<span>{{#emptysection}} data {{/emptysection}}</span>
 <div class="content profile-data profile-view">
   <div class="row-fluid profileActions">
     <div class="span6">
@@ -110,7 +111,7 @@
     <div class="span9">
       <div class="row-fluid profile description">
         <span>Description</span>
-        {{{description}}}
+        {{description}}
       </div>
 
       <hr class="light" />
@@ -169,7 +170,7 @@
         </div>
         <div class="profile span6 disc_description">
           <span>DISC - The way i work</span>
-          <div>{{{disc_description}}}</div>
+          <div>{{disc_description}}</div>
         </div>
       </div>
 
