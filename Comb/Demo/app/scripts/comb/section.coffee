@@ -49,7 +49,7 @@ define [
 					# Child nodes have no idea whether @prev/@last count towards the nodeOffset or not
 					childNodeOffset = @nodeOffset
 					if @id isnt 'root'
-						if (i is 0 and !prev_first_joined) or (i > 0 and !last_first_joined)
+						if (i is 0 and not prev_first_joined) or (i > 0 and not last_first_joined)
 							childNodeOffset += 1
 					switch child.type
 						when 'section'

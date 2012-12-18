@@ -10,14 +10,14 @@ define [
 		
 		parse: ->
 			super
-			node = @node()
+			node = @parent.childNodes[@nodeOffset]
 			switch @prev.type
 				when 'null', 'section', 'escaped', 'text' then
 				when 'unescaped'
 					throw new Error "Unsupported matching type"
 				when 'node', 'emptynode', 'comment'
 					@nodeOffset += 1
-					node = @node()
+					node = @parent.childNodes[@nodeOffset]
 			
 			unless node?
 				@string = ""
