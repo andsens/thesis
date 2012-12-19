@@ -39,4 +39,3 @@ define [
 			@verifying 'next', @next, nextOffset
 			unless @nodeMatches @next, nextOffset
 				throw new Error "Unable to match section end"
-			console.log "Result:", "'#{@string}'"

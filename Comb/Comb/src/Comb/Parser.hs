@@ -10,8 +10,7 @@ import qualified Text.Parsec.Char as C
 import Text.Parsec.Language(emptyDef)
 import Text.Parsec.Combinator
 import Text.Parsec.Pos(SourcePos)
-import Data.List
-import Debug.Trace
+import Text.HTML.TagSoup.Entity(lookupEntity)
 
 parse :: String -> Either ParseError [Content]
 parse input = Parsec.parse template "" input
@@ -61,7 +60,6 @@ mustache_lexer  = T.makeTokenParser (
 
 m_identifier = T.identifier mustache_lexer
 m_reservedOp = T.reservedOp mustache_lexer
-m_symbol     = T.symbol mustache_lexer
 
 {--
 content ::= {{  id  }}
@@ -82,7 +80,8 @@ any_content =
 	<|> m_escaped
 	<|> xml_comment
 	<|> xml_tag
-	<|> text_data (x_start_ops ++ m_start_ops)
+	<|> text_data (x_start_ops ++ m_start_ops) entity_decoder
+
 
 data Content =
 	Section {
@@ -195,7 +194,7 @@ attribute_content =
 			m_section attribute_content
 	<|> m_unescaped
 	<|> m_escaped
-	<|> text_data ("\"":m_start_ops)
+	<|> text_data ("\"":m_start_ops) id
 
 xml_attribute = do
 	begin <- getPosition
@@ -210,7 +209,7 @@ comment_content =
 			m_section comment_content
 	<|> m_unescaped
 	<|> m_escaped
-	<|> text_data ("-->":m_start_ops)
+	<|> text_data ("-->":m_start_ops) id
 
 xml_comment = do
 	begin <- getPosition
@@ -220,11 +219,20 @@ xml_comment = do
 	end <- getPosition
 	return $ XMLComment contents begin end
 
-text_data disallowed_operators = do
+text_data disallowed_operators decoder = do
 	let ops = map C.string disallowed_operators
 	notFollowedBy (choice ops)
 	begin <- getPosition
 	first <- anyChar
 	rest <- manyTill anyChar ( eof <|> do { choice . map (try . lookAhead) $ ops; return () } )
 	end <- getPosition
-	return $ Text (first:rest) begin end
+	let string = decoder (first:rest)
+	return $ Text string begin end
+
+entity_decoder ('&':string) = 
+	case lookupEntity (takeWhile (';' /=) string) of
+		Just char -> char:rest
+		Nothing -> rest
+	where rest = drop 1 $ dropWhile (';' /=) string
+entity_decoder (char:string) = char:(entity_decoder string)
+entity_decoder [] = []

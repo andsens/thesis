@@ -1,34 +1,17 @@
 <div class=" sectionHeader{{afterHeader}}">
   <h3>{{name}}</h3>
-  {{blah}}
 </div>
-  1<hr/>{{#begin}}<br/> {{end}} {{/begin}}2
-  {{#begin}} {{end}} <ll/> {{/begin}}
-<span>{{#emptysection}} data {{/emptysection}}</span>
 <div class="content profile-data profile-view">
   <div class="row-fluid profileActions">
     <div class="span6">
-      own{{#own}}<!-- wrgwrg -->
-      <button class="btn btn-mini edit-profile">
+      {{#own}}<button class="btn btn-mini edit-profile">
         <icon class="icon-edit"></icon>
         Edit
-      </button>
-      <span>
-        <span>
-          {{#deeper}}
-            {{deepvar}}
-            {{deepvar2}}
-          {{/deeper}}
-        </span>
-      </span>
-      {{/own}}
-      {{^own}}
-        &nbsp;
-      {{/own}}
+      </button>{{/own}}
+      {{^own}}&nbsp;{{/own}}
     </div>
     <div class="span6">
-      {{#own}}
-      <button class="btn follow-btn btn-mini btn-success pull-right hide">
+      {{#own}}<button class="btn follow-btn btn-mini btn-success pull-right hide">
         <icon class="icon-eye-open icon-white"></icon> Follow
       </button>
       <button class="btn follow-working-btn btn-mini btn-primary pull-right">
@@ -49,30 +32,22 @@
             <div id="profileCarousel{{id}}" class="carousel slide">
               <!-- Carousel items -->
               <div class="carousel-inner">
-                {{#standard_photo}}
-                <div class="active item">
+                {{#standard_photo}}<div class="active item">
                   <div class="image thumbnail">
                     <img alt="Standard photo" src="/profile_photos/{{id}}/standard/160x160/{{name}}"/>
                   </div>
-                </div>
-                {{/standard_photo}}
-                {{^standard_photo}}
-                <div class="active item">
+                </div>{{/standard_photo}}
+                {{^standard_photo}} <div class="active item">
                   <div class="image thumbnail">         
                       <img alt="" src="http://www.targit.com/en/Resellers/CO_Partners/~/media/Images/Targit/Partners/valcon-web-targit-business-intelligence.ashx?w=207&h=110&as=1" width="160" height="160"/>
                   </div>
-                </div>
-                {{/standard_photo}}
-                {{#formal_photo}}
-                <div class="item">
+                </div>{{/standard_photo}}
+                {{#formal_photo}}<div class="item">
                   <div class="image thumbnail"><img alt="Formal photo" src="/profile_photos/{{id}}/formal/160x160/{{name}}"/></div>
-                </div>
-                {{/formal_photo}}
-                {{#informal_photo}}
-                <div class="item">
+                </div>{{/formal_photo}}
+                {{#informal_photo}}<div class="item">
                   <div class="image thumbnail"><img alt="Informal photo" src="/profile_photos/{{id}}/informal/160x160/{{name}}"/></div>
-                </div>
-                {{/informal_photo}}
+                </div>{{/informal_photo}}
               </div>
               <!-- Carousel nav -->
               <a class="carousel-control left" data-target="#profileCarousel{{id}}" data-slide="prev">&lsaquo;</a>
@@ -156,7 +131,7 @@
         <div class="span6">
           <div class="profile date_of_birth">
             <span>Date of birth</span>
-            {{#formatdate}}{{date_of_birth}}{{/formatdate}}
+            {{#formatdate}} {{date_of_birth}} {{/formatdate}}
           </div>
         </div>
       </div>
@@ -164,7 +139,7 @@
       <div class="row-fluid">
         <div class="profile span6 date_of_employment">
           <span>Date of employment</span>
-          <div>{{#formatdate}}{{date_of_employment}}{{/formatdate}}</div>
+          <div>{{#formatdate}} {{date_of_employment}} {{/formatdate}}</div>
         </div>
         <div class="profile span6 disc_description">
           <span>DISC - The way i work</span>
@@ -178,9 +153,7 @@
             <div class="span12 expert_skills">
               <span>Skills - expert level</span>
               <ul>
-                {{#expert_skills}}
-                <li>{{name}}</li>
-                {{/expert_skills}}
+                {{#expert_skills}}<li>{{name}}</li>{{/expert_skills}}
               </ul>
             </div>
           </div>
@@ -188,9 +161,7 @@
             <div class="span12 resource_skills">
               <span>Skills - resource level</span>
               <ul>
-                {{#resource_skills}}
-                <li>{{name}}</li>
-                {{/resource_skills}}
+                {{#resource_skills}}<li>{{name}}</li>{{/resource_skills}}
               </ul>
             </div>
           </div>
@@ -198,9 +169,7 @@
             <div class="span12 developing_skills">
               <span>Skills - developing level</span>
               <ul>
-                {{#developing_skills}}
-                <li>{{name}}</li>
-                {{/developing_skills}}
+                {{#developing_skills}}<li>{{name}}</li>{{/developing_skills}}
               </ul>
             </div>
           </div>

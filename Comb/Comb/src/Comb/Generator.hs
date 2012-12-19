@@ -9,7 +9,6 @@ import Text.Parsec.Pos(sourceLine)
 import Data.Hashable(hash)
 import Numeric
 import Data.Maybe(listToMaybe)
-import Debug.Trace
 
 jstring = JSString . toJSString
 jobj = JSObject . toJSObject

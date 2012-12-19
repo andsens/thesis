@@ -8,21 +8,32 @@ import Text.Parsec.Pos(sourceLine,sourceName)
 import Data.List(sort)
 import Debug.Trace
 
-type Warnings = [Warning]
 type Errors = [Error]
 
-data Warning = Warning {warn_msg :: String, warn_res :: R.Resolution} deriving (Eq)
-data Error   = Error {err_msg :: String, err_res :: R.Resolution} deriving (Eq)
+data Error   =
+	Warning {
+  	message :: String,
+  	resolution :: R.Resolution
+	} | Error {
+  	message :: String,
+  	resolution :: R.Resolution
+  } | Unresolved {
+  	resolution :: R.Resolution,
+  	cause :: R.Resolution
+  } deriving (Eq)
 
-instance Show Warning where
-	show (Warning message res) = "Warning: " ++ (location res) ++ "\n    " ++ message
+--txtdef="\e[0m"    # revert to default color
+--bldred="\e[1;31m" # bold red
+--txtblu="\e[0;34m" # blue
+--txtbld="\e[1m"    # bold
+--txtund="\e[4m"    # underline
 instance Show Error where
-	show (Error message res) = "Error: " ++ (location res) ++ "\n    " ++ message
+	show (Warning message res) = "\ESC[0;34mWarning\ESC[0m: " ++ (location res) ++ "\n    " ++ message
+	show (Error message res) = "\ESC[1;31mError\ESC[0m: " ++ (location res) ++ "\n    " ++ message
+	show (Unresolved res cause) = "\ESC[0;37mUnresolved\ESC[0m: " ++ (short_location res) ++ " caused by " ++ (short_location cause)
 
-instance Ord Warning where
-	compare x y = compare (warn_res x) (warn_res y)
 instance Ord Error where
-	compare x y = compare (err_res x) (err_res y)
+	compare x y = compare (resolution x) (resolution y)
 
 location r@R.VariableSelector{..} =
 	var_desc ++ " '" ++ (P.name node) ++ "' in " ++ filename ++ ":" ++ line
@@ -36,54 +47,85 @@ location r@R.SectionSelector{..} =
 		filename = (sourceName . P.begin) node
 		line = show $ (sourceLine . P.begin) node
 		section_desc = if (P.inverted node) then "inverted section" else "section"
+short_location r@R.VariableSelector{..} =
+	var_desc ++ " '" ++ (P.name node) ++ "' on line " ++ line
+	where
+		line = show $ (sourceLine . P.begin) node
+		var_desc = if (P.escaped node) then "escaped variable" else "unescaped variable"
+short_location r@R.SectionSelector{..} =
+	section_desc ++ " '" ++ (P.name node) ++ "' on line " ++ line
+	where
+		line = show $ (sourceLine . P.begin) node
+		section_desc = if (P.inverted node) then "inverted section" else "section"
 
 
 
-filter_resolutions :: R.Resolutions -> (R.Resolutions, Warnings, Errors)
+filter_resolutions :: R.Resolutions -> (R.Resolutions, Errors)
 filter_resolutions resolutions =
-	let (warnings, errors) = run_checks resolutions ([], []) checks
-	in (filter (not . has_error errors) resolutions, sort warnings, sort errors)
+	let errors = run_checks resolutions [] checks
+	in (filter (not . has_error errors) resolutions, sort errors)
 
-run_checks resolutions set (check:checks) = run_checks resolutions (check resolutions set) checks
-run_checks resolutions set [] = set
+run_checks resolutions errs (check:checks) = run_checks resolutions (check resolutions errs) checks
+run_checks resolutions errs [] = errs
 
 checks = [
 	  run_check unescaped_offset
-	--, run_check empty_section
+	, run_check empty_section
 	, run_check unescaped_pos
 	--, check if two variables in the same text section
-	--, check if a section has prev and first == 'text' or next and last == 'text' => warning
+	, run_check no_lookahead
 	, run_check ambiguous_boundaries
 	, path_with_errors []
 	]
 
-run_check check (r:rs) set = run_check check rs (check r set)
-run_check check [] set = set
+run_check check (r:rs) errs = run_check check rs (check r errs)
+run_check check [] errs = errs
 
 -- Unescaped offsets
-unescaped_offset resolution set@(warns, errs) =
+unescaped_offset resolution errs =
 	case get_path_top (R.path resolution) of
-		R.Offset (R.VariableSelector{node=P.Variable{escaped=False}}) ->
-			(warns, (Error "Path contains unescaped variable" resolution):errs)
-		_ -> set
+		R.Offset (root@R.VariableSelector{node=P.Variable{escaped=False}}) ->
+			(Unresolved resolution root):errs
+		_ -> errs
 
----- Unescaped variable is always the last child of a proper XMLTag, Comment or Root
-unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},next=(Just something)} set@(warns, errs) =
-	(warns, (Error "An unescaped variable must be the last child of a node" r):errs)
-unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},..} set@(warns, errs)
-	| parent_is_section zipper = (warns, (Error "An unescaped variable may not be a immediate child of a section" r):errs)
-	| otherwise = set
-unescaped_pos _ set = set
+-- Warns if there were found empty sections
+empty_section r@R.SectionSelector{node=P.Section{contents=[]}} errs =
+	(Warning "The section is empty" r):errs
+empty_section _ errs = errs
+
+-- Unescaped variable is always the last child of a proper XMLTag, Comment or Root
+unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},next=(Just something)} errs =
+	(Error "An unescaped variable must be the last child of a node" r):errs
+unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},..} errs
+	| parent_is_section zipper = (Error "An unescaped variable may not be a immediate child of a section" r):errs
+	| otherwise = errs
+unescaped_pos _ errs = errs
 
 parent_is_section :: R.Zipper -> Bool
 parent_is_section (_, (R.Crumb _ P.Section{} _):_) = True
 parent_is_section _ = False
 
+-- Lookahead is not supported yet
+no_lookahead resolution@R.SectionSelector{..} errs
+	| is_mustache prev = (Error "The previous node is mustache, lookahead is not supported yet" resolution):errs
+	| is_mustache next = (Error "The next node is mustache, lookahead is not supported yet" resolution):errs
+	| is_mustache first_c = (Error "The first child is mustache, lookahead is not supported yet" resolution):errs
+	| is_mustache last_c = (Error "The last child is mustache, lookahead is not supported yet" resolution):errs
+	| otherwise = errs
+no_lookahead resolution@R.VariableSelector{..} errs
+	| is_mustache prev = (Error "The previous node is mustache, lookahead is not supported yet" resolution):errs
+	| is_mustache next = (Error "The next node is mustache, lookahead is not supported yet" resolution):errs
+	| otherwise = errs
+
+is_mustache (Just P.Section{}) = True
+is_mustache (Just P.Variable{}) = True
+is_mustache _ = False
+
 -- Ambiguous boundaries
-ambiguous_boundaries resolution@R.SectionSelector{..} set@(warns, errs)
-	| ambiguous first_c next = (warns, (Error "The first child and next node are indistinguishable" resolution):errs)
-	| otherwise = set
-ambiguous_boundaries _ set = set
+ambiguous_boundaries resolution@R.SectionSelector{..} errs
+	| ambiguous first_c next = (Error "The first child and next node are indistinguishable" resolution):errs
+	| otherwise = errs
+ambiguous_boundaries _ errs = errs
 
 ambiguous :: Maybe P.Content -> Maybe P.Content -> Bool
 ambiguous (Just a) (Just b) = (is_ambiguous a b) || (is_ambiguous b a)
@@ -92,9 +134,7 @@ ambiguous (Just a) Nothing = False
 ambiguous Nothing Nothing = True
 
 is_ambiguous :: P.Content -> P.Content -> Bool
-is_ambiguous P.Section{} _ = True -- We can't look into sections yet, so their content can be anything
-is_ambiguous P.Variable{} P.Variable{} = True
-is_ambiguous P.Variable{} P.Text{} = True
+-- We don't do proper lookaheads yet, so sections and variables are considered ambiguous
 is_ambiguous tag1@P.XMLTag{} tag2@P.XMLTag{} = (P.name tag1) == (P.name tag2)
 is_ambiguous tag1@P.XMLTag{} tag2@P.EmptyXMLTag{} = (P.name tag1) == (P.name tag2)
 is_ambiguous tag1@P.EmptyXMLTag{} tag2@P.EmptyXMLTag{} = (P.name tag1) == (P.name tag2)
@@ -104,21 +144,23 @@ is_ambiguous _ _ = False
 
 
 -- Path with errors
-path_with_errors valid_rs resolutions@(r:rs) set@(warns, errs) =
+path_with_errors valid_rs resolutions@(r:rs) errs =
 	case find_path_error errs r of
-		Just err -> path_with_errors [] (valid_rs ++ rs) (warns, err:errs)
-		Nothing  -> path_with_errors (r:valid_rs) rs set
-path_with_errors valid_rs [] set = set
+		Just err -> path_with_errors [] (valid_rs ++ rs) (err:errs)
+		Nothing  -> path_with_errors (r:valid_rs) rs errs
+path_with_errors valid_rs [] errs = errs
 
 find_path_error errs r =
 	case get_path_top (R.path r) of
 		top@R.Offset{..} ->
 			case find_err errs offset of
-				Just Error{..} -> Just (Error ("Unresolved offset from '" ++ (P.name (R.node err_res)) ++ "' found in path") r)
+				Just Error{..} -> Just (Unresolved r resolution)
+				Just Unresolved{..} -> Just (Unresolved r cause)
 				Nothing -> Nothing
 		top@R.Child{..} ->
 			case find_err errs offset of
-				Just Error{..} -> Just (Error ("Unresolved child from '" ++ (P.name (R.node err_res)) ++ "' found in path") r)
+				Just Error{..} -> Just (Unresolved r resolution)
+				Just Unresolved{..} -> Just (Unresolved r cause)
 				Nothing -> Nothing
 		_ -> Nothing
 
@@ -134,7 +176,11 @@ has_error errors r =
 		Nothing -> False
 
 find_err :: Errors -> R.Resolution -> Maybe Error
-find_err (err:errs) r
-	| (R.node r) == R.node (err_res err) = Just err
-	| otherwise          = find_err errs r
-find_err [] r = Nothing
+find_err ((err@Error{resolution}):errs) needle
+	| resolution == needle = Just err
+	| otherwise = find_err errs needle
+find_err ((err@Unresolved{resolution}):errs) needle
+	| resolution == needle = Just err
+	| otherwise = find_err errs needle
+find_err ((err@Warning{}):errs) needle = find_err errs needle
+find_err [] needle = Nothing

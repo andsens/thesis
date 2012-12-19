@@ -12,8 +12,32 @@ define [
 	
 	class Section extends Mustache
 		
+		legal_first_next_var: ['node', 'emptynode', 'comment', 'null']
+		
 		initialize: ->
 			super
+			
+			unless @id is 'root'
+				switch @first.type
+					when 'section' then throw new Error "Section as first child not yet supported"
+					when 'escaped' then throw new Error "Escaped as first child not yet supported"
+					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
+				switch @last.type
+					when 'section' then throw new Error "Section as first child not yet supported"
+					when 'escaped' then throw new Error "Escaped as first child not yet supported"
+					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
+				# 	when 'escaped'
+				# 		unless @next.type in @legal_first_next_var
+				# 			throw new Error "@next must be one of "+@legal_first_next_var.join(' ')+
+				# 				" if an escaped variable is to be the first child of a section"
+				# 	when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
+				# switch @next.type
+				# 	when 'section' then throw new Error "Section as first child not yet supported"
+				# 	when 'escaped'
+				# 		unless @first.type in @legal_first_next_var
+				# 			throw new Error "@first must be one of "+@legal_first_next_var.join(' ')+
+				# 				" if an escaped variable is to be the next sibling of a section"
+			
 			@children   = (child for id, child of @spec when (_.last child.stack) is @id)
 			@iterations = []
 		
@@ -34,7 +58,7 @@ define [
 				
 				prev_first_joined = prev_first_joined or @prev.type is 'null'
 				prev_next_joined  = prev_next_joined or @prev.type is 'null'
-				last_next_joined  = last_next_joined or @next.type is 'null'
+				# last_next_joined  = last_next_joined or @next.type is 'null'
 			
 				prev_first_offset = if prev_first_joined then 0 else 1
 				prev_next_offset  = if prev_next_joined  then 0 else 1
@@ -46,10 +70,10 @@ define [
 					@verifying 'next', @next, prev_next_offset
 					unless @nodeMatches @next, prev_next_offset
 						throw new Error "Unable to match the next node"
-					iterate = false
+					return
 			
 			i = 0
-			while iterate
+			while true
 				iteration = {}
 				
 				# Parse the children that are not offset by preceeding items
@@ -76,11 +100,11 @@ define [
 						throw new Error "Something is wrong with the ordering of the offset children"
 					switch child.type
 						when 'section'
-							obj = new Section child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new Section child, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'escaped'
-							obj = new EscapedVariable child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new EscapedVariable child, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'unescaped'
-							obj = new UnescapedVariable child, @spec, @parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new UnescapedVariable child, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 					iteration[child.id] = obj
 				
 				@iterations.push iteration
@@ -111,20 +135,23 @@ define [
 					@strOffset += @last.value.length
 				
 				
+				@verifying 'next', @next, last_next_offset
+				nextMatched = @nodeMatches @next, last_next_offset
+				
 				@verifying 'first', @first, last_first_offset
 				if @nodeMatches @first, last_first_offset
-					@verifying 'next', @next, last_next_offset
-					if @nodeMatches @next, last_next_offset
+					if nextMatched
 						throw new Error "Was able to both match a continuation and an end of the iteration"
-					console.log 'ITERATE'
 				else
-					iterate = false
-				i++	
+					unless nextMatched
+						console.log @parent, @node(1)
+						throw new Error "Unable to match the next node"
+					break
+				console.log 'ITERATE'
+				i++
 			
-			if @id isnt 'root'
-				@verifying 'next', @next, last_next_offset
-				unless @nodeMatches @next, last_next_offset
-					throw new Error "Unable to match the next node"
+			# All the following offsets rely on the nodeOffset to be at the next node
+			@nodeOffset += if (i is 0) then last_next_offset else prev_next_offset
 			
 			console.log @iterations
 		

@@ -14,6 +14,16 @@ define [
 			console.log "Construct #{@type}: '#{@name}' (#{@id})",
 				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
 			
+			unless @id is 'root'
+				switch @prev.type
+					when 'section' then throw new Error "Section as first child not yet supported"
+					when 'escaped' then throw new Error "Escaped as first child not yet supported"
+					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
+				switch @next.type
+					when 'section' then throw new Error "Section as first child not yet supported"
+					when 'escaped' then throw new Error "Escaped as first child not yet supported"
+					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
+			
 			@parent = @rootNode
 			
 			if @id isnt 'root'
@@ -24,10 +34,6 @@ define [
 					when "index"
 					else throw new Error "Expected second part of path to be an index"
 			
-			switch @first?.type
-				when 'section' then throw new Error "Section as first child not yet supported"
-				when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-			
 			for part, i in @path when i > 0
 				if part.type is 'index'
 					# reset the string offset if we have skipped over a tag
@@ -36,7 +42,6 @@ define [
 						if i is @path.length-1 and @prev.type in ['section', 'escaped', 'text']
 							skipRange = [0..part.i-1] # Won't be negative since @prev is text
 						for offset in skipRange when @node(offset).nodeType in [1, 8]
-							console.log 'reset', {node: @node(offset)}
 							@strOffset = 0
 							break
 					# If this is the last index and the previous node is a text node, we will correct this later on
@@ -76,7 +81,9 @@ define [
 				node = (node.data.substring 0, @strOffset)+'|'+node.data.substring @strOffset
 			inverted = ''
 			inverted = 'inverted ' if @inverted
-			console.log "Verifying #{name} node of #{inverted}#{@type} '#{@name}'",
+			matched = 'Rejected'
+			matched = 'Matched' if @nodeMatches match, offset
+			console.log "#{matched} #{name} node of #{inverted}#{@type} '#{@name}'",
 				node: node,
 				nodeOffset: offset
 				strOffset: @strOffset
@@ -91,8 +98,6 @@ define [
 				unless current?
 					throw new Error "Tried to get offset #{offset} when current node is undefined already"
 				if offset > 0 and current.nodeType is 3 and current.data.length isnt @strOffset
-					console.log 'string not gobbled up',
-						string: (current.data.substring 0, @strOffset)+'|'+current.data.substring @strOffset
 					return false
 				if offset < 0 and @strOffset > 0
 					throw new Error "Request to compare previous node, but strOffset is not 0"
@@ -102,18 +107,15 @@ define [
 			unless node?
 				unless match.type is 'null'
 					return false
-					# throw new Error "The node to match does not exist"
 			
-			result = switch match.type
+			return switch match.type
 				when 'section' then throw new Error "Unsupported matching type"
-				when 'escaped' then throw new Error "Unsupported matching type" #node.nodeType is 3
+				when 'escaped' then throw new Error "Unsupported matching type"
 				when 'unescaped' then throw new Error "Unsupported matching type"
 				when 'node', 'emptynode' then node.nodeType is 1 and node.tagName is match.name.toUpperCase()
 				when 'comment' then node.nodeType is 8
 				when 'text' then node.nodeType in [3, 8] and node.data.substring(@strOffset).indexOf(match.value) is 0
 				when 'null' then not node?
-			console.log result
-			return result
 		
 		node: (offset = 0) ->
 			offset += @nodeOffset
