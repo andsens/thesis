@@ -26,8 +26,9 @@ siblings res z@(Crumb l x (y:r), trail) = siblings (inspect res z x) (Crumb (x:l
 siblings res z@(Crumb _ x [], _) = inspect res z x
 
 inspect :: Resolutions -> Zipper -> P.Content -> Resolutions
-inspect res z P.Variable{}       = make_selector res z
 inspect res z P.Section{..}      = inspect_contents (make_selector res z) z contents
+inspect res z P.Partial{}        = make_selector res z
+inspect res z P.Variable{}       = make_selector res z
 inspect res z P.XMLTag{..}       = inspect_contents (inspect_contents res z attributes) z contents
 inspect res z P.EmptyXMLTag{..}  = inspect_contents res z attributes
 inspect res z P.XMLAttribute{..} = inspect_contents res z contents
@@ -49,6 +50,13 @@ data Resolution =
 		next :: Maybe P.Content,
 		first_c :: Maybe P.Content,
 		last_c :: Maybe P.Content
+	} | PartialSelector {
+		node :: P.Content,
+		zipper :: Zipper,
+		path :: Path,
+		section :: Maybe Resolution,
+		prev :: Maybe P.Content,
+		next :: Maybe P.Content
 	} | VariableSelector {
 		node :: P.Content,
 		zipper :: Zipper,
@@ -67,6 +75,7 @@ instance Eq Resolution where
 instance Show Resolution where
 	show s@SectionSelector{node=P.Section{inverted=False,..},..} = '#':fq_name s
 	show s@SectionSelector{node=P.Section{inverted=True,..},..} = '^':fq_name s
+	show p@PartialSelector{} = '>':fq_name p
 	show v@VariableSelector{node=P.Variable{escaped=True,..},..} = fq_name v
 	show v@VariableSelector{node=P.Variable{escaped=False,..},..} = '{':fq_name v
 
@@ -92,6 +101,13 @@ make_selector res z@(Crumb l c@(P.Section {..}) r, _) =
 		next    = listToMaybe r
 		first_c = listToMaybe contents
 		last_c  = case contents of [] -> Nothing; _ -> Just $ last contents
+make_selector res z@(Crumb l c@(P.Partial {}) r, _) =
+	(PartialSelector c z path section prev next):res
+	where
+		path    = backtrack res z
+		section = get_section res z
+		prev    = listToMaybe l
+		next    = listToMaybe r
 make_selector res z@(Crumb l c@(P.Variable {}) r, _) =
 	(VariableSelector c z path section prev next):res
 	where
@@ -119,6 +135,7 @@ backtrack res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail)
 backtrack res (Crumb [] _ _, []) = Index 0 Root
 
 backtrack_left res (Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
+backtrack_left res (Crumb _ p@(P.Partial{}) _, _) i = Index i (Offset (find_res res p))
 backtrack_left res (Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
 backtrack_left res (Crumb (y:l) x r, trail) i = backtrack_left res (Crumb l y (x:r), trail) (i+1)
 backtrack_left res (Crumb [] x r, p:trail) i = Index (i+1) (backtrack_parent res (p, trail))

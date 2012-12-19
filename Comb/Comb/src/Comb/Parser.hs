@@ -76,6 +76,7 @@ template = many any_content
 
 any_content =
 			m_section any_content
+	<|> m_partial
 	<|> m_unescaped
 	<|> m_escaped
 	<|> xml_comment
@@ -88,6 +89,10 @@ data Content =
 		name :: String,
 		inverted :: Bool,
 		contents :: [Content],
+		begin :: SourcePos,
+		end :: SourcePos
+	} | Partial {
+		name :: String,
 		begin :: SourcePos,
 		end :: SourcePos
 	} | Variable {
@@ -126,32 +131,16 @@ instance Ord Content where
 	compare x y = compare (begin x) (begin y)
 
 instance Show Content where
-	show Section{inverted=False,..} = "(#"++name++")" ++ (concat $ map show contents) ++ "(/"++name++")"
-	show Section{inverted=True,..} = "(^"++name++")" ++ (concat $ map show contents) ++ "(/"++name++")"
-	show Variable{escaped=True,..} = "("++name++")"
-	show Variable{escaped=False,..} = "(("++name++"))"
-	show XMLTag{..} = "["++name++(concat $ map show attributes)++"]" ++ (concat $ map show contents) ++ "[/"++name++"]"
-	show EmptyXMLTag{..} = "["++name++(concat $ map show attributes)++"/]"
-	show XMLComment{..} = "[!--" ++ (concat $ map show contents) ++ "--]"
+	show Section{inverted=False,..} = "{{#"++name++"}}" ++ (concat $ map show contents) ++ "{{/"++name++"}}"
+	show Section{inverted=True,..} = "{{^"++name++"}}" ++ (concat $ map show contents) ++ "{{/"++name++"}}"
+	show Partial{..} = "{{>"++name++"}}"
+	show Variable{escaped=True,..} = "{{"++name++"}}"
+	show Variable{escaped=False,..} = "{{("++name++"}}"
+	show XMLTag{..} = "<"++name++(concat $ map show attributes)++">" ++ (concat $ map show contents) ++ "</"++name++">"
+	show EmptyXMLTag{..} = "<"++name++(concat $ map show attributes)++"/>"
+	show XMLComment{..} = "<!--" ++ (concat $ map show contents) ++ "-->"
 	show XMLAttribute{..} = " " ++ name ++ "=\"" ++ (concat $ map show contents) ++ "\""
 	show Text{..} = text
-
-m_unescaped = do
-	begin <- getPosition
-	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
-	name <- m_identifier
-	C.string "}}}"
-	end <- getPosition
-	return $ Variable name False begin end
-
-m_escaped = do
-	begin <- getPosition
-	m_reservedOp "{{" <?> "mustache variable"
-	notFollowedBy (oneOf m_opLetters)
-	name <- m_identifier
-	C.string "}}"
-	end <- getPosition
-	return $ Variable name True begin end
 
 m_section allowed_content = do
 	begin <- getPosition
@@ -169,6 +158,31 @@ m_section allowed_content = do
 	C.string "}}"
 	end <- getPosition
 	return $ Section name inverted contents begin end
+
+m_partial = do
+	begin <- getPosition
+	m_reservedOp "{{>" <?> "mustache partial"
+	name <- m_identifier
+	C.string "}}"
+	end <- getPosition
+	return $ Partial name begin end
+
+m_unescaped = do
+	begin <- getPosition
+	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
+	name <- m_identifier
+	C.string "}}}"
+	end <- getPosition
+	return $ Variable name False begin end
+
+m_escaped = do
+	begin <- getPosition
+	m_reservedOp "{{" <?> "mustache variable"
+	notFollowedBy (oneOf m_opLetters)
+	name <- m_identifier
+	C.string "}}"
+	end <- getPosition
+	return $ Variable name True begin end
 
 
 xml_tag = do

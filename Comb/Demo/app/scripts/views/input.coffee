@@ -3,15 +3,19 @@ define [
 	'text!templates/input.mustache'
 	'text!templates/mustache.mustache'
 	
+	'json!templates/input.mustache-comb'
+	'json!templates/mustache.mustache-comb'
+	
 	'comb/template'
 	'chaplin'
-], (View, template, mustacheTpl
+], (View, inputTpl, mustacheTpl,
+	inputComb, mustacheComb
 	CombTpl, Chaplin) ->
 	'use strict'
 	
 	class InputView extends View
 		
-		template: template
+		template: inputTpl
 		template = null
 		
 		# tagName: "form"
@@ -26,22 +30,23 @@ define [
 				"text!" + info['template-path']
 				"json!" + info['comb-path']
 			], (template, spec) =>
-				@spec = spec
+				@viewerSpec = spec
 				Chaplin.mediator.subscribe 'templateRendered', @runComb
 				Chaplin.mediator.publish 'templateLoaded', template
 		
 		runComb: (dom) =>
-			return unless @spec?
-			@comb = new CombTpl @spec, dom
+			return unless @viewerSpec?
+			@combView = new CombTpl @viewerSpec, dom
 			@render()
+			@combInput = new CombTpl inputComb, @$el[0], {mustache: mustacheComb}
+			console.log @combInput.getSimpleValues()
 		
 		getTemplateData: ->
-			unless @comb?
+			unless @combView?
 				return super arguments...
-			root = @comb.getValues()
+			root = @combView.getValues()
 			values = @templatify root, 'root'
-			console.log values
-			{values}
+			values
 		
 		templatify: (object, name) ->
 			switch object.type

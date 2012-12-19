@@ -1,15 +1,7 @@
-{{#section}}
-	<div class="section">
+{{#section}}<div class="section">
 		<h5>{{name}}</h5>
 		({{i}} iterations, {{variables}} variables)
-		{{#iterations}}
-			{{> mustache}}
-		{{/iterations}}
-	</div>
-{{/section}}
-{{#escaped}}
-	<div class="escaped">{{name}}: {{value}}</div>
-{{/escaped}}
-{{#unescaped}}
-	<div class="unescaped">{{name}}: <pre>{{nodes}}</pre></div>
-{{/unescaped}}
+		{{#iterations}}<div class="iterations">{{>mustache}}</div>{{/iterations}}
+	</div><br/>{{/section}}
+{{#escaped}}<div class="escaped">{{name}}: {{value}}</div>{{/escaped}}
+{{#unescaped}}<div class="unescaped">{{name}}: <pre>{{nodes}}</pre></div>{{/unescaped}}

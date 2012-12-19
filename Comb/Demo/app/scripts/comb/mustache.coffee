@@ -9,21 +9,12 @@ define [
 			@initialize arguments...
 			@parse()
 		
-		initialize: (@id, @spec, @rootNode, @nodeOffset, @strOffset) ->
+		initialize: (@id, @spec, @partials, @rootNode, @nodeOffset = 0, @strOffset = 0) ->
 			@[prop]     = val for prop, val of @spec[@id]
+			
 			if @spec.verbose
 				console.log "Construct #{@type}: '#{@name}' (#{@id})",
 					"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
-			
-			unless @id is 0
-				switch @prev.type
-					when 'section' then throw new Error "Section as first child not yet supported"
-					when 'escaped' then throw new Error "Escaped as first child not yet supported"
-					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-				switch @next.type
-					when 'section' then throw new Error "Section as first child not yet supported"
-					when 'escaped' then throw new Error "Escaped as first child not yet supported"
-					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
 			
 			@parent = @rootNode
 			
@@ -80,7 +71,7 @@ define [
 					nodeOffset: offset
 					strOffset: @strOffset
 					offset: offset
-					, "to", matched
+					, "to", match
 			return result
 		
 		matchNode: (match, offset = 0) ->
@@ -103,6 +94,7 @@ define [
 			
 			return switch match.type
 				when 'section' then throw new Error "Unsupported matching type"
+				when 'partial' then throw new Error "Unsupported matching type"
 				when 'escaped' then throw new Error "Unsupported matching type"
 				when 'unescaped' then throw new Error "Unsupported matching type"
 				when 'node', 'emptynode' then node.nodeType is 1 and node.tagName is match.name.toUpperCase()
@@ -116,7 +108,7 @@ define [
 				when 1, 2
 					@parent.childNodes[offset]
 				when 3
-					throw new Error "Attempted to childNodes from text node"
+					throw new Error "Attempted to access childNodes from text node"
 				when 8
 					if offset > 0
 						throw new Error "Attempted to get offset > 0 from comment node"

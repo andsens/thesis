@@ -29,10 +29,10 @@ main = do
 	let outfile = out args
 	let templates = filter ((`elem` ["mustache", "mst"]) . extension) (files args)
 	let pp = pretty args
-	case (length $ templates) of
-		0 -> error "No files given"
-		--1 -> mapM (run (comb pp) "") templates
-		_ -> mapM (run (comb pp) "") templates
+	case templates of
+		[]          -> error "No files given"
+		template:[] -> mapM (run (comb pp) outfile) templates
+		templates   -> mapM (run (comb pp) "") templates
 	return ()
 
 run comb outfile infile = do
@@ -44,6 +44,7 @@ run comb outfile infile = do
 
 comb pretty filename = do
 	ast <- parse_file filename
+	--mapM_ print ast
 	let unfiltered_resolutions = resolve ast
 	let (resolutions, errors) = filter_resolutions unfiltered_resolutions
 	let json = generate resolutions

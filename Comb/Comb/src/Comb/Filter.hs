@@ -30,35 +30,28 @@ data Error   =
 instance Show Error where
 	show (Warning message res) = "\ESC[0;34mWarning\ESC[0m: " ++ (location res) ++ "\n    " ++ message
 	show (Error message res) = "\ESC[1;31mError\ESC[0m: " ++ (location res) ++ "\n    " ++ message
-	show (Unresolved res cause) = "\ESC[0;37mUnresolved\ESC[0m: " ++ (short_location res) ++ " caused by " ++ (short_location cause)
+	show (Unresolved res cause) = "\ESC[0;37mUnresolved\ESC[0m " ++ (short_location res) ++ " caused by " ++ (short_location cause)
 
 instance Ord Error where
 	compare x y = compare (resolution x) (resolution y)
 
-location r@R.VariableSelector{..} =
-	var_desc ++ " '" ++ (P.name node) ++ "' in " ++ filename ++ ":" ++ line
+location res =
+	name ++ " '" ++ (P.name node) ++ "' in " ++ filename ++ ":" ++ line
 	where
+		node = R.node res
 		filename = (sourceName . P.begin) node
 		line = show $ (sourceLine . P.begin) node
-		var_desc = if (P.escaped node) then "escaped variable" else "unescaped variable"
-location r@R.SectionSelector{..} =
-	section_desc ++ " '" ++ (P.name node) ++ "' in " ++ filename ++ ":" ++ line
+		name = typeof res
+short_location res =
+	name ++ " '" ++ (P.name node) ++ "' on line " ++ line
 	where
-		filename = (sourceName . P.begin) node
+		node = R.node res
 		line = show $ (sourceLine . P.begin) node
-		section_desc = if (P.inverted node) then "inverted section" else "section"
-short_location r@R.VariableSelector{..} =
-	var_desc ++ " '" ++ (P.name node) ++ "' on line " ++ line
-	where
-		line = show $ (sourceLine . P.begin) node
-		var_desc = if (P.escaped node) then "escaped variable" else "unescaped variable"
-short_location r@R.SectionSelector{..} =
-	section_desc ++ " '" ++ (P.name node) ++ "' on line " ++ line
-	where
-		line = show $ (sourceLine . P.begin) node
-		section_desc = if (P.inverted node) then "inverted section" else "section"
+		name = typeof res
 
-
+typeof R.SectionSelector{..}  = if (P.inverted node) then "inverted section" else "section"
+typeof R.PartialSelector{}    = "partial"
+typeof R.VariableSelector{..} = if (P.escaped node) then "escaped variable" else "unescaped variable"
 
 filter_resolutions :: R.Resolutions -> (R.Resolutions, Errors)
 filter_resolutions resolutions =
@@ -72,9 +65,11 @@ checks = [
 	  run_check unescaped_offset
 	, run_check empty_section
 	, run_check unescaped_pos
+	, run_check partial_only_child
 	--, check if two variables in the same text section
 	, run_check no_lookahead
 	, run_check ambiguous_boundaries
+	--, sections_with_errors []
 	, path_with_errors []
 	]
 
@@ -101,6 +96,16 @@ unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},..} errs
 	| otherwise = errs
 unescaped_pos _ errs = errs
 
+-- Partials must be the single child of an XMLTag
+partial_only_child r@R.PartialSelector{next=(Just something)} errs =
+	(Error "A partial must be the only child of a node" r):errs
+partial_only_child r@R.PartialSelector{prev=(Just something)} errs =
+	(Error "A partial must be the only child of a node" r):errs
+partial_only_child r@R.PartialSelector{..} errs
+	| parent_is_section zipper = (Error "A partial may not be a immediate child of a section" r):errs
+	| otherwise = errs
+partial_only_child _ errs = errs
+
 parent_is_section :: R.Zipper -> Bool
 parent_is_section (_, (R.Crumb _ P.Section{} _):_) = True
 parent_is_section _ = False
@@ -116,8 +121,10 @@ no_lookahead resolution@R.VariableSelector{..} errs
 	| is_mustache prev = (Error "The previous node is mustache, lookahead is not supported yet" resolution):errs
 	| is_mustache next = (Error "The next node is mustache, lookahead is not supported yet" resolution):errs
 	| otherwise = errs
+no_lookahead _ errs = errs
 
 is_mustache (Just P.Section{}) = True
+is_mustache (Just P.Partial{}) = True
 is_mustache (Just P.Variable{}) = True
 is_mustache _ = False
 
@@ -141,7 +148,6 @@ is_ambiguous tag1@P.EmptyXMLTag{} tag2@P.EmptyXMLTag{} = (P.name tag1) == (P.nam
 is_ambiguous P.XMLComment{} P.XMLComment{} = True
 is_ambiguous text1@P.Text{} text2@P.Text{} = t1 == (take (length t1) (P.text text2)) where t1 = P.text text1
 is_ambiguous _ _ = False
-
 
 -- Path with errors
 path_with_errors valid_rs resolutions@(r:rs) errs =

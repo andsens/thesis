@@ -1,42 +1,21 @@
 define [
 	'comb/mustache'
 	
+	'comb/partial'
 	'comb/escaped_variable'
 	'comb/unescaped_variable'
 	
+	'exports'
 	'underscore'
 ], (Mustache,
-	EscapedVariable, UnescapedVariable,
-	_) ->
+	Partial, EscapedVariable, UnescapedVariable,
+	exports, _) ->
 	'use strict'
 	
 	class Section extends Mustache
 		
-		legal_first_next_var: ['node', 'emptynode', 'comment', 'null']
-		
 		initialize: ->
 			super
-			
-			unless @id is 0
-				switch @first.type
-					when 'section' then throw new Error "Section as first child not yet supported"
-					when 'escaped' then throw new Error "Escaped as first child not yet supported"
-					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-				switch @last.type
-					when 'section' then throw new Error "Section as first child not yet supported"
-					when 'escaped' then throw new Error "Escaped as first child not yet supported"
-					when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-				# 	when 'escaped'
-				# 		unless @next.type in @legal_first_next_var
-				# 			throw new Error "@next must be one of "+@legal_first_next_var.join(' ')+
-				# 				" if an escaped variable is to be the first child of a section"
-				# 	when 'unescaped' then throw new Error "Unescaped as first child not yet supported"
-				# switch @next.type
-				# 	when 'section' then throw new Error "Section as first child not yet supported"
-				# 	when 'escaped'
-				# 		unless @first.type in @legal_first_next_var
-				# 			throw new Error "@first must be one of "+@legal_first_next_var.join(' ')+
-				# 				" if an escaped variable is to be the next sibling of a section"
 			
 			@children   = ({id, child} for child, id in @spec when child.section is @id)
 			@iterations = []
@@ -81,11 +60,13 @@ define [
 						childNodeOffset += if (i is 0) then prev_first_offset else last_first_offset
 					switch type
 						when 'section'
-							obj = new Section id, @spec, @parent, childNodeOffset, @strOffset
+							obj = new Section id, @spec, @partials, @parent, childNodeOffset, @strOffset
+						when 'partial'
+							obj = new Partial id, @spec, @partials, @parent, childNodeOffset, @strOffset
 						when 'escaped'
-							obj = new EscapedVariable id, @spec, @parent, childNodeOffset, @strOffset
+							obj = new EscapedVariable id, @spec, @partials, @parent, childNodeOffset, @strOffset
 						when 'unescaped'
-							obj = new UnescapedVariable id, @spec, @parent, childNodeOffset, @strOffset
+							obj = new UnescapedVariable id, @spec, @partials, @parent, childNodeOffset, @strOffset
 					iteration[id] = obj
 				
 				# Parse the children that are offset by preceeding items
@@ -95,11 +76,13 @@ define [
 						throw new Error "Something is wrong with the ordering of the offset children"
 					switch type
 						when 'section'
-							obj = new Section id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new Section id, @spec, @partials, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+						when 'partial'
+							obj = new Partial id, @spec, @partials, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'escaped'
-							obj = new EscapedVariable id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new EscapedVariable id, @spec, @partials, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'unescaped'
-							obj = new UnescapedVariable id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new UnescapedVariable id, @spec, @partials, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 					iteration[id] = obj
 				
 				@iterations.push iteration
@@ -109,8 +92,9 @@ define [
 				for content, j in @contents
 					switch content
 						when '#node', '#emptynode', "#comment"
-							@nodeOffset += 1
 							@strOffset = 0
+							break if i is 0 and j is 0 and prev_first_joined
+							@nodeOffset += 1
 						when '#text'
 							if j is 0
 								break if i is 0 and prev_first_joined
@@ -172,6 +156,5 @@ define [
 			if object.length is 1
 				object = object[0]
 			object
-						
-
-
+	
+	exports.Section = Section
