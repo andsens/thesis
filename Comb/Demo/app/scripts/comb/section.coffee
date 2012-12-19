@@ -77,14 +77,14 @@ define [
 				iteration = {}
 				
 				# Parse the children that are not offset by preceeding items
-				for {id, child} in @children when child.path[0].type is 'child'
-					if child.path[0].node isnt @id
+				for {id, child:{type,path:[top]}} in @children when top.type is 'child'
+					if top.node isnt @id
 						throw new Error {msg: "Unexpected path in list of children", path: child.path[0]}
 					# Child nodes have no idea whether @prev/@last count towards the nodeOffset or not
 					childNodeOffset = @nodeOffset
 					if @id isnt 0
 						childNodeOffset += if (i is 0) then prev_first_offset else last_first_offset
-					switch child.type
+					switch type
 						when 'section'
 							obj = new Section id, @spec, @parent, childNodeOffset, @strOffset
 						when 'escaped'
@@ -94,11 +94,11 @@ define [
 					iteration[id] = obj
 				
 				# Parse the children that are offset by preceeding items
-				for {id, child} in @children when child.path[0].type is 'offset'
-					offsetNode = iteration[child.path[0].node]
+				for {id, child:{type,path:[top]}} in @children when top.type is 'offset'
+					offsetNode = iteration[top.node]
 					unless offsetNode?
 						throw new Error "Something is wrong with the ordering of the offset children"
-					switch child.type
+					switch type
 						when 'section'
 							obj = new Section id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'escaped'
