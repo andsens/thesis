@@ -8,21 +8,20 @@ import Text.JSON.Types(toJSObject, toJSString, JSObject, JSValue(..))
 import Text.Parsec.Pos(sourceLine)
 import Data.Hashable(hash)
 import Numeric
-import Data.Maybe(listToMaybe)
+import Data.List(elemIndex,findIndex)
 
 jstring = JSString . toJSString
 jobj = JSObject . toJSObject
 jint = (JSRational True) . toRational
 
 generate resolutions =
-	toJSObject $ root_selector:(map make_selector resolutions)
+	root_selector:(map (make_selector resolutions) resolutions)
 
 root_selector =
-	("root",
+	--("root",
 	jobj [
 		("name", jstring "root"),
-		("id", jstring "root"),
-		("stack", JSArray []),
+		("section", JSNull),
 		("type", jstring "section"),
 		("path", JSArray $ [jobj [("type", jstring "index"), ("i", jint 0)]]),
 		("inverted", JSBool False),
@@ -30,71 +29,63 @@ root_selector =
 		("next", jobj [("type", jstring "null")]),
 		("first", JSNull),
 		("last", JSNull),
-		("contents", JSArray $ [])
-	])
+		("contents", JSArray $ [])]
+	--)
 
-make_selector r@(R.SectionSelector{..}) =
-	(node_id node,
+make_selector resolutions r@(R.SectionSelector{..}) =
 	jobj [
 		("name", jstring $ P.name node),
-		("id", jstring $ node_id node),
-		("stack", JSArray $ (reverse . make_stack) section),
+		("section", case section of Just section -> index section resolutions; Nothing -> jint 0),
 		("type", jstring "section"),
-		("path", JSArray $ (reverse . make_path) path),
+		("path", JSArray $ (reverse . (make_path resolutions)) path),
 		("inverted", JSBool $ P.inverted node),
-		("prev", make_node prev),
-		("next", make_node next),
-		("first", make_node first_c),
-		("last", make_node last_c),
-		("contents", JSArray $ make_content contents)
-	])
-	where contents = P.contents node
-make_selector r@(R.VariableSelector{..}) =
-	(node_id node,
+		("prev",  make_node resolutions prev),
+		("next",  make_node resolutions next),
+		("first", make_node resolutions first_c),
+		("last",  make_node resolutions last_c),
+		("contents", JSArray $ map (make_content resolutions) (P.contents node))]
+make_selector resolutions r@(R.VariableSelector{..}) =
 	jobj [
 		("name", jstring $ P.name node),
-		("id", jstring $ node_id node),
-		("stack", JSArray $ (reverse . make_stack) section),
-		("type", jstring $ if is_escaped then "escaped" else "unescaped"),
-		("path", JSArray $ (reverse . make_path) path),
-		("prev", make_node prev),
-		("next", make_node next)
-	])
-	where is_escaped = P.escaped node
+		("section", case section of Just section -> index section resolutions; Nothing -> jint 0),
+		("type", jstring $ if (P.escaped node) then "escaped" else "unescaped"),
+		("path", JSArray $ (reverse . (make_path resolutions)) path),
+		("prev", make_node resolutions prev),
+		("next", make_node resolutions next)]
 
-make_path (R.Index i parent) =
-	(jobj [("type", jstring "index"), ("i", jint i)]):(make_path parent)
-make_path (R.Attribute name parent) =
-	(jobj [("type", jstring "attribute"), ("name", jstring name)]):(make_path parent)
-make_path (R.Offset o) =
-	[jobj [("type", jstring "offset"), ("node", jstring $ node_id (R.node o))]]
-make_path (R.Child o) =
-	[jobj [("type", jstring "child"), ("node", jstring $ node_id (R.node o))]]
-make_path R.Root =
-	[jobj [("type", jstring "child"), ("node", jstring "root")]]
+make_path resolutions (R.Index i parent) =
+	(jobj [("type", jstring "index"), ("i", jint i)]):(make_path resolutions parent)
+make_path resolutions (R.Attribute name parent) =
+	(jobj [("type", jstring "attribute"), ("name", jstring name)]):(make_path resolutions parent)
+make_path resolutions (R.Offset o) =
+	[jobj [("type", jstring "offset"), ("node", index o resolutions)]]
+make_path resolutions (R.Child o) =
+	[jobj [("type", jstring "child"), ("node", index o resolutions)]]
+make_path resolutions R.Root =
+	[jobj [("type", jstring "child"), ("node", jint 0)]]
 
-node_id node =
-	let nid = hash . show $ P.begin node
-	in if nid >= 0 then showHex nid "1" else showHex (-nid) "0"
+make_node resolutions (Just s@P.Section{}) = jobj [("type", jstring "section"), ("id", node_index s resolutions)]
+make_node resolutions (Just v@P.Variable{escaped=True,..})  = jobj [("type", jstring "escaped"), ("id", node_index v resolutions)]
+make_node resolutions (Just v@P.Variable{escaped=False,..}) = jobj [("type", jstring "unescaped"), ("id", node_index v resolutions)]
+make_node _ (Just P.XMLTag{..})      = jobj [("type", jstring "node"), ("name", jstring name)]
+make_node _ (Just P.EmptyXMLTag{..}) = jobj [("type", jstring "emptynode"), ("name", jstring name)]
+make_node _ (Just P.XMLComment{..})  = jobj [("type", jstring "comment")]
+make_node _ (Just P.Text{..})        = jobj [("type", jstring "text"), ("value", jstring text)]
+make_node _ Nothing                  = jobj [("type", jstring "null")]
 
-make_stack (Just R.SectionSelector{..}) = (jstring $ node_id node):(make_stack section)
-make_stack Nothing = [jstring "root"]
+make_content resolutions s@P.Section{}  = (node_index s resolutions)
+make_content resolutions v@P.Variable{} = (node_index v resolutions)
+make_content _ P.XMLTag{}               = (jstring "#node")
+make_content _ P.EmptyXMLTag{}          = (jstring "#emptynode")
+make_content _ P.XMLComment{}           = (jstring "#comment")
+make_content _ P.Text{}                 = (jstring "#text")
 
-make_node (Just s@P.Section{})     = jobj [("type", jstring "section"), ("id", jstring $ node_id s)]
-make_node (Just v@P.Variable{escaped=True,..})  = jobj [("type", jstring "escaped"), ("id", jstring $ node_id v)]
-make_node (Just v@P.Variable{escaped=False,..}) = jobj [("type", jstring "unescaped"), ("id", jstring $ node_id v)]
-make_node (Just P.XMLTag{..})      = jobj [("type", jstring "node"), ("name", jstring name)]
-make_node (Just P.EmptyXMLTag{..}) = jobj [("type", jstring "emptynode"), ("name", jstring name)]
-make_node (Just P.XMLComment{..})  = jobj [("type", jstring "comment")]
-make_node (Just P.Text{..})        = jobj [("type", jstring "text"), ("value", jstring text)]
-make_node Nothing                  = jobj [("type", jstring "null")]
+index :: R.Resolution -> R.Resolutions -> JSValue
+index res resolutions = case elemIndex res resolutions of
+	Just i -> jint (i+1) -- We prepend the root node
+	Nothing -> error "Resolution index not found"
 
-
-make_content (s@P.Section{}:content)   = (jstring $ node_id s):(make_content content)
-make_content (v@P.Variable{}:content)  = (jstring $ node_id v):(make_content content)
-make_content (P.XMLTag{}:content)      = (jstring "#node"):(make_content content)
-make_content (P.EmptyXMLTag{}:content) = (jstring "#emptynode"):(make_content content)
-make_content (P.XMLComment{}:content)  = (jstring "#comment"):(make_content content)
-make_content (P.Text{}:content)        = (jstring "#text"):(make_content content)
-make_content []                        = []
-
+node_index :: P.Content -> R.Resolutions -> JSValue
+node_index node resolutions = case findIndex (\x -> R.node x == node) resolutions of
+	Just i -> jint (i+1) -- We prepend the root node
+	Nothing -> error "Resolution index not found"

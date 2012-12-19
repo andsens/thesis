@@ -9,12 +9,12 @@ define [
 			@initialize arguments...
 			@parse()
 		
-		initialize: (item, @spec, @rootNode, @nodeOffset, @strOffset) ->
-			@[prop]     = val for prop, val of item
+		initialize: (@id, @spec, @rootNode, @nodeOffset, @strOffset) ->
+			@[prop]     = val for prop, val of @spec[@id]
 			console.log "Construct #{@type}: '#{@name}' (#{@id})",
 				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
 			
-			unless @id is 'root'
+			unless @id is 0
 				switch @prev.type
 					when 'section' then throw new Error "Section as first child not yet supported"
 					when 'escaped' then throw new Error "Escaped as first child not yet supported"
@@ -26,7 +26,7 @@ define [
 			
 			@parent = @rootNode
 			
-			if @id isnt 'root'
+			if @id isnt 0
 				switch @path[0].type
 					when "child", "offset" then
 					else throw new Error "Expected first part of path to be offset or child"

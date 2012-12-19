@@ -10,6 +10,7 @@ module Comb.Resolver (
 ) where
 import qualified Comb.Parser as P
 import Data.Maybe(listToMaybe)
+import Data.List(find)
 
 type Resolutions = [Resolution]
 
@@ -77,10 +78,9 @@ scope (Just SectionSelector{..}) = (scope section) ++ (P.name node) ++ ">"
 scope Nothing = ""
 
 find_res :: Resolutions -> P.Content -> Resolution
-find_res (r:res) needle
-	| (node r) == needle = r
-	| otherwise = find_res res needle
-find_res [] needle = error ("Resolution for " ++ (show needle) ++ " not found.")
+find_res resolutions needle = case find (\x -> node x == needle) resolutions of
+	Just x -> x
+	Nothing -> error ("Resolution for " ++ (show needle) ++ " not found.")
 
 make_selector :: Resolutions -> Zipper -> Resolutions
 make_selector res z@(Crumb l c@(P.Section {..}) r, _) =

@@ -17,7 +17,7 @@ define [
 		initialize: ->
 			super
 			
-			unless @id is 'root'
+			unless @id is 0
 				switch @first.type
 					when 'section' then throw new Error "Section as first child not yet supported"
 					when 'escaped' then throw new Error "Escaped as first child not yet supported"
@@ -38,18 +38,18 @@ define [
 				# 			throw new Error "@first must be one of "+@legal_first_next_var.join(' ')+
 				# 				" if an escaped variable is to be the next sibling of a section"
 			
-			@children   = (child for id, child of @spec when (_.last child.stack) is @id)
+			@children   = ({id, child} for child, id in @spec when child.section is @id)
 			@iterations = []
+			console.log @id, @children
 		
 		parse: ->
 			super
-			iterate = true
 			# @nodeOffset always points at at @prev
 			prev_first_joined = false
 			prev_next_joined  = false
 			last_first_joined = false
 			last_next_joined  = false
-			if @id isnt 'root'
+			if @id isnt 0
 				# True / False, potato / potahto
 				prev_first_joined = @prev.type in ['text', 'escaped'] and @first.type in ['text', 'escaped']
 				prev_next_joined  = @prev.type in ['text', 'escaped'] and @next.type in ['text', 'escaped']
@@ -77,38 +77,38 @@ define [
 				iteration = {}
 				
 				# Parse the children that are not offset by preceeding items
-				for child in @children when child.path[0].type is 'child'
+				for {id, child} in @children when child.path[0].type is 'child'
 					if child.path[0].node isnt @id
 						throw new Error {msg: "Unexpected path in list of children", path: child.path[0]}
 					# Child nodes have no idea whether @prev/@last count towards the nodeOffset or not
 					childNodeOffset = @nodeOffset
-					if @id isnt 'root'
+					if @id isnt 0
 						childNodeOffset += if (i is 0) then prev_first_offset else last_first_offset
 					switch child.type
 						when 'section'
-							obj = new Section child, @spec, @parent, childNodeOffset, @strOffset
+							obj = new Section id, @spec, @parent, childNodeOffset, @strOffset
 						when 'escaped'
-							obj = new EscapedVariable child, @spec, @parent, childNodeOffset, @strOffset
+							obj = new EscapedVariable id, @spec, @parent, childNodeOffset, @strOffset
 						when 'unescaped'
-							obj = new UnescapedVariable child, @spec, @parent, childNodeOffset, @strOffset
-					iteration[child.id] = obj
+							obj = new UnescapedVariable id, @spec, @parent, childNodeOffset, @strOffset
+					iteration[id] = obj
 				
 				# Parse the children that are offset by preceeding items
-				for child in @children when child.path[0].type is 'offset'
+				for {id, child} in @children when child.path[0].type is 'offset'
 					offsetNode = iteration[child.path[0].node]
 					unless offsetNode?
 						throw new Error "Something is wrong with the ordering of the offset children"
 					switch child.type
 						when 'section'
-							obj = new Section child, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new Section id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'escaped'
-							obj = new EscapedVariable child, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+							obj = new EscapedVariable id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
 						when 'unescaped'
-							obj = new UnescapedVariable child, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
-					iteration[child.id] = obj
+							obj = new UnescapedVariable id, @spec, offsetNode.parent, offsetNode.nodeOffset, offsetNode.strOffset
+					iteration[id] = obj
 				
 				@iterations.push iteration
-				break if @id is 'root'
+				break if @id is 0
 				
 				# Check how much the children have affected the length of this section
 				for content, j in @contents

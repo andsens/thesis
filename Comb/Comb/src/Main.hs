@@ -5,7 +5,7 @@ import Comb.Parser(parse_file)
 import Comb.Resolver(resolve)
 import Comb.Filter(filter_resolutions)
 import Comb.Generator(generate)
-import Text.JSON.Pretty(pp_js_object)
+import Text.JSON.Pretty(pp_array)
 
 data CombArgs = CombArgs {
 	  infile :: FilePath
@@ -27,7 +27,7 @@ main = do
 	ast <- parse_file filename
 	let unfiltered_resolutions = resolve ast
 	let (resolutions, errors) = filter_resolutions unfiltered_resolutions
-	let json = show (pp_js_object (generate resolutions))
+	let json = show (pp_array (generate resolutions))
 	case (outfile args) of
 		""   -> writeFile (filename ++ "-comb") json
 		"-"  -> putStrLn json
