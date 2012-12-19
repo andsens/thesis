@@ -26,32 +26,23 @@ define [
 			
 			@parent = @rootNode
 			
-			if @id isnt 0
-				switch @path[0].type
-					when "child", "offset" then
-					else throw new Error "Expected first part of path to be offset or child"
-				switch @path[1].type
-					when "index"
-					else throw new Error "Expected second part of path to be an index"
-			
-			for part, i in @path when i > 0
-				if part.type is 'index'
+			for index, i in @path when i > 0
+				if typeof index is 'number'
 					# reset the string offset if we have skipped over a tag
 					if @strOffset isnt 0
-						skipRange = [0..part.i]
+						skipRange = [0..index]
 						if i is @path.length-1 and @prev.type in ['section', 'escaped', 'text']
-							skipRange = [0..part.i-1] # Won't be negative since @prev is text
+							skipRange = [0..index-1] # Won't be negative since @prev is text
 						for offset in skipRange when @node(offset).nodeType in [1, 8]
 							@strOffset = 0
 							break
 					# If this is the last index and the previous node is a text node, we will correct this later on
-					@nodeOffset += part.i
+					@nodeOffset += index
 				if i is @path.length-1
 					break
-				switch part.type
-					when 'attribute' then @parent = @parent.attributes.getNamedItem(part.name)
-					when 'index'     then @parent = @node()
-					else                  throw new Error "#{@id}: Unexpected path type #{part.type} at #{i}"
+				switch typeof index
+					when 'number' then @parent = @node()
+					when 'string' then @parent = @parent.attributes.getNamedItem index
 				@nodeOffset = 0
 			
 			# Always point at the previous node
@@ -64,7 +55,6 @@ define [
 			else
 				@verifying 'previous', @prev
 				unless @nodeMatches @prev
-					console.log @parent.childNodes
 					throw new Error "The previous node did not match the expected value"
 			
 			# move the strOffset over the previous text

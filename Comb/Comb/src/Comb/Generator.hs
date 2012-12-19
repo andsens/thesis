@@ -18,25 +18,25 @@ generate resolutions =
 	root_selector:(map (make_selector resolutions) resolutions)
 
 root_selector =
-	--("root",
 	jobj [
 		("name", jstring "root"),
 		("section", JSNull),
 		("type", jstring "section"),
-		("path", JSArray $ [jobj [("type", jstring "index"), ("i", jint 0)]]),
+		("offset", JSBool False),
+		("path", JSArray $ [jint 0]),
 		("inverted", JSBool False),
 		("prev", jobj [("type", jstring "null")]),
 		("next", jobj [("type", jstring "null")]),
 		("first", JSNull),
 		("last", JSNull),
 		("contents", JSArray $ [])]
-	--)
 
 make_selector resolutions r@(R.SectionSelector{..}) =
 	jobj [
 		("name", jstring $ P.name node),
 		("section", case section of Just section -> index section resolutions; Nothing -> jint 0),
 		("type", jstring "section"),
+		("offset", is_offset path),
 		("path", JSArray $ (reverse . (make_path resolutions)) path),
 		("inverted", JSBool $ P.inverted node),
 		("prev",  make_node resolutions prev),
@@ -49,20 +49,22 @@ make_selector resolutions r@(R.VariableSelector{..}) =
 		("name", jstring $ P.name node),
 		("section", case section of Just section -> index section resolutions; Nothing -> jint 0),
 		("type", jstring $ if (P.escaped node) then "escaped" else "unescaped"),
+		("offset", is_offset path),
 		("path", JSArray $ (reverse . (make_path resolutions)) path),
 		("prev", make_node resolutions prev),
 		("next", make_node resolutions next)]
 
-make_path resolutions (R.Index i parent) =
-	(jobj [("type", jstring "index"), ("i", jint i)]):(make_path resolutions parent)
-make_path resolutions (R.Attribute name parent) =
-	(jobj [("type", jstring "attribute"), ("name", jstring name)]):(make_path resolutions parent)
-make_path resolutions (R.Offset o) =
-	[jobj [("type", jstring "offset"), ("node", index o resolutions)]]
-make_path resolutions (R.Child o) =
-	[jobj [("type", jstring "child"), ("node", index o resolutions)]]
-make_path resolutions R.Root =
-	[jobj [("type", jstring "child"), ("node", jint 0)]]
+is_offset (R.Index _ parent) = is_offset parent
+is_offset (R.Attribute _ parent) = is_offset parent
+is_offset R.Offset{} = JSBool True
+is_offset R.Child{} = JSBool False
+is_offset R.Root{} = JSBool False
+
+make_path resolutions (R.Index i parent) = (jint i):(make_path resolutions parent)
+make_path resolutions (R.Attribute name parent) = (jstring name):(make_path resolutions parent)
+make_path resolutions (R.Offset o) = [index o resolutions]
+make_path resolutions (R.Child o) = [index o resolutions]
+make_path resolutions (R.Root) = [jint 0]
 
 make_node resolutions (Just s@P.Section{}) = jobj [("type", jstring "section"), ("id", node_index s resolutions)]
 make_node resolutions (Just v@P.Variable{escaped=True,..})  = jobj [("type", jstring "escaped"), ("id", node_index v resolutions)]

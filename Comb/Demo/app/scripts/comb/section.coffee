@@ -40,7 +40,6 @@ define [
 			
 			@children   = ({id, child} for child, id in @spec when child.section is @id)
 			@iterations = []
-			console.log @id, @children
 		
 		parse: ->
 			super
@@ -77,9 +76,7 @@ define [
 				iteration = {}
 				
 				# Parse the children that are not offset by preceeding items
-				for {id, child:{type,path:[top]}} in @children when top.type is 'child'
-					if top.node isnt @id
-						throw new Error {msg: "Unexpected path in list of children", path: child.path[0]}
+				for {id, child:{type,offset}} in @children when not offset
 					# Child nodes have no idea whether @prev/@last count towards the nodeOffset or not
 					childNodeOffset = @nodeOffset
 					if @id isnt 0
@@ -94,8 +91,8 @@ define [
 					iteration[id] = obj
 				
 				# Parse the children that are offset by preceeding items
-				for {id, child:{type,path:[top]}} in @children when top.type is 'offset'
-					offsetNode = iteration[top.node]
+				for {id, child:{type,offset,path:[offsetNodeId]}} in @children when offset
+					offsetNode = iteration[offsetNodeId]
 					unless offsetNode?
 						throw new Error "Something is wrong with the ordering of the offset children"
 					switch type
@@ -144,7 +141,6 @@ define [
 						throw new Error "Was able to both match a continuation and an end of the iteration"
 				else
 					unless nextMatched
-						console.log @parent, @node(1)
 						throw new Error "Unable to match the next node"
 					break
 				console.log 'ITERATE'
