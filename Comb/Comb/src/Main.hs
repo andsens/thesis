@@ -9,14 +9,14 @@ import Text.JSON.Pretty(pp_array)
 import Text.JSON(encodeStrict)
 
 data CombArgs = CombArgs {
-	  infile :: FilePath
-	, outfile :: String
+	  files :: [FilePath]
+	, out :: String
 	, pretty :: Bool
 } deriving (Data, Typeable, Show, Eq)
 
 arguments = CombArgs {
-	  infile = def &= args &= typFile
-	, outfile = def &= typ "FILE" &= help "Output file"
+	  files = def &= args &= typFile
+	, out = def &= typ "FILE" &= help "Output file"
 	, pretty = def  &= help "Pretty print JSON"
 } &=
 	program "comb-gen" &=
@@ -26,14 +26,29 @@ arguments = CombArgs {
 
 main = do
 	args <- cmdArgs arguments
-	let filename = infile args
+	let outfile = out args
+	let templates = filter ((`elem` ["mustache", "mst"]) . extension) (files args)
+	let pp = pretty args
+	case (length $ templates) of
+		0 -> error "No files given"
+		--1 -> mapM (run (comb pp) "") templates
+		_ -> mapM (run (comb pp) "") templates
+	return ()
+
+run comb outfile infile = do
+	string <- comb infile
+	case outfile of
+		"-"     -> putStrLn string
+		""      -> writeFile (infile ++ "-comb") string
+		outfile -> writeFile (outfile) string
+
+comb pretty filename = do
 	ast <- parse_file filename
 	let unfiltered_resolutions = resolve ast
 	let (resolutions, errors) = filter_resolutions unfiltered_resolutions
 	let json = generate resolutions
-	let output = if pretty args then show (pp_array json) else encodeStrict json
-	case (outfile args) of
-		""   -> writeFile (filename ++ "-comb") output
-		"-"  -> putStrLn output
-		name -> writeFile name output
+	let output = if pretty then show (pp_array json) else encodeStrict json
 	mapM_ (hPutStrLn stderr . show) errors
+	return output
+
+extension = reverse . takeWhile (/= '.') . reverse
