@@ -16,7 +16,6 @@ arguments = CombArgs {
 	  infile = def &= args &= typFile
 	, outfile = def &= typ "FILE" &= help "Output file"
 } &=
-	--verbosity &=
 	program "comb-gen" &=
 	help "Generate DOM selectors for mustache template variables" &=
 	summary "Comb for Mustache v0.0.0, (C) Anders Ingemann" &=
