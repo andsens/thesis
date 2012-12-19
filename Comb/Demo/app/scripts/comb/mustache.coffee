@@ -11,8 +11,9 @@ define [
 		
 		initialize: (@id, @spec, @rootNode, @nodeOffset, @strOffset) ->
 			@[prop]     = val for prop, val of @spec[@id]
-			console.log "Construct #{@type}: '#{@name}' (#{@id})",
-				"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
+			if @spec.verbose
+				console.log "Construct #{@type}: '#{@name}' (#{@id})",
+					"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
 			
 			unless @id is 0
 				switch @prev.type
@@ -53,8 +54,7 @@ define [
 				if @nodeOffset isnt 0
 					throw new Error "Did not expect to find a previous node"
 			else
-				@verifying 'previous', @prev
-				unless @nodeMatches @prev
+				unless @nodeMatches 'prev',@prev
 					throw new Error "The previous node did not match the expected value"
 			
 			# move the strOffset over the previous text
@@ -65,22 +65,25 @@ define [
 		parse: ->
 			
 		
-		verifying: (name, match, offset = 0) ->
-			node = @node(offset)
-			if node?.nodeType in [3, 8]
-				node = (node.data.substring 0, @strOffset)+'|'+node.data.substring @strOffset
-			inverted = ''
-			inverted = 'inverted ' if @inverted
-			matched = 'Rejected'
-			matched = 'Matched' if @nodeMatches match, offset
-			console.log "#{matched} #{name} node of #{inverted}#{@type} '#{@name}'",
-				node: node,
-				nodeOffset: offset
-				strOffset: @strOffset
-				offset: offset
-				, "to", match
+		nodeMatches: (name, match, offset = 0) ->
+			result = @matchNode match, offset
+			if @spec.verbose
+				node = @node(offset)
+				if node?.nodeType in [3, 8]
+					node = (node.data.substring 0, @strOffset)+'|'+node.data.substring @strOffset
+				inverted = ''
+				inverted = 'inverted ' if @inverted
+				matched = 'Rejected'
+				matched = 'Matched' if result
+				console.log "#{matched} #{name} node of #{inverted}#{@type} '#{@name}'",
+					node: node,
+					nodeOffset: offset
+					strOffset: @strOffset
+					offset: offset
+					, "to", matched
+			return result
 		
-		nodeMatches: (match, offset = 0) ->
+		matchNode: (match, offset = 0) ->
 			unless @parent?
 				throw new Error "Cannot match node, @parent is undefined!"
 			if offset isnt 0

@@ -18,9 +18,9 @@ define [
 		
 		initialize: ->
 			super
-			Chaplin.mediator.subscribe 'loadTemplate', @renderTemplate
+			Chaplin.mediator.subscribe 'templateLoaded', @renderTemplate
 		
-		renderTemplate: (info) =>
+		renderTemplate: (template) =>
 			data =
 				name: 'test'
 				description: 'LAAADIDA<h1>blaaahrg</h1><br/>'
@@ -50,6 +50,6 @@ define [
 					  name: 'coding'
 					, name: 'architecture'
 				]
-			@$el.empty().append (Mustache.render info.template, data)
-			Chaplin.mediator.publish 'templateLoaded', @$el[0]
+			@$el.empty().append (Mustache.render template, data)
+			Chaplin.mediator.publish 'templateRendered', @$el[0]
 			

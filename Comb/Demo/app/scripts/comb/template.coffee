@@ -5,13 +5,13 @@ define [
 	
 	class Template
 		
-		constructor: (@spec, @node) ->
+		constructor: (@spec, @node, @verbose = false) ->
+			@spec.verbose = @verbose
 			# Convert html entities, since it's a bit hard to do in haskell
 			@root = new Section 0, @spec, @node, 0, 0
 		
-		get: (name) ->
-			# query = name.split '>'
-			# @root.get query
+		getValues: ->
+			@root.getObject()
 		
-		set: (name) ->
-			
+		getSimpleValues: ->
+			@root.getSimple()

@@ -64,10 +64,8 @@ define [
 				last_first_offset = if last_first_joined then 0 else 1
 				last_next_offset  = if last_next_joined  then 0 else 1
 			
-				@verifying 'first', @first, prev_first_offset
-				unless @nodeMatches @first, prev_first_offset
-					@verifying 'next', @next, prev_next_offset
-					unless @nodeMatches @next, prev_next_offset
+				unless @nodeMatches 'first', @first, prev_first_offset
+					unless @nodeMatches 'next', @next, prev_next_offset
 						throw new Error "Unable to match the next node"
 					return
 			
@@ -124,34 +122,56 @@ define [
 							@nodeOffset = offsetNode.nodeOffset
 							@strOffset = offsetNode.strOffset
 				
-				@verifying 'last', @last
-				unless @nodeMatches @last
+				unless @nodeMatches 'last', @last
 					throw new Error "Unable to verify last element in iteration"
 				
 				if @last.type in ['text', 'escaped']
 					@strOffset += @last.value.length
 				
 				
-				@verifying 'next', @next, last_next_offset
-				nextMatched = @nodeMatches @next, last_next_offset
+				nextMatched = @nodeMatches 'next', @next, last_next_offset
 				
-				@verifying 'first', @first, last_first_offset
-				if @nodeMatches @first, last_first_offset
+				if @nodeMatches 'first', @first, last_first_offset
 					if nextMatched
 						throw new Error "Was able to both match a continuation and an end of the iteration"
 				else
 					unless nextMatched
 						throw new Error "Unable to match the next node"
 					break
-				console.log 'ITERATE'
 				i++
 			
 			# All the following offsets rely on the nodeOffset to be at the next node
 			@nodeOffset += if (i is 0) then last_next_offset else prev_next_offset
-			
-			console.log @iterations
 		
-
-
+		getObject: ->
+			object = []
+			for iteration in @iterations
+				values = {}
+				for id, item of iteration
+					unless values[item.name]?
+						values[item.name] = []
+					values[item.name].unshift item.getObject()
+				object.unshift values
+			return {type: 'section', iterations: object}
+		
+		getSimple: ->
+			if @iterations.length is 0
+				return null
+			
+			object = []
+			for iteration in @iterations
+				values = {}
+				for id, item of iteration
+					if values[item.name]?
+						unless _.isArray values[item.name]
+							values[item.name] = [values[item.name]]
+						values[item.name].unshift item.getSimple()
+					else
+						values[item.name] = item.getSimple()
+				object.unshift values
+			if object.length is 1
+				object = object[0]
+			object
+						
 
 

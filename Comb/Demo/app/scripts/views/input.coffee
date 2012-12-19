@@ -1,10 +1,11 @@
 define [
 	'views/base/view'
 	'text!templates/input.mustache'
+	'text!templates/mustache.mustache'
 	
 	'comb/template'
 	'chaplin'
-], (View, template,
+], (View, template, mustacheTpl
 	CombTpl, Chaplin) ->
 	'use strict'
 	
@@ -13,20 +14,51 @@ define [
 		template: template
 		template = null
 		
-		tagName: "form"
+		# tagName: "form"
+		className: "indent"
 		
 		initialize: ->
 			super
-			Chaplin.mediator.subscribe 'loadTemplate', @renderForm
-			Chaplin.mediator.subscribe 'templateLoaded', @templateLoaded
+			Chaplin.mediator.subscribe 'templateSelected', @loadTemplate
 		
-		renderForm: (info) =>
-			@spec = info.comb
+		loadTemplate: (info) =>
+			require [
+				"text!" + info['template-path']
+				"json!" + info['comb-path']
+			], (template, spec) =>
+				@spec = spec
+				Chaplin.mediator.subscribe 'templateRendered', @runComb
+				Chaplin.mediator.publish 'templateLoaded', template
 		
-		templateLoaded: (node) =>
-			@comb = new CombTpl @spec, node
-			# console.log 'get name', (@comb.get 'name', doc)
-			# console.log 'get description', (@comb.get 'description', dom)
-			# console.log 'get expert skills', (@comb.get 'expert_skills', dom)
-			console.log 'get expert skills', (@comb.get 'expert_skills>name')
-			
+		runComb: (dom) =>
+			return unless @spec?
+			@comb = new CombTpl @spec, dom
+			@render()
+		
+		getTemplateData: ->
+			unless @comb?
+				return super arguments...
+			root = @comb.getValues()
+			values = @templatify root, 'root'
+			console.log values
+			{values}
+		
+		templatify: (object, name) ->
+			switch object.type
+				when 'section'
+					iterations = []
+					for iteration, i in object.iterations
+						for itemName, items of iteration
+							for item in items
+								# We don't really care about a variable being mentioned twice
+								iterations.push @templatify item, itemName
+								break
+					obj = {section: true, escaped: false, unescaped: false, iterations, name, variables: iterations.length, i: object.iterations.length}
+				when 'escaped'
+					obj = {section: false, escaped: true, unescaped: false, value: object.value, name}
+				when 'unescaped'
+					obj = {section: false, escaped: false, unescaped: true, nodes: object.nodes, name}
+			return obj
+		
+		getPartials: ->
+			{mustache: mustacheTpl}

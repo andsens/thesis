@@ -1,10 +1,10 @@
 define [], ->
 	[
 			name: "profile"
-			template: "/templates/profile.mustache"
-			comb: "/templates/profile.mustache-comb"
+			template: "/scripts/templates/profile.mustache"
+			comb: "/scripts/templates/profile.mustache-comb"
 		,
 			name: "tester"
-			template: "/templates/tester.mustache"
-			comb: "/templates/tester.mustache-comb"
+			template: "/scripts/templates/tester.mustache"
+			comb: "/scripts/templates/tester.mustache-comb"
 	]

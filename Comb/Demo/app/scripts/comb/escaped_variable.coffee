@@ -36,6 +36,24 @@ define [
 			@strOffset += @string.length
 			
 			
-			@verifying 'next', @next, nextOffset
-			unless @nodeMatches @next, nextOffset
+			unless @nodeMatches 'next', @next, nextOffset
 				throw new Error "Unable to match section end"
+		
+		update: (text) =>
+			node = @node()
+			unless node?
+				throw new Error "Unable to update, node must exist to begin with"
+			oldStr = node.data
+			before = oldStr.substring 0, @strStart
+			after = oldStr.substring @strOffset
+			node.data = before + text + after
+			@string = text
+			@strOffset = before + @string.length
+		
+		getObject: ->
+			type: 'escaped'
+			value: @string
+			update: @update
+		
+		getSimple: ->
+			@string

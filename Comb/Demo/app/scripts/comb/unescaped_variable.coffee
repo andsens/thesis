@@ -26,4 +26,10 @@ define [
 			while node?
 				@nodes.push node
 				node = node.nextSibling
-			console.log "Result:", @nodes
+		
+		getObject: ->
+			type: 'unescaped'
+			nodes: @nodes
+
+		getSimple: ->
+			@nodes

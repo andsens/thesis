@@ -25,11 +25,8 @@ define [
 				false
 		
 		load: =>
-			require [
-				"text!" + (@model.get 'template')
-				"json!" + (@model.get 'comb')
-			], (template, comb) =>
-				Chaplin.mediator.publish 'loadTemplate',
-					template: template
-					comb: comb
-					name: @model.get 'name'
+			Chaplin.mediator.publish 'templateSelected',
+				template: template
+				'comb-path': @model.get 'comb'
+				'template-path': @model.get 'template'
+				name: @model.get 'name'
