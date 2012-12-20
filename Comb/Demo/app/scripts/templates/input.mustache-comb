@@ -1,7 +1,0 @@
-[{"name": "root", "section": null, "type": "section",
-  "offset": false, "path": [0], "inverted": false,
-  "prev": {"type": "null"}, "next": {"type": "null"}, "first": null,
-  "last": null, "contents": []},
- {"name": "mustache", "section": 0, "type": "partial",
-  "offset": false, "path": [0, 0, 0], "prev": {"type": "null"},
-  "next": {"type": "null"}}]
