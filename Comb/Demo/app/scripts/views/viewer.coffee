@@ -31,21 +31,21 @@ define [
 					end: 'endtext'
 				# formal_photo: 'blah'
 				informal_photo: 'blah'
-				# own: [
-				# 		deeper: [
-				# 				deepvar: 'uno1'
-				# 				deepvar2: 'due1'
-				# 			,
-				# 				deepvar: 'uno2'
-				# 				deepvar2: 'due2'
-				# 		]
-				# 	,
-				# 		deeper:
-				# 			deepvar: 'dos'
-				# 	,
-				# 		deeper:
-				# 			deepvar: 'tres'
-				# 	]
+				own: true
+					# 	deeper: [
+					# 			deepvar: 'uno1'
+					# 			deepvar2: 'due1'
+					# 		,
+					# 			deepvar: 'uno2'
+					# 			deepvar2: 'due2'
+					# 	]
+					# ,
+					# 	deeper:
+					# 		deepvar: 'dos'
+					# ,
+					# 	deeper:
+					# 		deepvar: 'tres'
+					# ]
 				expert_skills: [
 					  name: 'coding'
 					, name: 'architecture'

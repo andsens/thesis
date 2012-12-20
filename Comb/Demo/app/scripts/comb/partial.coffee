@@ -17,8 +17,11 @@ define [
 			@partials[@name].verbose = @spec.verbose
 			@root = new Section.Section 0, @partials[@name], @partials, @parent
 		
-		getObject: ->
-			@root.getObject()
+		getRoot: ->
+			{ type: 'partial', iterations: @root.getObject().iterations[0]}
+		
+		getValues: ->
+			@root.getValues()[0]
 
 		getSimple: ->
 			@root.getSimple()

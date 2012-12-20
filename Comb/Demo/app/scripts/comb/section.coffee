@@ -127,16 +127,41 @@ define [
 			# All the following offsets rely on the nodeOffset to be at the next node
 			@nodeOffset += if (i is 0) then last_next_offset else prev_next_offset
 		
-		getObject: ->
+		getRoot: ->
 			object = []
 			for iteration in @iterations
 				values = {}
 				for id, item of iteration
 					unless values[item.name]?
 						values[item.name] = []
-					values[item.name].unshift item.getObject()
-				object.unshift values
+					values[item.name].push item.getRoot()
+				object.push values
 			return {type: 'section', iterations: object}
+		
+		getValues: ->
+			object = []
+			for iteration in @iterations
+				values = {}
+				for id, item of iteration
+					value = values[item.name]
+					newValue = item.getValues()
+					switch item.type
+						when 'section'
+							unless value?
+								value = []
+							for child_iteration, j in newValue
+								unless value[j]?
+									value[j] = {}
+								value[j] = _.defaults child_iteration, value[j]
+						when 'partial'
+							value = newValue
+						else
+							unless value?
+								value = {}
+							value = _.defaults newValue, value
+					values[item.name] = value
+				object.push values
+			return object
 		
 		getSimple: ->
 			if @iterations.length is 0
@@ -149,10 +174,10 @@ define [
 					if values[item.name]?
 						unless _.isArray values[item.name]
 							values[item.name] = [values[item.name]]
-						values[item.name].unshift item.getSimple()
+						values[item.name].push item.getSimple()
 					else
 						values[item.name] = item.getSimple()
-				object.unshift values
+				object.push values
 			if object.length is 1
 				object = object[0]
 			object

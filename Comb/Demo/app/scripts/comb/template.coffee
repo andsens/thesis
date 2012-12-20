@@ -9,8 +9,11 @@ define [
 			@spec.verbose = verbose
 			@root = new Section 0, @spec, @partials, @node, 0, 0
 		
-		getValues: ->
-			@root.getObject()
+		getRoot: ->
+			@root.getRoot()
 		
-		getSimpleValues: ->
+		getValues: ->
+			@root.getValues()[0]
+		
+		getSimple: ->
 			@root.getSimple()

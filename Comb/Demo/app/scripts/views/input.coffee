@@ -1,25 +1,23 @@
 define [
 	'views/base/view'
-	'text!templates/input.mustache'
 	'text!templates/mustache.mustache'
 	
-	'json!templates/input.mustache-comb'
 	'json!templates/mustache.mustache-comb'
 	
 	'comb/template'
 	'chaplin'
-], (View, inputTpl, mustacheTpl,
-	inputComb, mustacheComb
-	CombTpl, Chaplin) ->
+	'jquery'
+], (View, mustacheTpl, mustacheComb
+	CombTpl, Chaplin, $) ->
 	'use strict'
 	
 	class InputView extends View
 		
-		template: inputTpl
+		template: mustacheTpl
 		template = null
 		
-		# tagName: "form"
-		className: "indent"
+		tagName: "form"
+		className: "form-horizontal"
 		
 		initialize: ->
 			super
@@ -32,25 +30,55 @@ define [
 			], (template, spec) =>
 				@viewerSpec = spec
 				Chaplin.mediator.subscribe 'templateRendered', @runComb
-				Chaplin.mediator.publish 'templateLoaded', template
+				Chaplin.mediator.publish 'templateLoaded', template, {}
 		
 		runComb: (dom) =>
 			return unless @viewerSpec?
 			@combView = new CombTpl @viewerSpec, dom
 			@render()
-			@combInput = new CombTpl inputComb, @$el[0], {mustache: mustacheComb}
-			console.log @combInput.getSimpleValues()
+			@combInput = new CombTpl mustacheComb, @$el[0], {mustache: mustacheComb}
+			
+			input = @combInput.getValues()
+			output = @combView.getValues()
+			console.log input, output
+			@mapValues input.section[0].iterations, output
+			
+		mapValues: (input, output) ->
+			for {mustache:root}, i in input
+				do (root) =>
+					type = @type(root)
+					part = root[type][0]
+					name = part.name.value
+					switch type
+						when 'section'
+							@mapValues part.iterations, output[name]
+						when 'escaped'
+							$value = $ part.value.parentNode
+							console.log output[name]
+							$value.on 'keyup', (e) ->
+								output[name].update $value.val()
+							# console.log name, output[name]
+						when 'unescaped'
+							console.log name, output[name]
+		
+		type: (part) ->
+			for type in ['section', 'unescaped', 'escaped']
+				return type if part[type].length
+		
+		getPartials: ->
+			{mustache: mustacheTpl}
 		
 		getTemplateData: ->
 			unless @combView?
 				return super arguments...
-			root = @combView.getValues()
-			values = @templatify root, 'root'
-			values
+			root = @combView.getRoot()
+			return @templatify root
+			console.log root
+			# return (@templatify {type: 'section', iterations: root}, 'root')
 		
 		templatify: (object, name) ->
 			switch object.type
-				when 'section'
+				when 'section', 'partial'
 					iterations = []
 					for iteration, i in object.iterations
 						for itemName, items of iteration
@@ -64,6 +92,3 @@ define [
 				when 'unescaped'
 					obj = {section: false, escaped: false, unescaped: true, nodes: object.nodes, name}
 			return obj
-		
-		getPartials: ->
-			{mustache: mustacheTpl}

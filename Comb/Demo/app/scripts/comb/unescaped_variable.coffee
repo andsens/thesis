@@ -27,9 +27,23 @@ define [
 				@nodes.push node
 				node = node.nextSibling
 		
-		getObject: ->
-			type: 'unescaped'
-			nodes: @nodes
+		getRoot: ->
+			parent = parentNode = @parent
+			if parent.nodeType is 2
+				parentNode = parent.ownerElement
+			obj =
+				type: 'unescaped'
+				nodes: @nodes
+				update: @update
+				parent: parent
+				parentNode: parentNode
+			return obj
+		
+		getValues: ->
+			@getRoot()
 
 		getSimple: ->
 			@nodes
+		
+		update: ->
+			

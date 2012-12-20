@@ -50,10 +50,20 @@ define [
 			@string = text
 			@strOffset = before + @string.length
 		
-		getObject: ->
-			type: 'escaped'
-			value: @string
-			update: @update
+		getRoot: ->
+			parent = parentNode = @parent
+			if parent.nodeType is 2
+				parentNode = parent.ownerElement
+			obj =
+				type: 'escaped'
+				value: @string
+				update: @update
+				parent: parent
+				parentNode: parentNode
+			return obj
+		
+		getValues: ->
+			@getRoot()
 		
 		getSimple: ->
 			@string

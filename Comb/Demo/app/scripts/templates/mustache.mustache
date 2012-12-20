@@ -1,7 +1,21 @@
-{{#section}}<div class="section">
-		<h5>{{name}}</h5>
-		({{i}} iterations, {{variables}} variables)
-		{{#iterations}}<div class="iterations">{{>mustache}}</div>{{/iterations}}
-	</div><br/>{{/section}}
-{{#escaped}}<div class="escaped">{{name}}: {{value}}</div>{{/escaped}}
-{{#unescaped}}<div class="unescaped">{{name}}: <pre>{{nodes}}</pre></div>{{/unescaped}}
+{{#section}}<fieldset class="section">
+	<h5>{{name}}</h5>
+	<div class="buttons">
+		<button class="btn btn-mini btn-primary"><icon class="icon-plus"/> Push iteration</button>
+		<button class="btn btn-mini btn-danger"><icon class="icon-minus"/> Pop iteration</button>
+	</div>
+	<p>({{i}} iterations, {{variables}} variables)</p>
+	{{#iterations}}<div class="iterations">{{>mustache}}</div>{{/iterations}}
+</fieldset>{{/section}}
+{{#escaped}}<div class="control-group">
+	<label class="control-label">{{name}}</label>
+	<div class="controls">
+		<input type="text" placeholder="{{name}}" value="{{value}}" />
+	</div>
+</div>{{/escaped}}
+{{#unescaped}}<div class="control-group">
+	<label class="control-label">{{name}}</label>
+	<div class="controls">
+		<textarea rows="3">{{nodes}}</textarea>
+	</div>
+</div>{{/unescaped}}
