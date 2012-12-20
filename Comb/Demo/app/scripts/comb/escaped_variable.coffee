@@ -48,7 +48,7 @@ define [
 			after = oldStr.substring @strOffset
 			node.data = before + text + after
 			@string = text
-			@strOffset = before + @string.length
+			@strOffset = before.length + @string.length
 		
 		getRoot: ->
 			parent = parentNode = @parent

@@ -1,8 +1,8 @@
 {{#section}}<fieldset class="section">
 	<h5>{{name}}</h5>
 	<div class="buttons">
-		<button class="btn btn-mini btn-primary"><icon class="icon-plus"/> Push iteration</button>
-		<button class="btn btn-mini btn-danger"><icon class="icon-minus"/> Pop iteration</button>
+		<button class="btn btn-mini btn-primary" data-target="{{name}}"><icon class="icon-plus"/> Push iteration</button>
+		<button class="btn btn-mini btn-danger" data-target="{{name}}"><icon class="icon-minus"/> Pop iteration</button>
 	</div>
 	<p>({{i}} iterations, {{variables}} variables)</p>
 	{{#iterations}}<div class="iterations">{{>mustache}}</div>{{/iterations}}
