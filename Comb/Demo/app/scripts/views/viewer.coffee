@@ -22,15 +22,7 @@ define [
 			Chaplin.mediator.subscribe 'valuesChanged', @valuesChanged
 		
 		renderTemplate: (template) =>
-			@$el.empty().append (Mustache.render template, {
-				standard_photo: [
-					id: 'blah'
-				]
-				expert_skills: [
-					  name: 'coding'
-					, name: 'architecture'
-				]
-			})
+			@$el.empty().append (Mustache.render template, {})
 			Chaplin.mediator.publish 'templateRendered', @$el[0]
 		
 		valuesChanged: (info) =>
