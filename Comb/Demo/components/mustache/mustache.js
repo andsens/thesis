@@ -511,7 +511,7 @@ var Mustache;
           start += 1;
 
           if (chr === "\n") {
-            stripSpace(); // Check for whitespace on the current line.
+            // stripSpace(); // Check for whitespace on the current line.
           }
         }
       }

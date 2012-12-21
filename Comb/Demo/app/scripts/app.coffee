@@ -1,9 +1,10 @@
 define [
 	'controllers/navigation'
+	'controllers/home'
 	'routes'
 	'views/layout'
 	'chaplin'
-], (NavigationController,
+], (NavigationController, HomeController,
 	routes, Layout, Chaplin) ->
 	'use strict'
 
@@ -27,6 +28,7 @@ define [
 
 		initControllers: ->
 			@nav = new NavigationController()
+			@home = new HomeController()
 		
 		initMediator: ->
 			Chaplin.mediator.user = null

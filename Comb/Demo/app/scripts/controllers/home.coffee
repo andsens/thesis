@@ -6,5 +6,5 @@ define [
 	
 	class Home extends Chaplin.Controller
 		
-		index: ->
+		initialize: ->
 			view = new HomeView()
