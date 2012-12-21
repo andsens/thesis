@@ -17,8 +17,6 @@ define [
 		
 		initialize: ->
 			super
-			if (@model.get 'name') == 'profile'
-				window.setTimeout @load, 500
 			@delegate 'click', 'a.template-item', (e) =>
 				@load()
 				e.preventDefault()
