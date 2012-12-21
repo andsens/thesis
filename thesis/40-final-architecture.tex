@@ -1,0 +1,26 @@
+\chapter{Final Architecture}
+\section{Mustache}
+
+\section{Overview}
+\begin{itemize}
+\item Use haskell with parsec
+\item Generate information for the client
+\item Architecture for retrieval of that information
+\item Client library to put that information to use and retrieve values
+\end{itemize}
+
+\section{Strategy for retrieving values}
+\begin{itemize}
+\item Minimize scope (only loops and variables, no partials)
+\item Always treat sections as loops. Even if they are if blocks
+\item Recognize sections and variables by boundaries (inner & outer)
+\item Create JSON objects containing enough information for the client library to retrieve values
+\item Don't bother with scoping, let the user decide when a variable is actually scoped
+\end{itemize}
+
+\section{Challenges}
+\begin{itemize}
+\item Unescaped variables can wreak havoc
+\item Ambiguities can occur between two boundaries
+\item TextNodes that are separate in the parser are merged on the client
+\end{itemize}
