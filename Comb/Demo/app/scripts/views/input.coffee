@@ -21,6 +21,7 @@ define [
 		
 		initialize: ->
 			super
+			@$el.on 'submit', -> false
 			Chaplin.mediator.subscribe 'templateSelected', @loadTemplate
 		
 		loadTemplate: (info) =>
@@ -29,41 +30,74 @@ define [
 				"json!" + info['comb-path']
 			], (template, spec) =>
 				@viewerSpec = spec
+				@currentTemplate = template
 				Chaplin.mediator.subscribe 'templateRendered', @runComb
-				Chaplin.mediator.publish 'templateLoaded', template, {}
+				Chaplin.mediator.publish 'templateLoaded', template
 		
 		runComb: (dom) =>
-			return unless @viewerSpec?
-			@combView = new CombTpl @viewerSpec, dom
+			@templateData = {}
+			@combView = new CombTpl @viewerSpec, dom, {}
 			@render()
 			@combInput = new CombTpl mustacheComb, @$el[0], {mustache: mustacheComb}
 			
 			input = @combInput.getValues()
 			output = @combView.getValues()
 			console.log input, output
-			@mapValues input.section[0].iterations, output
-			
-		mapValues: (input, output) ->
-			for {mustache:root}, i in input
-				do (root) =>
-					type = @type(root)
-					part = root[type][0]
-					name = part.name.value
-					switch type
-						when 'section'
-							@mapValues part.iterations, output[name]
-						when 'escaped'
-							$value = $ part.value.parentNode
-							console.log output[name]
-							$value.on 'keyup', (e) ->
-								output[name].update $value.val()
-							# console.log name, output[name]
-						when 'unescaped'
-							console.log name, output[name]
+			@mapSection input.section[0], {"root": [output]}, data = {}
+			@templateData = data.root[0]
 		
-		type: (part) ->
+		mapSection: (section, output, data) ->
+			name = section.name[0].value
+			data[name] ?= []
+			
+			$pushIter = $ section.name[1].parentNode
+			$popIter = $ section.name[2].parentNode
+			
+			$pushIter.on 'click', (e) =>
+				data[name].push {}
+				@reloadTemplate()
+			
+			$popIter.on 'click', (e) =>
+				data[name].pop()
+				@reloadTemplate()
+			
+			for iteration, i in section.iterations
+				data[name][i] = {}
+				for subSection in iteration.section
+					@mapSection subSection, output[name][i], data[name][i]
+				for unescaped in iteration.unescaped
+					@mapUnescaped unescaped, output[name][i], data[name][i]
+				for escaped in iteration.escaped
+					@mapEscaped escaped, output[name][i], data[name][i]
+		
+		mapUnescaped: (unescaped, output, data) ->
+			name = unescaped.name.value
+			input = unescaped.value
+			val = output[name]
+			data[name] = val.value
+			
+			$input = $ val.parentNode
+			$input.on 'keyup', (e) ->
+				val.update $input.val()
+		
+		mapEscaped: (escaped, output, data) ->
+			name = escaped.name[0].value
+			input = escaped.value
+			val = output[name]
+			data[name] = val.value
+			
+			$input = $ input.parentNode
+			$input.on 'keyup', (e) ->
+				val.update $input.val()
+		
+		type: (root) ->
 			for type in ['section', 'unescaped', 'escaped']
-				return type if part[type].length
+				return type if root[type].length
+		
+		reloadTemplate: ->
+			Chaplin.mediator.publish 'valuesChanged',
+				template: @currentTemplate
+				data: @templateData
 		
 		getPartials: ->
 			{mustache: mustacheTpl}
@@ -72,23 +106,32 @@ define [
 			unless @combView?
 				return super arguments...
 			root = @combView.getRoot()
-			return @templatify root
-			console.log root
-			# return (@templatify {type: 'section', iterations: root}, 'root')
+			templatified = @templatify root
+			return {section: [templatified], name: 'root'}
 		
 		templatify: (object, name) ->
 			switch object.type
 				when 'section', 'partial'
 					iterations = []
 					for iteration, i in object.iterations
+						section = []
+						unescaped = []
+						escaped = []
 						for itemName, items of iteration
 							for item in items
 								# We don't really care about a variable being mentioned twice
-								iterations.push @templatify item, itemName
+								temp = @templatify item, itemName
+								if temp.iterations?
+									section.push temp
+								if temp.nodes?
+									unescaped.push temp
+								if temp.value?
+									escaped.push temp
 								break
-					obj = {section: true, escaped: false, unescaped: false, iterations, name, variables: iterations.length, i: object.iterations.length}
-				when 'escaped'
-					obj = {section: false, escaped: true, unescaped: false, value: object.value, name}
+						iterations.push {section, unescaped, escaped}
+					obj = {iterations, name}
 				when 'unescaped'
-					obj = {section: false, escaped: false, unescaped: true, nodes: object.nodes, name}
+					obj = {nodes: object.nodes, name}
+				when 'escaped'
+					obj = {value: object.value, name}
 			return obj

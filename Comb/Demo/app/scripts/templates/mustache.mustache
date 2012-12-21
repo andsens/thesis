@@ -4,8 +4,8 @@
 		<button class="btn btn-mini btn-primary" data-target="{{name}}"><icon class="icon-plus"/> Push iteration</button>
 		<button class="btn btn-mini btn-danger" data-target="{{name}}"><icon class="icon-minus"/> Pop iteration</button>
 	</div>
-	<p>({{i}} iterations, {{variables}} variables)</p>
 	{{#iterations}}<div class="iterations">{{>mustache}}</div>{{/iterations}}
+	<hr/>
 </fieldset>{{/section}}
 {{#escaped}}<div class="control-group">
 	<label class="control-label">{{name}}</label>

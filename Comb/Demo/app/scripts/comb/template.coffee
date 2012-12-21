@@ -13,7 +13,4 @@ define [
 			@root.getRoot()
 		
 		getValues: ->
-			@root.getValues()[0]
-		
-		getSimple: ->
-			@root.getSimple()
+			@root.getValues([])[0]

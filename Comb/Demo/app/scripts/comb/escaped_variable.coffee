@@ -1,6 +1,8 @@
 define [
 	'comb/mustache'
-], (Mustache) ->
+	
+	'underscore'
+], (Mustache, _) ->
 	'use strict'
 	
 	class EscapedVariable extends Mustache
@@ -42,7 +44,11 @@ define [
 		update: (text) =>
 			node = @node()
 			unless node?
-				throw new Error "Unable to update, node must exist to begin with"
+				unless @prev.type is 'null' and @next.type is 'null'
+					throw new Error "Unable to update, node must exist to begin with"
+				@parent.appendChild document.createTextNode ''
+				console.log 'Creating text element, this is not a sound thing to do without an existing one'
+				node = @node()
 			oldStr = node.data
 			before = oldStr.substring 0, @strStart
 			after = oldStr.substring @strOffset
@@ -62,8 +68,11 @@ define [
 				parentNode: parentNode
 			return obj
 		
-		getValues: ->
-			@getRoot()
-		
-		getSimple: ->
-			@string
+		getValues: (merge) ->
+			if merge?
+				unless _.isArray merge
+					merge = [merge]
+				merge.push @getRoot()
+			else
+				merge = @getRoot()
+			return merge

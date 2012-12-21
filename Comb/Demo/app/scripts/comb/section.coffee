@@ -115,6 +115,8 @@ define [
 				
 				nextMatched = @nodeMatches 'next', @next, last_next_offset
 				
+				i++
+				
 				if @nodeMatches 'first', @first, last_first_offset
 					if nextMatched
 						throw new Error "Was able to both match a continuation and an end of the iteration"
@@ -122,64 +124,37 @@ define [
 					unless nextMatched
 						throw new Error "Unable to match the next node"
 					break
-				i++
 			
 			# All the following offsets rely on the nodeOffset to be at the next node
-			@nodeOffset += if (i is 0) then last_next_offset else prev_next_offset
+			if i is 0 then @nodeOffset += prev_next_offset
+			else @nodeOffset += last_next_offset
 		
 		getRoot: ->
 			object = []
 			for iteration in @iterations
 				values = {}
 				for id, item of iteration
-					unless values[item.name]?
-						values[item.name] = []
-					values[item.name].push item.getRoot()
+					name = item.name
+					name = "^#{item.name}" if item.inverted
+					values[name] ?= []
+					values[name].push item.getRoot()
 				object.push values
 			return {type: 'section', iterations: object}
 		
-		getValues: ->
-			object = []
-			for iteration in @iterations
-				values = {}
+		getValues: (merge = []) ->
+			for iteration, i in @iterations
+				merge[i] ?= {}
+				values = merge[i]
 				for id, item of iteration
-					value = values[item.name]
-					newValue = item.getValues()
+					name = item.name
+					name = "^#{item.name}" if item.inverted
 					switch item.type
 						when 'section'
-							unless value?
-								value = []
-							for child_iteration, j in newValue
-								unless value[j]?
-									value[j] = {}
-								value[j] = _.defaults child_iteration, value[j]
+							values[name] = item.getValues values[name]
 						when 'partial'
-							value = newValue
+							values = item.getValues values
 						else
-							unless value?
-								value = {}
-							value = _.defaults newValue, value
-					values[item.name] = value
-				object.push values
-			return object
-		
-		getSimple: ->
-			if @iterations.length is 0
-				return null
-			
-			object = []
-			for iteration in @iterations
-				values = {}
-				for id, item of iteration
-					if values[item.name]?
-						unless _.isArray values[item.name]
-							values[item.name] = [values[item.name]]
-						values[item.name].push item.getSimple()
-					else
-						values[item.name] = item.getSimple()
-				object.push values
-			if object.length is 1
-				object = object[0]
-			object
+							values[name] = item.getValues values[name]
+			return merge
 	
 	exports.Section = Section

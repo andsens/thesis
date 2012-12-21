@@ -13,7 +13,10 @@ define [
 			@[prop]     = val for prop, val of @spec[@id]
 			
 			if @spec.verbose
-				console.log "Construct #{@type}: '#{@name}' (#{@id})",
+				type = @type
+				if type is 'section' and @inverted
+					type = 'inverted section'
+				console.log "Construct #{type}: '#{@name}' (#{@id})",
 					"nodeOffset:", @nodeOffset, "strOffset:", @strOffset
 			
 			@parent = @rootNode
@@ -45,7 +48,7 @@ define [
 				if @nodeOffset isnt 0
 					throw new Error "Did not expect to find a previous node"
 			else
-				unless @nodeMatches 'prev',@prev
+				unless @nodeMatches 'prev', @prev
 					throw new Error "The previous node did not match the expected value"
 			
 			# move the strOffset over the previous text
@@ -68,7 +71,7 @@ define [
 				matched = 'Matched' if result
 				console.log "#{matched} #{name} node of #{inverted}#{@type} '#{@name}'",
 					node: node,
-					nodeOffset: offset
+					nodeOffset: @nodeOffset+offset
 					strOffset: @strOffset
 					offset: offset
 					, "to", match

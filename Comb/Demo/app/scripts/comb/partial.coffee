@@ -20,10 +20,10 @@ define [
 		getRoot: ->
 			{ type: 'partial', iterations: @root.getObject().iterations[0]}
 		
-		getValues: ->
-			@root.getValues()[0]
-
-		getSimple: ->
-			@root.getSimple()
+		getValues: (merge) ->
+			values = @root.getValues([])[0]
+			for name, value of values
+				merge[name] = value
+			return merge
 	
 	exports.Partial = Partial

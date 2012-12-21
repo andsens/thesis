@@ -17,4 +17,11 @@ fieldset.section div.buttons {
 html, body {
 }
 div.view-input {
+	height: 500px;
+	overflow: scroll;
+}
+
+fieldset.section div.iterations {
+	border-bottom: #BBB 1px dotted;
+	margin-top: 20px;
 }

@@ -39,11 +39,14 @@ define [
 				parentNode: parentNode
 			return obj
 		
-		getValues: ->
-			@getRoot()
-
-		getSimple: ->
-			@nodes
+		getValues: (merge) ->
+			if merge?
+				unless _.isArray merge
+					merge = [merge]
+				merge.push @getRoot()
+			else
+				merge = @getRoot()
+			return merge
 		
 		update: ->
 			
