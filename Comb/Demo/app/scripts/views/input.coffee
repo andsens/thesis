@@ -42,7 +42,6 @@ define [
 			
 			input = @combInput.getValues()
 			output = @combView.getValues()
-			console.log input, output
 			@mapSection input.section[0], {"root": [output]}, data = {}
 			@templateData = data.root[0]
 		
@@ -78,17 +77,23 @@ define [
 			
 			$input = $ val.parentNode
 			$input.on 'keyup', (e) ->
-				val.update $input.val()
+				string = $input.val()
+				data[name] = string
+				val.update string
 		
 		mapEscaped: (escaped, output, data) ->
 			name = escaped.name[0].value
 			input = escaped.value
 			val = output[name]
+			unless val?
+				val = output[name][0]
 			data[name] = val.value
 			
 			$input = $ input.parentNode
 			$input.on 'keyup', (e) ->
-				val.update $input.val()
+				string = $input.val()
+				data[name] = string
+				val.update string
 		
 		type: (root) ->
 			for type in ['section', 'unescaped', 'escaped']
