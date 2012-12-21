@@ -3,8 +3,6 @@ define [
 	'text!templates/navigation.mustache',
 	
 	'views/template_selection',
-	
-	'bootstrap-dropdown'
 ], (View, template,
 	TemplateSelectionView) ->
 	'use strict'
