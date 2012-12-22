@@ -1,5 +1,4 @@
 \chapter{Revised Requirements}
-\section{}
 In this chapter we will analyze which parts of our exploratory prototype we can
 utilize in our next iteration. To that end we will examine every tool used and
 arrive at a subset of these tools, which we will complement with a fresh set of
@@ -32,7 +31,7 @@ prototype, that can be replaced by existing well maintained tools. Once we have
 achieved this, we can begin concentrating on the core of our concept and define
 it with greater precision.
 
-\subsection{Additional requirements}
+\section{Additional requirements}
 In the prototype we omitted some parts of the concept architecture by "faking"
 them. This holds true especially, when we look at how the information gained
 by parsing the server templates is transmitted to the client.
@@ -109,8 +108,9 @@ how we retrieve those values, but some method of retrieval will be needed.
 At this point jQuery seems to fit the bill and we must consider jQuery a crucial
 part of our tool.
 \item We use backbone.js to hold the values we retrieve from the DOM. The
-framework enables us to interact with these values. We must therefore categorize
-it as a crucial part of our tool.
+framework enables us to interact with these values. They can however also be
+modeled with simple JavaScript objects. Because of that backbone.js can not be
+considered a crucial part of our tool.
 \end{itemize}
 
 This concludes the evaluation of tools we used in our prototype. There is
@@ -200,13 +200,30 @@ A quicker solution to this problem would be to insert these placeholders and
 modify the template engine to understand the concept of subviews.
 Unfortunately there is a major drawback to that strategy.
 Every subview will be inserted into the DOM when the parent view is rendered,
-even though the developer may wish to delay that insetion.
+even though the developer may wish to delay that insertion.
 Also, the attachment of subviews that are yet to be created requires a
 rerendering of the entire DOM sub-tree.
 
 We intend to modify Chaplin to take advantage of these placeholder selectors
 automatically. The developer should not be required to interact with the
 selectors.
+
+\subsection{Data types}
+In the first iteration we not only retrieved the values located in the DOM but
+also specified what types these values were. In fact, retrieving data from the
+DOM and mapping data fields to types are two very different processes. We will
+not try to map data to types or Models in the next iteration, it would exceed
+the scope of our tool and expose the user to a layer of abstraction that may not
+be desired. Removing such a feature may reduce the immediate usefulness of our
+tool; it increases the applicability of it however.
+A mapping layer may still be put on top of our tool to abstract raw data
+into backbone models.
+Such a mapping layer could however also be a form validation tool or a custom
+data model to abstract a very specific use case.
+This way we construct a tool instead of a framework.
+
+
+
 
 \todo{What about our initial goal, reading the information from the DOM}
 \todo{What about not rerendering ANYTHING? modelbind changes and replace the corresponding nodes}

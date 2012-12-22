@@ -22,14 +22,191 @@ A templating language allows the developer to create HTML documents containing
 placeholders, which later can be filled by a Model and its attributes.
 Templating is part of the "View" component in the Model-View-Controller
 pattern. In the following we will have a look at one such templating language.
+
 \subsection{Mustache}
 Mustache is a so called "logic-less" template engine.
-This subtitle derives from the fact that there are no control flow statements
-(e.g. if and else statements and while loops). Instead there are only tags.
+This subtitle derives from the fact that there are no advanced control flow
+statements (e.g. if and else statements and while loops with custom variables).
+Instead there are only tags.
 Tags in in this context can be understood as an advanced form of placeholders.
 Some tags are replaced with a string, some are replaced with nothing,
 yet others are replace with series of strings or even more tags.
-\subsubsection{Limitations}
+
+Tags are easily recognizable by their delimiters which always start and end with
+two curly braces (e.g. \inline{\{\{identifier\}\}}).
+
+To render a mustache template, the template in conjunction with an
+identifier mapping (i.e. the data) is passed to the engine, which returns the
+rendered template.
+
+\subsubsection{Variables}
+Variables in mustache are string placeholders. We can recognize them by their
+two curly braces before and after an identifier (\inline{\{\{identifier\}\}}).
+The template engine replaces these tags the corresponding value in the data.
+The identifier in the tag points at a key in the data with the same name.
+Normal variables are HTML escaped. The engine outputs an empty string if the
+key is not specified in the data.
+
+\subsubsection{Unescaped variables}
+To output strings with unescaped HTML, triple curly braces are used:
+\inline{\{\{\{identifier\}\}\}}. Alternatively an ampersand may be used as well:
+\inline{\{\{\&identifier\}\}}.
+
+\subsubsection{Sections}
+Sections in mustache can be considered equivalent to foreach loops in other
+languages. We write them with an open and close tag:
+\inline{\{\{#identifier\}\}CONTENT\{\{/identifier\}\}}.
+Depending on the data-value the identifier points at, a section may also be
+behave like an if-block, which is rendered if the value is true. The values that
+are considered true and false depend on the language specific implementation
+of the engine.\
+If the value is a list, the contents of the section are rendered once for each
+entry in the list. Once a section is entered, the key-value pairs of the
+corresponding entry are pushed onto the stack of identifiers.\
+Consider the following example:
+% \begin{figure}[H]
+	% \label{fig:section-example.mustache}
+	% \centering
+\begin{lstlisting}[language=HTML]
+	| Template |
+	<p>
+		Hello {{nickname}},<br/>
+		you have {{messagecount}} new messages:
+	</p>
+	<ul>
+		{{#messages}}
+		<li>{{subject}} from {{nickname}}</li>
+		{{/messages}}
+	</ul>
+	| Data |
+	 nickname: "andsens"
+	 messagecount: 2
+	 messages:
+	 	0:
+	 		subject: "How did the presentation go?"
+	 		nickname: "carl"
+	 	1:
+	 		subject: "Welcome to Messageservice Inc."
+	 		nickname: "Messageservice Inc."
+		| Result |
+		<p>
+			Hello andsens,<br/>
+			you have 2 new messages:
+		</p>
+	<ul>
+		
+		<li>How did the presentation go? from carl</li>
+		
+		<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
+		
+	</ul>
+\end{lstlisting}
+	% \caption{An example of a mustache section}
+% \end{figure}
+Here the placeholder "nickname" is used in two different contexts.
+The first usage occurs while the identifier stack is only one level high.
+The second usage occurs inside a section. Here the "nickname" identifier refers
+to the "nickname" key of the corresponding data-entry in the list of messages.
+If we were to insert a \inline{\{\{messagecount\}\}} tag inside the section,
+the output would be "2" for every iteration.
+
+Some implementations of mustache also allow the key of the current iteration to
+be referenced with a ".".
+\begin{lstlisting}[language=HTML]
+	| Template |
+	<ul>
+		{{#messages}}
+		<li>Message {{.}}: {{subject}} from {{nickname}}</li>
+		{{/messages}}
+	</ul>
+	| Result |
+	<ul>
+		
+		<li>Message 0: How did the presentation go? from carl</li>
+		
+		<li>Message 1: Welcome to Messageservice Inc. from Messageservice Inc.</li>
+		
+	</ul>
+\end{lstlisting}
+
+\subsubsection{Inverted sections}
+In case a value in the data is an empty list or false, we use an inverted
+section to match that case. We simply replace the hash-mark in the opening tag
+of a section with a caret.
+\begin{lstlisting}[language=HTML]
+	{{#messages}}
+	<li>{{subject}} from {{nickname}}</li>
+	{{/messages}}
+	{{^messages}}
+	<li>You have no messages</li>
+	{{/messages}}
+\end{lstlisting}
+
+We can exploit this behavior to create equivalents of if-else blocks.
+Using the above template we can allow users to leave the subject line empty
+and display a message accordingly.
+\begin{lstlisting}[language=HTML]
+	<li>
+		{{#subject}}{{subject}}{{/subject}}
+		{{^subject}}(No subject){{/subject}}
+		from {{nickname}}
+	</li>
+\end{lstlisting}
+
+The \inline{\{\{subject\}\}} variable in the above template could also have been
+replaced with a \inline{\{\{.\}\}}. As mentioned earlier, variables are replaced
+with empty strings if they do not correspond to an entry in the data.
+This fact allows us to shorten the template even further:
+\begin{lstlisting}[language=HTML]
+	<li>
+		{{subject}} {{^subject}}(No subject){{/subject}}
+		from {{nickname}}
+	</li>
+\end{lstlisting}
+
+There is no need to check for the existence of the "subject" variable if it is
+replaced by an empty string regardless.
+
+\subsubsection{Comments}
+A comment in mustache is identified by an exclamation mark:
+\inline{\{\{! This is a comment \}\}}
+
+\subsubsection{Partials}
+Partials allow templates to be split up into smaller parts. Their tags are
+replaced with the contents of other templates. They behave as if the referenced
+template was inlined directly at the location of the partial tag.
+The contents of the partial templates have to be passed to the rendering engine
+together with the main template and the data.
+
+The inlining happens when a template is rendered. This enables mustache to
+render recursive data-structures:
+\begin{lstlisting}[language=HTML]
+	| Filesystem template |
+	{{! this template is mapped as a partial named "filesystem" }}
+	<ul>
+		{{#directories}}
+		<li>{{name}}: {{>filesystem}}</li>
+		{{/directories}}
+		{{#files}}
+		<li>{{name}}</li>
+		{{/files}}
+	</ul>
+\end{lstlisting}
+
+\subsubsection{Set delimiter}
+Mustache curly braces may clash with delmiters used in other languages,
+such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
+something else.
+\begin{lstlisting}[language=HTML]
+	{{ default_tags }}
+	{{=<? ?>=}}
+	<? php_tags ?>
+	{{ This will be normal text enclosed by curly braces }}
+	<?={{ }}=?>
+	{{ default_tags }}
+\end{lstlisting}
+
+\subsection{Limitations}
 \todo{fix entire paragraph}
 These templating languages are very different in their design.
 All aim to improve one or more aspects of the templating task.
