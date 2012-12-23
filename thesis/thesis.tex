@@ -6,8 +6,9 @@
 % \documentclass[twoside,11pt,openright,a4paper]{report}
 % Re-enable page break after chapters
 
-\usepackage[scaled]{beramono}
-\usepackage[latin1]{inputenc}
+\usepackage{luaotfload}
+\usepackage[EU2]{fontenc}
+% \usepackage[utf8]{inputenc}
 \usepackage[american]{babel}
 \usepackage{latexsym}
 \usepackage{amssymb}
@@ -36,14 +37,16 @@
 % Make text boxes
 \usepackage{framed}
 
+% Get Bitstream Vera Mono to be the monospace font
+\usepackage[scaled]{beramono}
+\renewcommand*\ttdefault{fvm}
+
 % List code
 \usepackage{listings}
-\lstset{basicstyle=\small\fontfamily{fvm}\fontseries{r}\selectfont}
-
-\def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
+% \lstset{basicstyle=\small\fontfamily{fvm}\fontseries{r}\selectfont}
 
 \lstset{
-	basicstyle=\color{solarized-base00},
+	basicstyle=\ttfamily\color{solarized-base00},
 	keywordstyle=\color{solarized-base02},
 	commentstyle=\color{solarized-base01},
 	stringstyle=\color{solarized-green},
@@ -55,7 +58,10 @@
 	frame=single,
 	tabsize=2,
 	breaklines=true,
+	columns=flexible,
 }
+
+\def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
 
 % Don't let figures cross section borders
 % \usepackage[section]{placeins}
@@ -68,7 +74,7 @@
 % \lstlistoflistings
 
 % Get Bitstream Vera Mono to be the monospace font
-\renewcommand*\ttdefault{txtt}
+% \renewcommand*\ttdefault{txtt}
 
 % Add todo command
 \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
@@ -82,6 +88,8 @@
 \usetikzlibrary{positioning,calc}
 \tikzset{corners/.style={fit={#1},rectangle,inner sep=0}}
 \tikzset{>=latex}
+
+\usepackage[nounderscore]{syntax}
 
 % see http://imf.au.dk/system/latex/bog/
 
@@ -119,6 +127,8 @@
 \include{32-revised-requirements}
 
 \include{40-final-architecture}
+
+\include{42-second-iteration}
 
 \include{70-evaluation}
 

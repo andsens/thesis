@@ -114,7 +114,7 @@ considered a crucial part of our tool.
 \end{itemize}
 
 This concludes the evaluation of tools we used in our prototype. There is
-however still the matter of categorizing our own custom DOM traverser, which
+still the matter of categorizing our own custom DOM traverser, which
 takes a root model as input and recursively reads the nested values in the DOM.
 During this traversal it also creates Models attached to corresponding
 ViewModels.
@@ -214,11 +214,21 @@ also specified what types these values were. In fact, retrieving data from the
 DOM and mapping data fields to types are two very different processes. We will
 not try to map data to types or Models in the next iteration, it would exceed
 the scope of our tool and expose the user to a layer of abstraction that may not
-be desired. Removing such a feature may reduce the immediate usefulness of our
-tool; it increases the applicability of it however.
+be desired.
+
+In section \ref{sec:first:results} of chapter \ref{chap:first} we
+recognized the need for knowing the types of data.
+This is not in conflict with this decision, we are still interested in
+knowing when data (or rather a mustache tag) behaves recursively, so that we may
+take appropriate steps to parse a rendered template accordingly. This holds true
+specifically for mustache partials, which can refer to the template they are
+specified in.
+
+Removing the data typing feature may still reduce the immediate usefulness
+of our tool. The removal increases the applicability of it however.
 A mapping layer may still be put on top of our tool to abstract raw data
 into backbone models.
-Such a mapping layer could however also be a form validation tool or a custom
+Such a mapping layer could also be a form validation tool or a custom
 data model to abstract a very specific use case.
 This way we construct a tool instead of a framework.
 

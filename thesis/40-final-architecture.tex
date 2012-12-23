@@ -24,10 +24,10 @@ before the template is rendered.
 \begin{itemize}
 \item The location of variables in the document
 \item Whether a variable is escaped or unescaped
-        (\inline{\{\{identifier\}\}} vs. \inline{\{\{\{identifier\}\}\}})
+      (\inline{\{\{identifier\}\}} vs. \inline{\{\{\{identifier\}\}\}})
 \item The location of sections in the document
 \item Whether a section is inverted
-        (\inline{\{\{#identifier\}\}} vs. \inline{\{\{^identifier\}\}})
+      (\inline{\{\{\#identifier\}\}} vs. \inline{\{\{^identifier\}\}})
 \item The contents of a section
 \item The location of partials in the document
 \item The location of comments in the document
@@ -36,17 +36,21 @@ before the template is rendered.
 Because of the nature of templates we can however not retrieve the following data:
 
 \begin{itemize}
-\item The contents of variables
+\item The contents of variables (including their type, e.g. integer, string)
 \item The number of iterations a section will run
 \item Whether a section is a loop or an if block
-        (except in the case of an inverted section)
+      (except in the case of an inverted section)
+\item Whether a section is a lambda or an actual section.
+\item The behavior of a lambda section.
 \item The template a partial points at
+\item Whether an identifier refers to a key in the current section or
+      a parent section
 \end{itemize}
 
 The rendered template is in the Document Object Model format, once it has
 been rendered by the client. We can still access the rendered template as a
 string after it has been inserted by accessing the \inline{innerHTML} property
-on the element node it was inserted into. This has one major drawback however.
+on the element node it was inserted into. This has one major drawback.
 The browser does not return the actual string that was inserted but rather a
 serialized version of the DOM. This is demonstrated quite easily by executing
 the following lines in the Google Chrome Developer Console:
@@ -56,8 +60,8 @@ div.innerHTML = "<img/>"
 div.innerHTML
 \end{lstlisting}
 
-The last line does not return the string "<img/>" but "<img>" instead.
-In Firefox the last line returns "<img xmlns="http://www.w3.org/1999/xhtml" />".
+The last line does not return the string "\ <img/\ >" but "\ <img\ >" instead.
+In Firefox the last line returns "\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >".
 This means that the rendered templates can not be parsed reliably by using the
 \inline{innerHTML} property.
 
@@ -68,33 +72,61 @@ we can still rely on the tag names to be the same
 We therefore opt to relate the information about mustache tags to the DOM instead.
 
 This choice requires our pre-parsing tool to be able to understand
-HTML documents and construct a DOM resembling structure in which the
+HTML documents and construct a data structure resembling the DOM in which the
 mustache tags can be located and their location converted into a DOM path.
 
-\section{Mustache}
+\section{Communicating with the client}
 
-\section{Overview}
-\subsection{Parsing templates}
+The information gathered by the pre-parser is saved in files next to the
+original templates. The user may choose whatever technology fits best to
+transfer this information to the client library. All the library should expect
+is a DOM node with the rendered template as its children and the information
+created by our pre-parser.
 
+By choosing this approach we leave the user with many optimization
+possibilities.
 \begin{itemize}
-\item Use haskell with parsec
-\item Generate information for the client
-\item Architecture for retrieval of that information
-\item Client library to put that information to use and retrieve values
+\item Gzipping templates and template information statically to optimize
+      server performance.
+\item Prepending template information to the template and subsequently
+      cutting it out again before passing the template to the template
+      engine. This way only one file needs to be handled and transferred.
+\item Using require-js to load templates and their information in parallel
+      while developing, while inlining both templates and template information
+      in to one big javascript file when deploying.
 \end{itemize}
 
-\section{Strategy for retrieving values}
-\begin{itemize}
-\item Minimize scope (only loops and variables, no partials)
-\item Always treat sections as loops. Even if they are if blocks
-\item Recognize sections and variables by boundaries (inner \& outer)
-\item Create JSON objects containing enough information for the client library to retrieve values
-\item Don't bother with scoping, let the user decide when a variable is actually scoped
-\end{itemize}
+\section{Alternatives}
 
-\section{Challenges}
-\begin{itemize}
-\item Unescaped variables can wreak havoc
-\item Ambiguities can occur between two boundaries
-\item TextNodes that are separate in the parser are merged on the client
-\end{itemize}
+Instead of using a pre-parser, we could also take other paths to help
+the client library in parsing rendered templates.
+
+\subsection{Integrating with the template engine}
+
+In chapter~\ref{chap:requirements} we touched upon the fact that it was really
+the template engine that discarded the information and only outputted the
+rendered template. We could choose to modify the template engine to output that
+exact information. This poses a rather big challenge however:
+For mustache templates there exists no such thing as \emph{the} template engine.
+Currently the mustache website lists mustache engines in 29 different
+programming languages. (https://github.com/defunkt/mustache/wiki/Other-Mustache-implementations \todo{ref})
+This fact makes the goal of such an approach very hard to achieve.
+
+\subsection{Decorating templates}
+
+The user could decorate mustache template tags with specific HTML tags that
+have no effect on the visual layout but can be retrieved by the library.
+This would make the client side code a very lightweight value retriever
+and it would obsolete the pre-parser.
+
+Apart from simply shifting the workload of locating template variables
+from the viewmodel maintainer to the template maintainer, the task of
+retrofitting existing web applications becomes much greater.
+
+\section{}
+
+
+
+Resulting compiler architecture
+
+offsets

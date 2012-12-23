@@ -1,0 +1,144 @@
+\chapter{Second iteration - Implementation}
+
+In this chapter we will walk through the implementation of the pre-parsing tool
+and the client library. We begin by detailing the process of parsing
+mustache templates.
+
+\section{Parsing mustache templates}
+\todo{Think of a reason for haskell other than "I wanted to try it"}
+
+Our language of choice for implementing the parser is Haskell.
+We utilize the Parsec parser combinator library to analyze our mustache
+templates. With Parsec we can take an EBNF grammar and very effortlessly
+rewrite it into Haskell code by using the combinators and parsers it supplies
+us with.
+
+Looking at the EBNF we can see a fairly simple pattern
+\setlength{\grammarparsep}{0.15cm}   % vertical distance between production rules
+\setlength{\grammarindent}{4cm}      % horizontal indent distance
+
+\begin{grammar}
+<variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
+
+<section> ::= `{{#' <ident> `}}' <content>* `{{/' <ident> `}}'
+\alt `{{^' <ident> `}}' <content>* `{{/' <ident> `}}'
+
+<partial> ::= `{{>' <ident> `}}'
+
+<comment> ::= `{{!' <ident> `}}'
+
+<set\_delimiter> ::= `{{=' <ident> `=}}'
+
+<tag\_or\_char> ::= <section>
+\alt <partial>
+\alt <comment>
+\alt <set\_delimiter>
+\alt <variable>
+\alt char
+
+<content> ::= <tag\_or\_char>*
+\end{grammar}
+
+Things not included:
+set delimiter
+
+Removal of whitespace lines
+
+comment
+
+XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
+
+\begin{grammar}
+<variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
+
+<partial> ::= `{{>' <ident> `}}'
+
+<comment> ::= `{{!' <ident> `}}'
+
+<content\_section> ::= `{{#' <ident> `}}' <template\_content>* `{{/' <ident> `}}'
+         \alt `{{^' <ident> `}}' <template\_content>* `{{/' <ident> `}}'
+
+<attribute\_section> ::= `{{#' <ident> `}}' <attribute\_content>* `{{/' <ident> `}}'
+                   \alt `{{^' <ident> `}}' <attribute\_content>* `{{/' <ident> `}}'
+
+<comment\_section> ::= `{{\#' <ident> `}}' <comment\_content>* `{{/' <ident> `}}'
+                 \alt `{{^' <ident> `}}' <comment\_content>* `{{/' <ident> `}}'
+
+<content\_mustache\_tag> ::= <content\_section> | <partial> | <comment> | <variable>
+
+<attribute\_mustache\_tag> ::= <attribute\_section> | <partial> | <comment> | <variable>
+
+<comment\_mustache\_tag> ::= <comment\_section> | <partial> | <comment> | <variable>
+
+<attribute> ::= ` ' <ident> `=\"' <attribute\_content>* `\"' 
+
+<xml\_tag> ::= `<' <ident> <attribute>* `>' <template\_content>* `</' <ident> `>'
+         \alt `<' <ident> <attribute>* `/>'
+         \alt `<!--' <comment\_content>* `-->'
+
+<attribute\_content> ::= <attribute\_mustache\_tag> | <char\_without\_doublequote>
+
+<comment\_content> ::= <comment\_mustache\_tag> | <char>
+
+<template\_content> ::= <content\_mustache\_tag> | <xml\_tag> | <char>
+
+<content> ::= <template\_content>*
+\end{grammar}
+
+\& Does not throw proper error when not closed
+Lexeme token parser versus normal token parser
+
+\subsection{Constraints on the templates}
+
+
+
+\todo{Difference between parser combinators and parser generators}
+\todo{What about cabal, cmdargs?}
+\subsection{Alternative parsing strategies}
+\subsubsection{hxt}
+\subsubsection{xml-light}
+
+\section{Outputting information}
+JSON library
+
+Hackage, the haskell library database has 230 libraries listed under the
+"Language" category and 90 libraries listed under the "Parsing" library.
+http://hackage.haskell.org/packages/archive/pkg-list.html
+
+
+Choice of parsing method
+
+Client
+
+Parsing problems on the client
+
+Filter on compiler
+
+Bug in mustache.js (not a bug, it's the spec)
+% https://github.com/mustache/spec/blob/master/specs/sections.yml#L192
+% https://github.com/janl/mustache.js/blob/master/mustache.js#L512
+\section{Overview}
+\subsection{Parsing templates}
+
+\begin{itemize}
+\item Use haskell with parsec
+\item Generate information for the client
+\item Architecture for retrieval of that information
+\item Client library to put that information to use and retrieve values
+\end{itemize}
+
+\section{Strategy for retrieving values}
+\begin{itemize}
+\item Minimize scope (only loops and variables, no partials)
+\item Always treat sections as loops. Even if they are if blocks
+\item Recognize sections and variables by boundaries (inner \& outer)
+\item Create JSON objects containing enough information for the client library to retrieve values
+\item Don't bother with scoping, let the user decide when a variable is actually scoped
+\end{itemize}
+
+\section{Challenges}
+\begin{itemize}
+\item Unescaped variables can wreak havoc
+\item Ambiguities can occur between two boundaries
+\item TextNodes that are separate in the parser are merged on the client
+\end{itemize}

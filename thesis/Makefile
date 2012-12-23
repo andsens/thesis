@@ -2,7 +2,7 @@
 latexargs = -output-directory=temp -interaction=batchmode -file-line-error-style
 
 mklatex: mktemp
-	latexmk -pdf -auxdir=temp -outdir=temp -bibtex thesis
+	latexmk -pdf -auxdir=temp -outdir=temp -pdflatex=lualatex -bibtex thesis
 	cat temp/thesis.pdf > thesis.pdf
 
 thesis: mktemp

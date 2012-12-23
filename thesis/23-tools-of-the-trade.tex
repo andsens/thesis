@@ -47,6 +47,9 @@ The identifier in the tag points at a key in the data with the same name.
 Normal variables are HTML escaped. The engine outputs an empty string if the
 key is not specified in the data.
 
+An identifier may also point at properties on objects in the data. Like many
+other languages the '.' character is used for that purpose.
+
 \subsubsection{Unescaped variables}
 To output strings with unescaped HTML, triple curly braces are used:
 \inline{\{\{\{identifier\}\}\}}. Alternatively an ampersand may be used as well:
@@ -55,7 +58,7 @@ To output strings with unescaped HTML, triple curly braces are used:
 \subsubsection{Sections}
 Sections in mustache can be considered equivalent to foreach loops in other
 languages. We write them with an open and close tag:
-\inline{\{\{#identifier\}\}CONTENT\{\{/identifier\}\}}.
+\inline{\{\{\#identifier\}\}CONTENT\{\{/identifier\}\}}.
 Depending on the data-value the identifier points at, a section may also be
 behave like an if-block, which is rendered if the value is true. The values that
 are considered true and false depend on the language specific implementation
@@ -167,6 +170,13 @@ This fact allows us to shorten the template even further:
 There is no need to check for the existence of the "subject" variable if it is
 replaced by an empty string regardless.
 
+\subsection{Lambdas}
+Mustache tags identified by the hash mark may also represent another form of
+placeholder namely the lambda sections. These sections are not iterations, but
+function calls to lambda functions that have been bound to keys in the data.
+The functions are called with the contents of section, which are replaced
+with their return value.
+
 \subsubsection{Comments}
 A comment in mustache is identified by an exclamation mark:
 \inline{\{\{! This is a comment \}\}}
@@ -205,6 +215,10 @@ something else.
 	<?={{ }}=?>
 	{{ default_tags }}
 \end{lstlisting}
+
+\subsubsection{Mustache specification}
+Documents specifying the exact behavior of mustache can be viewed at
+\url{https://github.com/mustache/spec}. The specification is written in YAML.
 
 \subsection{Limitations}
 \todo{fix entire paragraph}
