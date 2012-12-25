@@ -67,12 +67,12 @@ of the engine.\
 If the value is a list, the contents of the section are rendered once for each
 entry in the list. Once a section is entered, the key-value pairs of the
 corresponding entry are pushed onto the stack of identifiers.\
-Consider the following example:
-% \begin{figure}[H]
-	% \label{fig:section-example.mustache}
-	% \centering
-\label{fig:section-example.mustache}
-\begin{lstlisting}[language=HTML]
+Consider the example in figure \ref{fig:section-example.mustache}.
+\begin{figure}
+	\label{fig:section-example.mustache}
+	\centering
+	\caption{An example of a mustache section}
+	\begin{lstlisting}[language=HTML]
 	| Template |
 	<p>
 		Hello {{nickname}},<br/>
@@ -102,9 +102,8 @@ Consider the following example:
 		<li>How did the presentation go? from carl</li>
 		<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 	</ul>
-\end{lstlisting}
-	% \caption{An example of a mustache section}
-% \end{figure}
+	\end{lstlisting}
+\end{figure}
 Here the placeholder "nickname" is used in two different contexts.
 The first usage occurs while the identifier stack is only one level high.
 The second usage occurs inside a section. Here the "nickname" identifier refers
@@ -113,8 +112,12 @@ If we were to insert a \inline{\{\{messagecount\}\}} tag inside the section,
 the output would be "2" for every iteration.
 
 Some implementations of mustache also allow the key of the current iteration to
-be referenced with a ".".
-\begin{lstlisting}[language=HTML]
+be referenced with a "." (see figure \ref{fig:dot-oper-example.mustache}).
+\begin{figure}
+	\label{fig:dot-oper-example.mustache}
+	\centering
+	\caption{Mustache template using the `.' variable}
+	\begin{lstlisting}[language=HTML]
 	| Template |
 	<ul>
 		{{#messages}}
@@ -126,42 +129,59 @@ be referenced with a ".".
 		<li>Message 0: How did the presentation go? from carl</li>
 		<li>Message 1: Welcome to Messageservice Inc. from Messageservice Inc.</li>
 	</ul>
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 
 \subsubsection{Inverted sections}
 In case a value in the data is an empty list or false, we use an inverted
 section to match that case. We simply replace the hash-mark in the opening tag
-of a section with a caret.
-\begin{lstlisting}[language=HTML]
+of a section with a caret (see figure \ref{fig:inverted-example.mustache}).
+\begin{figure}
+	\label{fig:inverted-example.mustache}
+	\centering
+	\caption{Inverted sections in mustache templates}
+	\begin{lstlisting}[language=HTML]
 	{{#messages}}
 	<li>{{subject}} from {{nickname}}</li>
 	{{/messages}}
 	{{^messages}}
 	<li>You have no messages</li>
 	{{/messages}}
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 
 We can exploit this behavior to create equivalents of if-else blocks.
 Using the above template we can allow users to leave the subject line empty
-and display a message accordingly.
-\begin{lstlisting}[language=HTML]
+and display a message accordingly (figure \ref{fig:ifelse-example.mustache}).
+\begin{figure}
+	\label{fig:ifelse-example.mustache}
+	\centering
+	\caption{If-else constructs with sections in mustache templates}
+	\begin{lstlisting}[language=HTML]
 	<li>
 		{{#subject}}{{subject}}{{/subject}}
 		{{^subject}}(No subject){{/subject}}
 		from {{nickname}}
 	</li>
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 
 The \inline{\{\{subject\}\}} variable in the above template could also have been
 replaced with a \inline{\{\{.\}\}}. As mentioned earlier, variables are replaced
 with empty strings if they do not correspond to an entry in the data.
-This fact allows us to shorten the template even further:
-\begin{lstlisting}[language=HTML]
+This fact allows us to shorten the template even further as can be seen in
+figure \ref{fig:emptystr-example.mustache}.
+\begin{figure}
+	\label{fig:emptystr-example.mustache}
+	\centering
+	\caption{Variables output empty strings in mustache, if there is no data for them}
+	\begin{lstlisting}[language=HTML]
 	<li>
-		{{subject}} {{^subject}}(No subject){{/subject}}
+		{{subject}}{{^subject}}(No subject){{/subject}}
 		from {{nickname}}
 	</li>
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 
 There is no need to check for the existence of the "subject" variable if it is
 replaced by an empty string regardless.
@@ -185,8 +205,13 @@ The contents of the partial templates have to be passed to the rendering engine
 together with the main template and the data.
 
 The inlining happens when a template is rendered. This enables mustache to
-render recursive data-structures:
-\begin{lstlisting}[language=HTML]
+render recursive data-structures
+(see an example in figure \ref{fig:partial-example.mustache}).
+\begin{figure}
+	\label{fig:partial-example.mustache}
+	\centering
+	\caption{Mustache templates can be recursive by utilizing partial tags}
+	\begin{lstlisting}[language=HTML]
 	| Filesystem template |
 	{{! this template is mapped as a partial named "filesystem" }}
 	<ul>
@@ -197,20 +222,26 @@ render recursive data-structures:
 		<li>{{name}}</li>
 		{{/files}}
 	</ul>
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 
 \subsubsection{Set delimiter}
 Mustache curly braces may clash with delmiters used in other languages,
 such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
 something else.
-\begin{lstlisting}[language=HTML]
+\begin{figure}
+	\label{fig:set-delim-example.mustache}
+	\centering
+	\caption{Usage of set delimiter tags in mustache templates}
+	\begin{lstlisting}[language=HTML]
 	{{ default_tags }}
 	{{=<? ?>=}}
 	<? php_tags ?>
 	{{ This will be normal text enclosed by curly braces }}
 	<?={{ }}=?>
 	{{ default_tags }}
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 
 \subsubsection{Mustache specification}
 Documents specifying the exact behavior of mustache can be viewed at
