@@ -67,11 +67,11 @@ of the engine.\
 If the value is a list, the contents of the section are rendered once for each
 entry in the list. Once a section is entered, the key-value pairs of the
 corresponding entry are pushed onto the stack of identifiers.\
-Consider the example in figure \ref{fig:section-example.mustache}.
+Consider the example in figure \ref{fig:section.mustache}.
 \begin{figure}
-	\label{fig:section-example.mustache}
 	\centering
 	\caption{An example of a mustache section}
+	\label{fig:section.mustache}
 	\begin{lstlisting}[language=HTML]
 	| Template |
 	<p>
@@ -112,11 +112,11 @@ If we were to insert a \inline{\{\{messagecount\}\}} tag inside the section,
 the output would be "2" for every iteration.
 
 Some implementations of mustache also allow the key of the current iteration to
-be referenced with a "." (see figure \ref{fig:dot-oper-example.mustache}).
+be referenced with a "." (see figure \ref{fig:dot-oper.mustache}).
 \begin{figure}
-	\label{fig:dot-oper-example.mustache}
 	\centering
 	\caption{Mustache template using the `.' variable}
+	\label{fig:dot-oper.mustache}
 	\begin{lstlisting}[language=HTML]
 	| Template |
 	<ul>
@@ -135,11 +135,11 @@ be referenced with a "." (see figure \ref{fig:dot-oper-example.mustache}).
 \subsubsection{Inverted sections}
 In case a value in the data is an empty list or false, we use an inverted
 section to match that case. We simply replace the hash-mark in the opening tag
-of a section with a caret (see figure \ref{fig:inverted-example.mustache}).
+of a section with a caret (see figure \ref{fig:inverted.mustache}).
 \begin{figure}
-	\label{fig:inverted-example.mustache}
 	\centering
 	\caption{Inverted sections in mustache templates}
+	\label{fig:inverted.mustache}
 	\begin{lstlisting}[language=HTML]
 	{{#messages}}
 	<li>{{subject}} from {{nickname}}</li>
@@ -152,11 +152,11 @@ of a section with a caret (see figure \ref{fig:inverted-example.mustache}).
 
 We can exploit this behavior to create equivalents of if-else blocks.
 Using the above template we can allow users to leave the subject line empty
-and display a message accordingly (figure \ref{fig:ifelse-example.mustache}).
+and display a message accordingly (figure \ref{fig:ifelse.mustache}).
 \begin{figure}
-	\label{fig:ifelse-example.mustache}
 	\centering
 	\caption{If-else constructs with sections in mustache templates}
+	\label{fig:ifelse.mustache}
 	\begin{lstlisting}[language=HTML]
 	<li>
 		{{#subject}}{{subject}}{{/subject}}
@@ -170,11 +170,11 @@ The \inline{\{\{subject\}\}} variable in the above template could also have been
 replaced with a \inline{\{\{.\}\}}. As mentioned earlier, variables are replaced
 with empty strings if they do not correspond to an entry in the data.
 This fact allows us to shorten the template even further as can be seen in
-figure \ref{fig:emptystr-example.mustache}.
+figure \ref{fig:emptystr.mustache}.
 \begin{figure}
-	\label{fig:emptystr-example.mustache}
 	\centering
 	\caption{Variables output empty strings in mustache, if there is no data for them}
+	\label{fig:emptystr.mustache}
 	\begin{lstlisting}[language=HTML]
 	<li>
 		{{subject}}{{^subject}}(No subject){{/subject}}
@@ -206,11 +206,11 @@ together with the main template and the data.
 
 The inlining happens when a template is rendered. This enables mustache to
 render recursive data-structures
-(see an example in figure \ref{fig:partial-example.mustache}).
+(see an example in figure \ref{fig:partial.mustache}).
 \begin{figure}
-	\label{fig:partial-example.mustache}
 	\centering
 	\caption{Mustache templates can be recursive by utilizing partial tags}
+	\label{fig:partial.mustache}
 	\begin{lstlisting}[language=HTML]
 	| Filesystem template |
 	{{! this template is mapped as a partial named "filesystem" }}
@@ -230,9 +230,9 @@ Mustache curly braces may clash with delmiters used in other languages,
 such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
 something else.
 \begin{figure}
-	\label{fig:set-delim-example.mustache}
 	\centering
 	\caption{Usage of set delimiter tags in mustache templates}
+	\label{fig:set-delim.mustache}
 	\begin{lstlisting}[language=HTML]
 	{{ default_tags }}
 	{{=<? ?>=}}

@@ -16,7 +16,11 @@ us with.
 
 \subsection{Mustache EBNF}
 The EBNF for mustache is a fairly simple one.
-\begin{grammar}
+\begin{figure}
+	\centering
+	\caption{Mustache EBNF}
+	\label{fig:mustache.ebnf}
+	\begin{grammar}
 <variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
 
 <section> ::= `{{#' <ident> `}}' <content>* `{{/' <ident> `}}'
@@ -36,7 +40,8 @@ The EBNF for mustache is a fairly simple one.
                \alt <char>
 
 <content> ::= <tag\_or\_char>*
-\end{grammar}
+	\end{grammar}
+\end{figure}
 The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
 
 We want our parser to not only be able to understand mustache grammar, but also
@@ -52,7 +57,11 @@ not something we can support.
 We will build an abstract syntax tree with Parsec, in order for our tool to be
 able to create DOM paths through this tree. The following EBNF represents the
 structure of the parser in our tool.
-\begin{grammar}
+\begin{figure}
+	\centering
+	\caption{Mustache-XML EBNF}
+	\label{fig:mustache-xml.ebnf}
+	\begin{grammar}
 <variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
 
 <partial> ::= `{{>' <ident> `}}'
@@ -85,7 +94,8 @@ structure of the parser in our tool.
 <template\_content> ::= <content\_mustache\_tag> | <xml\_tag> | <char>
 
 <content> ::= <template\_content>*
-\end{grammar}
+	\end{grammar}
+\end{figure}
 The comment tag has been left out in this grammar, since it does not output any
 content our client library can retrieve. We did also not include the
 \inline{set\_delimiter} tag. This was mostly done to keep our first
@@ -181,9 +191,13 @@ the value of a previous tag.
 When parsing a rendered template in the client library, we will want to parse
 all children first and continue with offsets that depend on those children.
 
-Figure \ref{fig:section-example.mustache} from chapter \ref{chap:tools}
+Figure \ref{fig:section.mustache} from chapter \ref{chap:tools}
 illustrates the difference very well, once we add a last list element:
-\begin{lstlisting}[language=HTML]
+\begin{figure}
+	\centering
+	\caption{Offsets in templates}
+	\label{fig:offsets.mustache}
+	\begin{lstlisting}[language=HTML]
 	<p>
 		Hello {{nickname}},<br/>
 		you have {{messagecount}} new messages:
@@ -194,7 +208,8 @@ illustrates the difference very well, once we add a last list element:
 		{{/messages}}
 		<li>That's all {{realname}}</li>
 	</ul>
-\end{lstlisting}
+	\end{lstlisting}
+\end{figure}
 The \inline{\{\{realname\}\}} variable can only be retrieved once we know how
 many times the messages section has iterated (in this case we could also look
 for the last \inline{<li>} element, this is however not an approach that is
