@@ -73,35 +73,35 @@ Consider the example in figure \ref{fig:section.mustache}.
 	\caption{An example of a mustache section}
 	\label{fig:section.mustache}
 	\begin{lstlisting}[language=HTML]
-	| Template |
+| Template |
+<p>
+	Hello {{nickname}},<br/>
+	you have {{messagecount}} new messages:
+</p>
+<ul>
+	{{#messages}}
+	<li>{{subject}} from {{nickname}}</li>
+	{{/messages}}
+</ul>
+| Data |
+ nickname: "andsens"
+ messagecount: 2
+ messages:
+ 	0:
+ 		subject: "How did the presentation go?"
+ 		nickname: "carl"
+ 	1:
+ 		subject: "Welcome to Messageservice Inc."
+ 		nickname: "Messageservice Inc."
+	| Result |
 	<p>
-		Hello {{nickname}},<br/>
-		you have {{messagecount}} new messages:
+		Hello andsens,<br/>
+		you have 2 new messages:
 	</p>
-	<ul>
-		{{#messages}}
-		<li>{{subject}} from {{nickname}}</li>
-		{{/messages}}
-	</ul>
-	| Data |
-	 nickname: "andsens"
-	 messagecount: 2
-	 messages:
-	 	0:
-	 		subject: "How did the presentation go?"
-	 		nickname: "carl"
-	 	1:
-	 		subject: "Welcome to Messageservice Inc."
-	 		nickname: "Messageservice Inc."
-		| Result |
-		<p>
-			Hello andsens,<br/>
-			you have 2 new messages:
-		</p>
-	<ul>
-		<li>How did the presentation go? from carl</li>
-		<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
-	</ul>
+<ul>
+	<li>How did the presentation go? from carl</li>
+	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
+</ul>
 	\end{lstlisting}
 \end{figure}
 Here the placeholder "nickname" is used in two different contexts.
@@ -118,17 +118,17 @@ be referenced with a "." (see figure \ref{fig:dot-oper.mustache}).
 	\caption{Mustache template using the `.' variable}
 	\label{fig:dot-oper.mustache}
 	\begin{lstlisting}[language=HTML]
-	| Template |
-	<ul>
-		{{#messages}}
-		<li>Message {{.}}: {{subject}} from {{nickname}}</li>
-		{{/messages}}
-	</ul>
-	| Result |
-	<ul>
-		<li>Message 0: How did the presentation go? from carl</li>
-		<li>Message 1: Welcome to Messageservice Inc. from Messageservice Inc.</li>
-	</ul>
+| Template |
+<ul>
+	{{#messages}}
+	<li>Message {{.}}: {{subject}} from {{nickname}}</li>
+	{{/messages}}
+</ul>
+| Result |
+<ul>
+	<li>Message 0: How did the presentation go? from carl</li>
+	<li>Message 1: Welcome to Messageservice Inc. from Messageservice Inc.</li>
+</ul>
 	\end{lstlisting}
 \end{figure}
 
@@ -141,12 +141,12 @@ of a section with a caret (see figure \ref{fig:inverted.mustache}).
 	\caption{Inverted sections in mustache templates}
 	\label{fig:inverted.mustache}
 	\begin{lstlisting}[language=HTML]
-	{{#messages}}
-	<li>{{subject}} from {{nickname}}</li>
-	{{/messages}}
-	{{^messages}}
-	<li>You have no messages</li>
-	{{/messages}}
+{{#messages}}
+<li>{{subject}} from {{nickname}}</li>
+{{/messages}}
+{{^messages}}
+<li>You have no messages</li>
+{{/messages}}
 	\end{lstlisting}
 \end{figure}
 
@@ -158,11 +158,11 @@ and display a message accordingly (figure \ref{fig:ifelse.mustache}).
 	\caption{If-else constructs with sections in mustache templates}
 	\label{fig:ifelse.mustache}
 	\begin{lstlisting}[language=HTML]
-	<li>
-		{{#subject}}{{subject}}{{/subject}}
-		{{^subject}}(No subject){{/subject}}
-		from {{nickname}}
-	</li>
+<li>
+	{{#subject}}{{subject}}{{/subject}}
+	{{^subject}}(No subject){{/subject}}
+	from {{nickname}}
+</li>
 	\end{lstlisting}
 \end{figure}
 
@@ -176,10 +176,10 @@ figure \ref{fig:emptystr.mustache}.
 	\caption{Variables output empty strings in mustache, if there is no data for them}
 	\label{fig:emptystr.mustache}
 	\begin{lstlisting}[language=HTML]
-	<li>
-		{{subject}}{{^subject}}(No subject){{/subject}}
-		from {{nickname}}
-	</li>
+<li>
+	{{subject}}{{^subject}}(No subject){{/subject}}
+	from {{nickname}}
+</li>
 	\end{lstlisting}
 \end{figure}
 
@@ -212,16 +212,16 @@ render recursive data-structures
 	\caption{Mustache templates can be recursive by utilizing partial tags}
 	\label{fig:partial.mustache}
 	\begin{lstlisting}[language=HTML]
-	| Filesystem template |
-	{{! this template is mapped as a partial named "filesystem" }}
-	<ul>
-		{{#directories}}
-		<li>{{name}}: {{>filesystem}}</li>
-		{{/directories}}
-		{{#files}}
-		<li>{{name}}</li>
-		{{/files}}
-	</ul>
+| Filesystem template |
+{{! this template is mapped as a partial named "filesystem" }}
+<ul>
+	{{#directories}}
+	<li>{{name}}: {{>filesystem}}</li>
+	{{/directories}}
+	{{#files}}
+	<li>{{name}}</li>
+	{{/files}}
+</ul>
 	\end{lstlisting}
 \end{figure}
 
@@ -234,12 +234,12 @@ something else.
 	\caption{Usage of set delimiter tags in mustache templates}
 	\label{fig:set-delim.mustache}
 	\begin{lstlisting}[language=HTML]
-	{{ default_tags }}
-	{{=<? ?>=}}
-	<? php_tags ?>
-	{{ This will be normal text enclosed by curly braces }}
-	<?={{ }}=?>
-	{{ default_tags }}
+{{ default_tags }}
+{{=<? ?>=}}
+<? php_tags ?>
+{{ This will be normal text enclosed by curly braces }}
+<?={{ }}=?>
+{{ default_tags }}
 	\end{lstlisting}
 \end{figure}
 
