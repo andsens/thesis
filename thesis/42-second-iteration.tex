@@ -248,17 +248,33 @@ whether a variable is located inside or outside the section.
 \section{Variable boundaries}
 Variables embedded in text nodes will be merged with the neighboring text nodes
 once a template is rendered. To extract the original text, the client library
-will have to know the exact length the text before and after it. If two
+will have to know the exact length of the text before and after it. If two
 variables are located in the same text node, this extraction strategy is no
 longer possible. Instead we simply remember the text surrounding the variable.
-Using the prefix text our client library can not only find the beginning of a
-variable, but also verify the preceding text. The the succeeding text will be
+Using this prefix text our client library can not only find the beginning of a
+variable, but also verify the preceding text. The succeeding text will be
 used as a delimiter, it marks the end of our variable.
 Using this strategy we can parse an arbitrary number of variables in one text
 node, provided a variable does not contain the text of the succeeding text.
 
+\subsection{Other boundaries}
+The previous and next nodes of a variable may also HTML or mustache tags.
+In the case of an HTML tag, we will simply relay the name of the tag to the
+client library. If the variable is the first or last node, the client library
+will receive a special ``null node'' as the previous or next node respectively.
+
+We will tackle the case of neighboring nodes being mustache tags in chapter
+\ref{chap:eval}.
+
 \section{Recognizing iterations}
-Sections can also merge
+To detect whether a section is skipped because its value is an empty
+list or false, we let the client library know what the first child of the
+section is.
+This way we can detect if the section begins with the first child node or its
+neighboring next node.
+By also saving the last node of the
+
+\subsection{Lambda sections}
 
 
 
