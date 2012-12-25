@@ -243,25 +243,38 @@ the only difference being its classification as a child instead of an offset.
 The advantage we gain by this classification is our ability to distinguish
 whether a variable is located inside or outside the section.
 
+\section{Variable boundaries}
+Variables embedded in text nodes will be merged with the neighboring text nodes
+once a template is rendered. To extract the original text, the client library
+will have to know the exact length the text before and after it. If two
+variables are located in the same text node, this extraction strategy is no
+longer possible. Instead we simply remember the text surrounding the variable.
+Using the prefix text our client library can not only find the beginning of a
+variable, but also verify the preceding text. The the succeeding text will be
+used as a delimiter, it marks the end of our variable.
+Using this strategy we can parse an arbitrary number of variables in one text
+node, provided a variable does not contain the text of the succeeding text.
 
 \section{Recognizing iterations}
+Sections can also merge
 
 
 
 
-Removal of whitespace lines
+% Removal of whitespace lines
 
 
-Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
-
-
-
-\& Does not throw proper error when not closed
-Lexeme token parser versus normal token parser
-Comment not working
+% Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
 
 
 
+% \& Does not throw proper error when not closed
+% Lexeme token parser versus normal token parser
+% Comment not working
+
+% variable text boundary recognition not perfect
+
+% inverted sections don't iterate, no need to filter
 
 \todo{Difference between parser combinators and parser generators}
 \todo{What about cabal, cmdargs?}
