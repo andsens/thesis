@@ -1,4 +1,5 @@
 \chapter{Second iteration - Implementation}
+\label{chap:impl}
 
 In this chapter we will walk through the implementation of the pre-parsing tool
 and the client library. We begin by detailing the process of parsing
@@ -9,60 +10,61 @@ mustache templates.
 
 Our language of choice for implementing the parser is Haskell.
 We utilize the Parsec parser combinator library to analyze our mustache
-templates. With Parsec we can take an EBNF grammar and very effortlessly
-rewrite it into Haskell code by using the combinators and parsers it supplies
+templates. With Parsec we can convert an EBNF grammar very effortlessly
+into Haskell code by using the combinators and parsers the library supplies
 us with.
 
-Looking at the EBNF we can see a fairly simple pattern
-\setlength{\grammarparsep}{0.15cm}   % vertical distance between production rules
-\setlength{\grammarindent}{4cm}      % horizontal indent distance
-
+\subsection{Mustache EBNF}
+The EBNF for mustache is a fairly simple one.
 \begin{grammar}
 <variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
 
 <section> ::= `{{#' <ident> `}}' <content>* `{{/' <ident> `}}'
-\alt `{{^' <ident> `}}' <content>* `{{/' <ident> `}}'
+         \alt `{{^' <ident> `}}' <content>* `{{/' <ident> `}}'
 
 <partial> ::= `{{>' <ident> `}}'
 
-<comment> ::= `{{!' <ident> `}}'
+<comment> ::= `{{!' <comment> `}}'
 
-<set\_delimiter> ::= `{{=' <ident> `=}}'
+<set\_delimiter> ::= `{{=' <delim\_start>  ' ' <delim\_end> `=}}'
 
 <tag\_or\_char> ::= <section>
-\alt <partial>
-\alt <comment>
-\alt <set\_delimiter>
-\alt <variable>
-\alt char
+               \alt <partial>
+               \alt <comment>
+               \alt <set\_delimiter>
+               \alt <variable>
+               \alt <char>
 
 <content> ::= <tag\_or\_char>*
 \end{grammar}
+The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
 
-Things not included:
-set delimiter
+We want our parser to not only be able to understand mustache grammar, but also
+HTML grammar intermingled with it.
 
-Removal of whitespace lines
+There are many flavors of HTML we may choose from to allow in our
+mustache-HTML grammar. To simplify our approach we will only allow well
+structured XML tags, this should ostensibly cover most of HTML.
+HTML 5 allows for self-closing tags on void elements, which with our choice is
+not something we can support.
 
-comment
-
-XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
-
+\subsection{Mustache-XML EBNF}
+We will build an abstract syntax tree with Parsec, in order for our tool to be
+able to create DOM paths through this tree. The following EBNF represents the
+structure of the parser in our tool.
 \begin{grammar}
 <variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
 
 <partial> ::= `{{>' <ident> `}}'
 
-<comment> ::= `{{!' <ident> `}}'
-
 <content\_section> ::= `{{#' <ident> `}}' <template\_content>* `{{/' <ident> `}}'
-         \alt `{{^' <ident> `}}' <template\_content>* `{{/' <ident> `}}'
+                  \alt `{{^' <ident> `}}' <template\_content>* `{{/' <ident> `}}'
 
 <attribute\_section> ::= `{{#' <ident> `}}' <attribute\_content>* `{{/' <ident> `}}'
-                   \alt `{{^' <ident> `}}' <attribute\_content>* `{{/' <ident> `}}'
+                    \alt `{{^' <ident> `}}' <attribute\_content>* `{{/' <ident> `}}'
 
 <comment\_section> ::= `{{\#' <ident> `}}' <comment\_content>* `{{/' <ident> `}}'
-                 \alt `{{^' <ident> `}}' <comment\_content>* `{{/' <ident> `}}'
+                  \alt `{{^' <ident> `}}' <comment\_content>* `{{/' <ident> `}}'
 
 <content\_mustache\_tag> ::= <content\_section> | <partial> | <comment> | <variable>
 
@@ -73,8 +75,8 @@ XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
 <attribute> ::= ` ' <ident> `=\"' <attribute\_content>* `\"' 
 
 <xml\_tag> ::= `<' <ident> <attribute>* `>' <template\_content>* `</' <ident> `>'
-         \alt `<' <ident> <attribute>* `/>'
-         \alt `<!--' <comment\_content>* `-->'
+          \alt `<' <ident> <attribute>* `/>'
+          \alt `<!--' <comment\_content>* `-->'
 
 <attribute\_content> ::= <attribute\_mustache\_tag> | <char\_without\_doublequote>
 
@@ -84,11 +86,158 @@ XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
 
 <content> ::= <template\_content>*
 \end{grammar}
+The comment tag has been left out in this grammar, since it does not output any
+content our client library can retrieve. We did also not include the
+\inline{set\_delimiter} tag. This was mostly done to keep our first
+implementation of the tool simple.
+
+\subsubsection{Template constraints}
+Note that the EBNF restricts the types of
+templates our tool can parse.
+
+\begin{itemize}
+\item XML tags must be closed in the same in the same template and section
+      as they are opened
+\item Sections must adhere to the same structure as XML tags
+\item Variables and section may not exist in the identifier part of an XML tag
+      or attribute
+\end{itemize}
+
+These structural restrictions may not be something a user will run into very
+often, but they give our client library very useful guarantees about the
+rendered templates it passes.
+If XML tags were to be opened outside the scope of a template
+and closed in the template we are parsing,
+there would be no way to determine the location of mustache tags in
+that template without performing complicated cross-references with the template
+that opened these tags.
+
+\subsubsection{Character References}
+The EBNF omits character references (e.g. \inline{\&nbsp;}, \inline{\&aring;}).
+When those character references are accessed via the DOM in the browser they are
+returned in their interpreted form. This forces our tool to also be able to
+understand character references. To that end we simply scan any text we have
+recognized between tags for ampersands, all characters from that point on until
+a semicolon is found are passed to the \inline{lookupEntity} function available
+in the TagSoup library (\todo{Ref to Text.HTML.TagSoup.Entity}).
+
+\subsubsection{Lexeme token parsers}
+Parsec can create token parsers given a configuration with definitions of
+allowed operator letters, reserved operator names,
+legal identifier letters and many other pieces of information
+that are useful for parsing tokens in a language.
+The token parsers returned by Parsec are lexeme token parsers.
+These token parsers consume any whitespace that follow most tokens.
+They also throw errors when tokens are followed by operator letters.
+
+\subsubsection{Significant white spaces}
+In the case of our template parser, the otherwise advantageous properties
+of lexeme token parsers are not desirable.
+White spaces in the beginning of an attribute value or after an XML tag can be
+very significant.
+We will need to be sure when a mustache variable begins and ends.
+If that variable is surrounded only by white spaces, our tool will convey
+data to the client, which details that there is in fact no white space.
+Subsequently the client will assume the white spaces recognized in the
+rendered template belong to the value of the variable.
+
+\section{Mustache-XML DOM Paths}
+The abstract syntax tree our parser generates bears some resemblance to the
+Document Object Model available in the browser. There is however the addition of
+mustache section nodes and mustache variable leafs.
+Once the template is rendered, a mustache section will not be visible and the
+contents of that section will be joined with the siblings of said section.
+Similarly, mustache variables output text which will be joined with neighboring
+text nodes. When constructing DOM paths this fact has to be taken into account.
+
+\subsection{Lists of numbers as paths}
+There are several ways to pinpoint a node in the DOM. CSS-selectors, XPaths and
+DOM API-call chains among them. The first two methods are easily
+readable and writable for humans, a feature we are not interested in, since our
+tool is only to communicate with our client library.
+We will instead use the third option: DOM API-call chains. However cumbersome
+and counter-intuitive a method like this may seem in other scenarios, it is
+in fact the optimal tool for our purposes: We are never interested in retrieving
+more than a single DOM node; knowing where a section or a variable begins is our
+only goal for paths.
+
+All children of a node are ordered and can be addressed by numbers. This allows
+us to drill down through the DOM to a specific node by iterating through a list
+of numbers, descending one node generation with each iteration.
+
+\subsubsection{Children and offsets}
+Paths can be divided into two types which we will call children and offsets.
+
+Offsets are mustache tags whose location is affected by the string length of a
+previous variable value or by the amount of iterations of a previous section.
+
+To determine their location we will have to know the value of these previous
+tags first. These tags may of course also only be offsets, this chain continues
+until we meet a parent section or the beginning of the template.
+The last part in such a chain will always be a child instead of an offset.
+Children are tags with locations in the template that are not affected by
+the value of a previous tag.
+
+When parsing a rendered template in the client library, we will want to parse
+all children first and continue with offsets that depend on those children.
+
+Figure \ref{fig:section-example.mustache} from chapter \ref{chap:tools}
+illustrates the difference very well, once we add a last list element:
+\begin{lstlisting}[language=HTML]
+	<p>
+		Hello {{nickname}},<br/>
+		you have {{messagecount}} new messages:
+	</p>
+	<ul>
+		{{#messages}}
+		<li>{{subject}} from {{nickname}}</li>
+		{{/messages}}
+		<li>That's all {{realname}}</li>
+	</ul>
+\end{lstlisting}
+The \inline{\{\{realname\}\}} variable can only be retrieved once we know how
+many times the messages section has iterated (in this case we could also look
+for the last \inline{<li>} element, this is however not an approach that is
+easily generalized). The path for \inline{\{\{realname\}\}} would consist of
+two numbers:
+\begin{itemize}
+\item The node index of the \inline{\{\{<li>\}\}} element measured from
+      the closing tag of the \inline{\{\{\#messages\}\}} section.
+      Also counting the text node between those tags, we arrive at \emph{1}
+\item The node index of the \inline{\{\{realname\}\}} variable. Although this
+      variable will be merged with the previous text, we still count it as a
+      separate node. We will adjust for this way of counting child nodes in
+      the client library. Here we also arrive at index \emph{1}
+\end{itemize}
+
+The only detail missing from our new path is the reference to the node we are
+offsetting from. Assuming we number each mustache tag in the template we can
+simply refer to it by that number and prepend it to our path.
+
+Child paths are generated in much the same way. If we were to generate a path
+for the \inline{\{\{subject\}\}} variable in the above template, we would
+proceed in the exact same way as with the \inline{\{\{realname\}\}} variable,
+the only difference being its classification as a child instead of an offset.
+The advantage we gain by this classification is our ability to distinguish
+whether a variable is located inside or outside the section.
+
+
+\section{Recognizing iterations}
+
+
+
+
+Removal of whitespace lines
+
+
+Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
+
+
 
 \& Does not throw proper error when not closed
 Lexeme token parser versus normal token parser
+Comment not working
 
-\subsection{Constraints on the templates}
 
 
 
@@ -105,6 +254,7 @@ Hackage, the haskell library database has 230 libraries listed under the
 "Language" category and 90 libraries listed under the "Parsing" library.
 http://hackage.haskell.org/packages/archive/pkg-list.html
 
+comment
 
 Choice of parsing method
 
@@ -113,6 +263,8 @@ Client
 Parsing problems on the client
 
 Filter on compiler
+
+charref scanner
 
 Bug in mustache.js (not a bug, it's the spec)
 % https://github.com/mustache/spec/blob/master/specs/sections.yml#L192

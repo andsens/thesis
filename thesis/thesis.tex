@@ -73,9 +73,6 @@
 % List of all the code listings
 % \lstlistoflistings
 
-% Get Bitstream Vera Mono to be the monospace font
-% \renewcommand*\ttdefault{txtt}
-
 % Add todo command
 \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
 
@@ -90,6 +87,8 @@
 \tikzset{>=latex}
 
 \usepackage[nounderscore]{syntax}
+\setlength{\grammarparsep}{0.15cm} % vertical distance between production rules
+\setlength{\grammarindent}{4cm}    % horizontal indent distance
 
 % see http://imf.au.dk/system/latex/bog/
 

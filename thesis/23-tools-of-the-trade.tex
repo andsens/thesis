@@ -1,4 +1,5 @@
 \chapter{Tools of the trade}
+\label{chap:tools}
 In order to achieve a separation of responsibility various frameworks and tools
 are at a developers disposal. In this thesis we will focus on two of them
 specifically.
@@ -70,6 +71,7 @@ Consider the following example:
 % \begin{figure}[H]
 	% \label{fig:section-example.mustache}
 	% \centering
+\label{fig:section-example.mustache}
 \begin{lstlisting}[language=HTML]
 	| Template |
 	<p>
@@ -97,11 +99,8 @@ Consider the following example:
 			you have 2 new messages:
 		</p>
 	<ul>
-		
 		<li>How did the presentation go? from carl</li>
-		
 		<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
-		
 	</ul>
 \end{lstlisting}
 	% \caption{An example of a mustache section}
@@ -124,11 +123,8 @@ be referenced with a ".".
 	</ul>
 	| Result |
 	<ul>
-		
 		<li>Message 0: How did the presentation go? from carl</li>
-		
 		<li>Message 1: Welcome to Messageservice Inc. from Messageservice Inc.</li>
-		
 	</ul>
 \end{lstlisting}
 
