@@ -1,6 +1,5 @@
 define [
-	'underscore'
-], (_) ->
+], () ->
 	'use strict'
 	
 	class Mustache

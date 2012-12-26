@@ -6,10 +6,9 @@ define [
 	'comb/unescaped_variable'
 	
 	'exports'
-	'underscore'
 ], (Mustache,
 	Partial, EscapedVariable, UnescapedVariable,
-	exports, _) ->
+	exports) ->
 	'use strict'
 	
 	class Section extends Mustache

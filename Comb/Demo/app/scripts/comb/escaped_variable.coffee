@@ -1,8 +1,6 @@
 define [
 	'comb/mustache'
-	
-	'underscore'
-], (Mustache, _) ->
+], (Mustache) ->
 	'use strict'
 	
 	class EscapedVariable extends Mustache
@@ -70,7 +68,7 @@ define [
 		
 		getValues: (merge) ->
 			if merge?
-				unless _.isArray merge
+				unless merge instanceof Array
 					merge = [merge]
 				merge.push @getRoot()
 			else
