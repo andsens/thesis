@@ -1,3 +1,4 @@
+% !TEX root = thesis.tex
 \chapter{Second iteration - Implementation}
 \label{chap:impl}
 
@@ -157,7 +158,29 @@ data to the client, which details that there is in fact no white space.
 Subsequently the client will assume the white spaces recognized in the
 rendered template belong to the value of the variable.
 
+\subsection{Alternative parsing strategies}
+Instead of Parsec we could have chosen an existing parsing technology for XML
+and simply extended it.
+
+\subsubsection{HXT (Text.XML.HXT)}
+Haskell XML Tools (HXT) is a very advanced XML parser utilizing, amongst other
+Haskell concepts, arrows. It is intended for querying structures the
+tool has already created by parsing the XML. Using it to discover the structure
+of documents is not its main purpose. With this tool, we would have to create a
+new structure on top of the existing HXT XML structure.
+
+\subsubsection{XML (Text.XML.Light)}
+XML is an easy-to-use XML library, which exports its data constructors.
+This allows us to pattern match and use deconstruction assignments in our
+functions.
+Mustache tags would have to be recognized by inspecting all strings in the
+structure we receive. Following that, we have to overlay the structure with
+section beginnings and ends, variable locations etc.. These overlay techniques
+would very quickly grow bigger than the 250 lines of code our Parsec parser
+spans now.
+
 \section{Mustache-XML DOM Paths}
+\label{sec:paths}
 The abstract syntax tree our parser generates bears some resemblance to the
 Document Object Model available in the browser. There is however the addition of
 mustache section nodes and mustache variable leafs.
@@ -270,80 +293,71 @@ We will tackle the case of neighboring nodes being mustache tags in chapter
 To detect whether a section is skipped because its value is an empty
 list or false, we let the client library know what the first child of the
 section is.
-This way we can detect if the section begins with the first child node or its
-neighboring next node.
-By also saving the last node of the
+This way we can detect if a section in a rendered template begins with the
+first child node or its neighboring next node.
+
+\subsection{Content list}
+We accompany each section with a list of child node types. The client library
+shall consult this list to determine the length of each iteration.
+The length of an iteration is constant, if a section only contains normal
+HTML tags as its children. Once we introduce mustache tags, this can change.
+The length of a subsection will increase the length of a parent section, while
+unescaped variables may do the same.
+In order for us to still reliably determine said length, we also include
+mustache tags in this content list. The client library may then recurse into
+these tags to asses the impact they have had on the length of an iteration.
+\todo{Eval: this can be done a lot easier}
 
 \subsection{Lambda sections}
+Lambda sections and normal mustache sections can not be distinguished.
+For that reason we will simply treat them as sections when parsing templates.
+
+\subsection{If-else constructs}
+Sections which are intended as if-else constructs are similarly impossible to
+distinguish from normal sections, which iterate over a list. We tackle this
+issue by regarding all sections as iterative sections. We return a list of
+entries, regardless of the original data structure that was fed in to the
+template rendering engine.
+
+\subsection{Joined nodes}
 
 
 
+\subsection{Node offsets}
+\todo{Scrap this subsection}
+We will also save a rough overview of the children of the section.
+This overview is a simple list of the type (tag, self-closing tag, comment
+or text node) of each child. If a child is a mustache tag, this type will be the
+id of that tag instead.
+By consulting this list we can determine by how much we have to increase the
+last index in our path (see section \ref{sec:paths}) to arrive at
+the next iteration or end of a section.
+After each iteration we run through said list and increment our node offset for
+every node we encounter. We also reset our node offset to the node offset of
+a mustache tag, if any is encountered. Once we 
 
-% Removal of whitespace lines
 
+Any mustache tags inside a section with a path classification of ``child'' will
+be instantiated once per iteration.
 
-% Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
+\section{Outputting information}
+The information we retrieve from our templates is communicated to the client
+library by way of the JSON data format. We generate it by using the JSON library
+available in the ``Hackage'' Haskell library database (Text.JSON).
 
+JSON files may contain an array or an object at the top-level. We chose to use
+an array, in which each entry describes a mustache tag. Referencing between
+those tags functions by way of the index in said array.
+We also prepend array with a ``root'' element. It is referred to by mustache
+tags that are not located inside a section and are not offset in their location
+by other mustache tags.
 
-
-% \& Does not throw proper error when not closed
-% Lexeme token parser versus normal token parser
-% Comment not working
-
-% variable text boundary recognition not perfect
-
-% inverted sections don't iterate, no need to filter
 
 \todo{Difference between parser combinators and parser generators}
 \todo{What about cabal, cmdargs?}
-\subsection{Alternative parsing strategies}
-\subsubsection{hxt}
-\subsubsection{xml-light}
 
-\section{Outputting information}
-JSON library
+\section{Client library}
 
-Hackage, the haskell library database has 230 libraries listed under the
-"Language" category and 90 libraries listed under the "Parsing" library.
-http://hackage.haskell.org/packages/archive/pkg-list.html
+\subsection{Scoping}
+\todo{Don't bother with scoping, let the user decide when a variable is actually scoped}
 
-comment
-
-Choice of parsing method
-
-Client
-
-Parsing problems on the client
-
-Filter on compiler
-
-charref scanner
-
-Bug in mustache.js (not a bug, it's the spec)
-% https://github.com/mustache/spec/blob/master/specs/sections.yml#L192
-% https://github.com/janl/mustache.js/blob/master/mustache.js#L512
-\section{Overview}
-\subsection{Parsing templates}
-
-\begin{itemize}
-\item Use haskell with parsec
-\item Generate information for the client
-\item Architecture for retrieval of that information
-\item Client library to put that information to use and retrieve values
-\end{itemize}
-
-\section{Strategy for retrieving values}
-\begin{itemize}
-\item Minimize scope (only loops and variables, no partials)
-\item Always treat sections as loops. Even if they are if blocks
-\item Recognize sections and variables by boundaries (inner \& outer)
-\item Create JSON objects containing enough information for the client library to retrieve values
-\item Don't bother with scoping, let the user decide when a variable is actually scoped
-\end{itemize}
-
-\section{Challenges}
-\begin{itemize}
-\item Unescaped variables can wreak havoc
-\item Ambiguities can occur between two boundaries
-\item TextNodes that are separate in the parser are merged on the client
-\end{itemize}

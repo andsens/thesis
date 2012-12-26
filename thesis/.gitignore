@@ -6,5 +6,10 @@
 *.toc
 *.ps
 *.pdf
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.synctex.gz(busy)
 thesis-diff.tex
 temp

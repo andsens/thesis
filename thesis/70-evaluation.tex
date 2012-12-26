@@ -1,5 +1,43 @@
+% !TEX root = thesis.tex
 \chapter{Evaluation}
-\section{Performance}
+\label{chap:eval}
 \section{Limitations}
+% comment nodes useful
+
+% Choice of parsing method
+
+% Client
+
+% Parsing problems on the client
+
+% Filter on compiler
+
+% Bug in mustache.js (not a bug, it's the spec)
+% https://github.com/mustache/spec/blob/master/specs/sections.yml#L192
+% https://github.com/janl/mustache.js/blob/master/mustache.js#L512
+% Removal of whitespace lines
+
+
+% Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
+
+
+
+% \& Does not throw proper error when not closed
+% Lexeme token parser versus normal token parser
+% Comment not working
+
+% variable text boundary recognition not perfect
+
+% inverted sections don't iterate, no need to filter
+% and no need to return array
+
+% If-else section return lists with single entry
+
+\section{Challenges}
+\begin{itemize}
+\item Unescaped variables can wreak havoc
+\item Ambiguities can occur between two boundaries
+\item TextNodes that are separate in the parser are merged on the client
+\end{itemize}
 \section{Advantages}
 \subsection{Comparison}
