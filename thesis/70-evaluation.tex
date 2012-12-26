@@ -2,36 +2,28 @@
 \chapter{Evaluation}
 \label{chap:eval}
 \section{Limitations}
-% comment nodes useful
-
-% Choice of parsing method
-
-% Client
-
-% Parsing problems on the client
-
-% Filter on compiler
-
-% Bug in mustache.js (not a bug, it's the spec)
-% https://github.com/mustache/spec/blob/master/specs/sections.yml#L192
-% https://github.com/janl/mustache.js/blob/master/mustache.js#L512
-% Removal of whitespace lines
-
-
-% Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
-
-
-
-% \& Does not throw proper error when not closed
-% Lexeme token parser versus normal token parser
-% Comment not working
-
-% variable text boundary recognition not perfect
-
-% inverted sections don't iterate, no need to filter
-% and no need to return array
-
-% If-else section return lists with single entry
+\begin{itemize}
+\item comment nodes useful
+\item Choice of parsing method
+\item Client
+\item Parsing problems on the client
+\item Filter on compiler
+\item Bug in mustache.js (not a bug, it's the spec)
+      https://github.com/mustache/spec/blob/master/specs/sections.yml\#L192
+      https://github.com/janl/mustache.js/blob/master/mustache.js\#L512
+\item Removal of whitespace lines
+\item Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
+\item \& Does not throw proper error when not closed
+\item Lexeme token parser versus normal token parser
+\item Comment not working
+\item variable text boundary recognition not perfect
+\item inverted sections don't iterate, no need to filter
+\item and no need to return array
+\item If-else section return lists with single entry
+\item Mustache identifiers can access more than the keys in the current context,
+      they may also drill down and access properties of objects in the current
+      context.
+\end{itemize}
 
 \section{Challenges}
 \begin{itemize}

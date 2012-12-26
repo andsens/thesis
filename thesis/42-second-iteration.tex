@@ -103,10 +103,15 @@ able to create DOM paths through this tree. The EBNF in figure
 	\end{grammar}
 \end{figure}
 
-The comment tag has been left out in this grammar, since it does not output any
-content our client library can retrieve. We did also not include the
+The mustache comment tag has been left out in this grammar, since it does not
+output any content our client library can retrieve. We did also not include the
 \inline{set\_delimiter} tag. This was mostly done to keep our first
 implementation of the tool simple.
+
+\subsubsection{XML Comments}
+An XML comment is recognized as simple text in the DOM of the browser. The EBNF
+still allows for mustache tag structures. This allows the user to communicate
+additional information to the client, without showing it in the browser.
 
 \subsubsection{Template constraints}
 Note that the EBNF restricts the types of
@@ -188,6 +193,13 @@ Once the template is rendered, a mustache section will not be visible and the
 contents of that section will be joined with the siblings of said section.
 Similarly, mustache variables output text which will be joined with neighboring
 text nodes. When constructing DOM paths this fact has to be taken into account.
+
+\subsection{Resolver}
+Our tool passes the abstract syntax tree generate by the parser into a resolver.
+The resolver links mustache tags together and analyzes dependencies between
+them by creating ``Resolutions''. These resolutions have fields to point at
+parent sections and neighboring nodes. They are used to access relevant parts of
+our custom DOM more quickly.
 
 \subsection{Lists of numbers as paths}
 There are several ways to pinpoint a node in the DOM. CSS-selectors, XPaths and
@@ -282,7 +294,7 @@ Using this strategy we can parse an arbitrary number of variables in one text
 node, provided a variable does not contain the text of the succeeding text.
 
 \subsection{Other boundaries}
-The previous and next nodes of a variable may also HTML or mustache tags.
+The previous and next nodes of a variable may also be HTML or mustache tags.
 In the case of an HTML tag, we will simply relay the name of the tag to the
 client library. If the variable is the first or last node, the client library
 will receive a special ``null node'' as the previous or next node respectively.
@@ -321,23 +333,6 @@ distinguish from normal sections, which iterate over a list. We tackle this
 issue by regarding all sections as iterative sections. We return a list of
 entries, regardless of the original data structure that was fed in to the
 template rendering engine.
-
-\subsection{Node offsets}
-\todo{Scrap this subsection}
-We will also save a rough overview of the children of the section.
-This overview is a simple list of the type (tag, self-closing tag, comment
-or text node) of each child. If a child is a mustache tag, this type will be the
-id of that tag instead.
-By consulting this list we can determine by how much we have to increase the
-last index in our path (see section \ref{sec:paths}) to arrive at
-the next iteration or end of a section.
-After each iteration we run through said list and increment our node offset for
-every node we encounter. We also reset our node offset to the node offset of
-a mustache tag, if any is encountered. Once we 
-
-
-Any mustache tags inside a section with a path classification of ``child'' will
-be instantiated once per iteration.
 
 \section{Outputting information}
 \label{sec:output}
@@ -430,10 +425,15 @@ If an entry in the iteration is a string instead of an integer, this indicates
 an attribute name. In that case we set the parent node to be the attribute node
 which supports the childNodes property as well.
 
+The string offset is reset to 0 once we leave the string context of the
+current text node. This happens when there is an XML tag between the
+mustache tag the path is based on and the node the path points at.
+
 \subsection{Parsing sections}
 The parsing of sections constitutes the heart of operations in our library.
 We bootstrap our parser by initializing the fake root section
 (see \ref{sec:output}) with the template container node as its parent.
+The root section will of course only have one iteration.
 This method allows us to create a recursive parsing process which we will
 initiate once per iteration for each section we encounter inside a section.
 
@@ -464,13 +464,87 @@ Depending on whether the node following the current node can be identified as
 a first child of the section or as a neighboring node, we either begin another
 iteration or terminate the parsing process for this section.
 
-\subsection{Joined nodes}
+\subsubsection{Parsing partials}
+\label{sec:parsing-partials}
+Partials can be handled in a simple way by simulating the beginning of an
+entirely new template. Provided the partial is enclosed in an XML tag, we can
+restart the parsing process using the matching template information.
+
+\subsection{Joined text nodes}
 \label{sec:joined}
+Our pre-parser tool recognizes a section with preceding text and text inside it
+as two nodes with the section containing a third node. In a rendered template
+these three nodes will merge into one single text node. Variables will also
+merge with any preceding text node. Succeeding text has a similar effect.
+This effect can wreak havoc on our node offsets if we do not adjust for it.
+Sections will therefore detect whether their previous node is joined with
+their first child and reduce the node offset by one. This is also done for:
+\begin{itemize}
+\item Previous nodes and next nodes
+\item Last child nodes and next nodes
+\item Last child nodes and first child nodes
+\end{itemize}
+
+In each of these cases we adjust the node offset accordingly. We adjust
+for previous and next nodes of variables in the same way.
 
 \subsection{Verifying nodes}
+Previous nodes, next nodes, first children and last children are matched with
+the a single data structure.
+They are specified with their type and in some cases, depending on the type,
+a second parameter:
+\begin{itemize}
+\item \emph{emptynode}: A self-closing XML tag. The second parameter specifies
+                        the tag name
+\item \emph{node}:      An XML tag. The second parameter specifies
+                        the tag name
+\item \emph{comment}:   An XML comment. It has no second parameter.
+\item \emph{text}:      A text node. The second parameter is the text itself.
+\item \emph{null}:      No node (e.g. the variable is the
+                        last child of an XML tag). The type has no second
+                        parameter.
+\end{itemize}
 
-\todo{joined nodes}
+Conflicts may arise if e.g. the next node of a section and its first child are
+indistinguishable. These cases can be detected by our pre-parsing tool with a
+filtering mechanism.
 
-\subsection{Scoping}
-\todo{Don't bother with scoping, let the user decide when a variable is actually scoped}
+\subsubsection{Filter}
+Before our pre-parsing tool outputs the template information, it runs the
+resolutions generated by the Resolver through a set of filters.
 
+\begin{itemize}
+\item \emph{unescaped\_offset} Check if a any mustache tags use an unescaped
+                               variable as their path base
+                               (see chapter \ref{chap:eval}).
+\item \emph{empty\_section} Check for empty sections. They should be removed.
+\item \emph{unescaped\_pos} An unescaped variable may only be the last child
+                            of an XML tag. It may not be a child of a section
+                            (see chapter \ref{chap:eval}).
+\item \emph{partial\_only\_child} A partial must be the only child of an XML tag
+                                 (see chapter \ref{chap:eval}).
+\item \emph{no\_lookahead} Neighboring nodes and first and last children may not
+                           be mustache tags (see chapter \ref{chap:eval}).
+\item \emph{ambiguous\_boundaries} The first child of a section must be
+                                   distinguishable from the next node of a
+                                   section.
+\item \emph{path\_with\_errors} Paths may not be based on tags that have
+                                produced any errors.
+\end{itemize}
+
+We output a message if any of the filters fail and exclude that tag from the
+output.
+
+\subsection{Returning values}
+We save all instantiated sections, variables and partials for every section
+iteration. Once we have parsed a rendered template, we our root section and
+generate a JavaScript array containing an anonymous object per iteration,
+which maps variable names to their parsed values and section names to their
+iterations.
+As noted in section \ref{sec:parsing-partials}, partials are considered
+sections. Since partials in mustache behave as if the template was inlined,
+we merge the contents of the partial section with the contents of
+parent section (partials only have one iteration like the root section).
+
+Unescaped variables will return a list of their nodes as their value.
+Previous and next nodes will be included if they are text nodes.
