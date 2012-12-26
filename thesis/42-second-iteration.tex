@@ -205,6 +205,7 @@ us to drill down through the DOM to a specific node by iterating through a list
 of numbers, descending one node generation with each iteration.
 
 \subsubsection{Children and offsets}
+\label{sec:children-offsets}
 Paths can be divided into two types which we will call children and offsets.
 
 Offsets are mustache tags whose location is affected by the string length of a
@@ -297,6 +298,7 @@ This way we can detect if a section in a rendered template begins with the
 first child node or its neighboring next node.
 
 \subsection{Content list}
+\label{sec:content-list}
 We accompany each section with a list of child node types. The client library
 shall consult this list to determine the length of each iteration.
 The length of an iteration is constant, if a section only contains normal
@@ -304,8 +306,9 @@ HTML tags as its children. Once we introduce mustache tags, this can change.
 The length of a subsection will increase the length of a parent section, while
 unescaped variables may do the same.
 In order for us to still reliably determine said length, we also include
-mustache tags in this content list. The client library may then recurse into
-these tags to asses the impact they have had on the length of an iteration.
+mustache tags in this content list. The client library may then access
+information about these tags to asses the impact they have had on the length of
+an iteration.
 \todo{Eval: this can be done a lot easier}
 
 \subsection{Lambda sections}
@@ -318,10 +321,6 @@ distinguish from normal sections, which iterate over a list. We tackle this
 issue by regarding all sections as iterative sections. We return a list of
 entries, regardless of the original data structure that was fed in to the
 template rendering engine.
-
-\subsection{Joined nodes}
-
-
 
 \subsection{Node offsets}
 \todo{Scrap this subsection}
@@ -341,13 +340,15 @@ Any mustache tags inside a section with a path classification of ``child'' will
 be instantiated once per iteration.
 
 \section{Outputting information}
+\label{sec:output}
 The information we retrieve from our templates is communicated to the client
 library by way of the JSON data format. We generate it by using the JSON library
 available in the ``Hackage'' Haskell library database (Text.JSON).
 
 JSON files may contain an array or an object at the top-level. We chose to use
 an array, in which each entry describes a mustache tag. Referencing between
-those tags functions by way of the index in said array.
+those tags functions by way of the index in said array (this index is the same
+number we prepend to the paths of tags, see section \ref{sec:children-offsets}).
 We also prepend array with a ``root'' element. It is referred to by mustache
 tags that are not located inside a section and are not offset in their location
 by other mustache tags.
@@ -357,6 +358,118 @@ by other mustache tags.
 \todo{What about cabal, cmdargs?}
 
 \section{Client library}
+
+\subsection{Technology choices}
+
+\subsubsection{CoffeeScript}
+We use use CoffeeScript to program our client library. The language allows us to 
+write expressions very tersely, where plain JavaScript would have required
+verbose instructions. This helps us to overview more code at once.
+CoffeeScript constructs like \inline{unless exp}, which translates to
+\inline{if(!exp)}, also help highlight control flow in a better way
+semantically.
+
+\subsubsection{Asynchronous Module Definition}
+Our client library uses the AMD-API to define its modules.
+
+\subsection{Input}
+The client library expects the user to hand it both the rendered template and
+the template information our pre-parser tool outputs.
+How this data is retrieved is not the concern of the library.
+The rendered template is expected to already be in the DOM format.
+Additionally it needs to be wrapped in a container node,
+which is the actual node that is to be handed to the library.
+The client library also expects the JSON data to already have been interpreted
+and converted to JavaScript objects.
+
+\subsection{Representing mustache tags}
+Our architecture for representing mustache tags is a one-to-one representation
+of the possibilities in mustache.
+Each section object holds all of its iterations. The subsection of a section is
+instantiated as many times as the parent section iterates. The same principle
+holds for variables and partials.
+
+\subsubsection{Offsets}
+Through the whole process, we will maintain two pointers that identify our
+progress in the rendered template:
+\begin{itemize}
+\item \inline{nodeOffset}: Given a parent, this variable indicates the index
+      in the \inline{childNodes} list we are currently pointing at (node offset).
+\item \inline{strOffset}: Assuming the current node is a text node, this variable
+      points at the current string position (string offset).
+\end{itemize}
+
+For all mustache tags, we will always keep a reference to the \inline{parent}
+XML node it is located in. This allows us to increase and decrease the
+\inline{nodeOffset} to access neighboring nodes. This would also be possible by
+using the \inline{previousSibling} and \inline{nextSibling} properties,
+mathematical operations like ``the 5th neighbor of the current node'' will
+however grow more complicated.
+
+The node offset and string offset is maintained separately for each mustache tag
+object. An object is instantiated with those offsets, giving it a position to
+follow its path from and find its node.
+
+\subsubsection{Following DOM paths}
+Given the position (\inline{nodeOffset}, \inline{strOffset} and \inline{parent})
+of a mustache tag, we locate other mustache tags that have their location
+specified relative to it by executing the following steps for each entry in
+their respective path array
+excluding the first entry, which is a mustache tag reference
+(see section \ref{sec:children-offsets}):
+\begin{itemize}
+\item Add the current entry to the \inline{nodeOffset}
+\item Break, if this is the last entry
+\item Set the parent node to the childNode index \inline{nodeOffset} of the
+      current parent node
+\end{itemize}
+We break in step 2 to let the parent point at the parent of the mustache tag
+instead of the tag it has been replaced with.
+
+If an entry in the iteration is a string instead of an integer, this indicates
+an attribute name. In that case we set the parent node to be the attribute node
+which supports the childNodes property as well.
+
+\subsection{Parsing sections}
+The parsing of sections constitutes the heart of operations in our library.
+We bootstrap our parser by initializing the fake root section
+(see \ref{sec:output}) with the template container node as its parent.
+This method allows us to create a recursive parsing process which we will
+initiate once per iteration for each section we encounter inside a section.
+
+Inside an iteration we will also instantiate variables and partials that are
+children of the current section. Any mustache tag located inside a subsection
+will be handled by that section.
+
+We begin by instantiating all mustache tags that are not offsets. Since these
+tags have their location described relative to our section, we can find their
+nodes immediately. Note that we in each section iteration adjust the node offset
+to point at the node before the first node in the current iteration.
+This ensures that the path following process works correctly.
+
+Next we instantiate all tags that are offset by a preceding mustache tag.
+Since our tool outputs information about tags in the order they appear in, in the
+template, we simply iterate through the mustache tags, knowing we will not
+encounter a tag with an offset pointing at a yet uninstantiated node.
+
+\todo{We actually don't need to instantiate all children first, because of tpl ordering}
+
+Once all tags in a section are instantiated and saved in an object mapped by
+their identifier, we determine the length of our section with the content list
+as described in section \ref{sec:content-list}. This length is used to adjust
+the section node offset. Using it, mustache tags basing their path on this
+section can locate their node.
+
+Depending on whether the node following the current node can be identified as
+a first child of the section or as a neighboring node, we either begin another
+iteration or terminate the parsing process for this section.
+
+\subsection{Joined nodes}
+\label{sec:joined}
+
+\subsection{Verifying nodes}
+
+\todo{joined nodes}
 
 \subsection{Scoping}
 \todo{Don't bother with scoping, let the user decide when a variable is actually scoped}
