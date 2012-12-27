@@ -21,7 +21,7 @@ We have converted them into mustache templates.
 \subsection{Rendering a template}
 Once a template is selected, we load it and the corresponding comb file via
 \emph{require-js} (\todo{explain}). The template is then rendered with
-\emph{mustache-js} and an empty data set in the right part of the view port.
+\emph{mustache-js} and an empty dataset in the right part of the view port.
 
 \subsection{Displaying template information}
 The rendered template is parsed with Comb and its values are retrieved.
@@ -30,7 +30,7 @@ because the rendered template contained no section iterations or variable values
 Comb could retrieve. We transform this object into a data structure which is
 compatible with a template (figure \ref{fig:mustache.mustache}) intended for
 viewing these values. The \inline{\{\{>mustache\}\}} tag is invoked for every
-iteration we find in the data set of the loaded template, it points back at our
+iteration we find in the dataset of the loaded template, it points back at our
 form template, allowing nested sections to be rendered.
 
 \begin{figure}
@@ -51,8 +51,8 @@ Sections have buttons that allow you to push and pop an iteration
 
 \subsection{Parsing the form}
 
-So far we only have a form which displays the data values of a template that was
-rendered with no data values.
+So far we only have a form which displays the dataset values of a template that
+was rendered with an empty dataset.
 Since this form was rendered with mustache, we can now make it interactive by
 parsing it with Comb. The buttons in the ``section'' section have
 \inline{data-target} attributes, so that we may bind click event listeners to
@@ -62,18 +62,18 @@ unescaped variables in much the same way.
 
 \subsection{Loopbacking Comb}
 
-The fields in our form have corresponding entries in the data passed to
+The fields in our form have corresponding entries in the dataset passed to
 the template we loaded in the beginning.
-Note that although we passed no data to mustache, Comb will return
+Note that although we passed an empty dataset to mustache, Comb will return
 section values as empty lists (see \ref{sec:if-else}) and
 variable values as empty strings.
-By binding event listeners to our fields we can update the original data
+By binding event listeners to our fields we can update the original dataset
 correspondingly. Changes in input fields and text areas trigger a call to the
-\inline{update(text)} function on the original data and update the text in the
+\inline{update(text)} function on the original dataset and update the text in the
 right view port.
 
 Pushing the ``push'' button on a section appends a new entry to the array of the
-original data, while the ``pop'' button removes the last entry from said array.
+original dataset, while the ``pop'' button removes the last entry from said array.
 When we modify the amount of iterations in an array, we re-render the loaded
 template (see \ref{chap:eval}).
 

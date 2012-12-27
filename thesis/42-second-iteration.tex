@@ -338,7 +338,7 @@ For that reason we will simply treat them as sections when parsing templates.
 Sections which are intended as if-else constructs are similarly impossible to
 distinguish from normal sections, which iterate over a list. We tackle this
 issue by regarding all sections as iterative sections. We return a list of
-entries, regardless of the original data structure that was fed in to the
+entries, regardless of the original dataset structure that was fed in to the
 template rendering engine.
 
 \section{Outputting information}
@@ -497,7 +497,7 @@ for previous and next nodes of variables in the same way.
 
 \subsection{Verifying nodes}
 Previous nodes, next nodes, first children and last children are matched with
-the a single data structure.
+a single data structure.
 They are specified with their type and in some cases, depending on the type,
 a second parameter:
 \begin{itemize}

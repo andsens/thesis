@@ -41,18 +41,18 @@ Tags are easily recognizable by their delimiters which always start and end with
 two curly braces (e.g. \inline{\{\{identifier\}\}}).
 
 To render a mustache template, the template in conjunction with an
-identifier mapping (i.e. the data) is passed to the engine, which returns the
+identifier mapping (i.e. the dataset) is passed to the engine, which returns the
 rendered template.
 
 \subsubsection{Variables}
 Variables in mustache are string placeholders. We can recognize them by their
 two curly braces before and after an identifier (\inline{\{\{identifier\}\}}).
-The template engine replaces these tags the corresponding value in the data.
-The identifier in the tag points at a key in the data with the same name.
+The template engine replaces these tags the corresponding value in the dataset.
+The identifier in the tag points at a key in the dataset with the same name.
 Normal variables are HTML escaped. The engine outputs an empty string if the
-key is not specified in the data.
+key is not specified in the dataset.
 
-An identifier may also point at properties on objects in the data. Like many
+An identifier may also point at properties on objects in the dataset. Like many
 other languages the '.' character is used for that purpose.
 
 \subsubsection{Unescaped variables}
@@ -64,7 +64,7 @@ To output strings with unescaped HTML, triple curly braces are used:
 Sections in mustache can be considered equivalent to foreach loops in other
 languages. We write them with an open and close tag:
 \inline{\{\{\#identifier\}\}CONTENT\{\{/identifier\}\}}.
-Depending on the data-value the identifier points at, a section may also be
+Depending on the dataset-value the identifier points at, a section may also be
 behave like an if-block, which is rendered if the value is true. The values that
 are considered true and false depend on the language specific implementation
 of the engine.\
@@ -87,7 +87,7 @@ Consider the example in figure \ref{fig:section.mustache}.
 	<li>{{subject}} from {{nickname}}</li>
 	{{/messages}}
 </ul>
-| Data |
+| Dataset |
  nickname: "andsens"
  messagecount: 2
  messages:
@@ -111,7 +111,7 @@ Consider the example in figure \ref{fig:section.mustache}.
 Here the placeholder "nickname" is used in two different contexts.
 The first usage occurs while the identifier stack is only one level high.
 The second usage occurs inside a section. Here the "nickname" identifier refers
-to the "nickname" key of the corresponding data-entry in the list of messages.
+to the "nickname" key of the corresponding dataset entry in the list of messages.
 If we were to insert a \inline{\{\{messagecount\}\}} tag inside the section,
 the output would be "2" for every iteration.
 
@@ -137,7 +137,7 @@ be referenced with a "." (see figure \ref{fig:dot-oper.mustache}).
 \end{figure}
 
 \subsubsection{Inverted sections}
-In case a value in the data is an empty list or false, we use an inverted
+In case a value in the dataset is an empty list or false, we use an inverted
 section to match that case. We simply replace the hash-mark in the opening tag
 of a section with a caret (see figure \ref{fig:inverted.mustache}).
 \begin{figure}
@@ -172,12 +172,13 @@ and display a message accordingly (figure \ref{fig:ifelse.mustache}).
 
 The \inline{\{\{subject\}\}} variable in the above template could also have been
 replaced with a \inline{\{\{.\}\}}. As mentioned earlier, variables are replaced
-with empty strings if they do not correspond to an entry in the data.
+with empty strings if they do not correspond to an entry in the dataset.
 This fact allows us to shorten the template even further as can be seen in
 figure \ref{fig:emptystr.mustache}.
 \begin{figure}
 	\centering
-	\caption{Variables output empty strings in mustache, if there is no data for them}
+	\caption{Variables output empty strings in mustache, if there is no values in
+	         the dataset for them}
 	\label{fig:emptystr.mustache}
 	\begin{lstlisting}[language=HTML]
 <li>
@@ -193,7 +194,7 @@ replaced by an empty string regardless.
 \subsubsection{Lambdas}
 Mustache tags identified by the hash mark may also represent another form of
 placeholder namely the lambda sections. These sections are not iterations, but
-function calls to lambda functions that have been bound to keys in the data.
+function calls to lambda functions that have been bound to keys in the dataset.
 The functions are called with the contents of section, which are replaced
 with their return value.
 
@@ -206,7 +207,7 @@ Partials allow templates to be split up into smaller parts. Their tags are
 replaced with the contents of other templates. They behave as if the referenced
 template was inlined directly at the location of the partial tag.
 The contents of the partial templates have to be passed to the rendering engine
-together with the main template and the data.
+together with the main template and the dataset.
 
 The inlining happens when a template is rendered. This enables mustache to
 render recursive data-structures
