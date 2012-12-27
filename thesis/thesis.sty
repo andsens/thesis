@@ -28,8 +28,8 @@
 
 % Colors
 \usepackage{color,xcolor}
-% Custom colors
-\include{colors}
+\usepackage{solarized}
+\definecolor{lgray}{rgb}{0.93,0.93,0.93}
 
 % Make text boxes
 \usepackage{framed}
@@ -52,8 +52,11 @@
 	columns=flexible,
 }
 
-\ifx\media\print
+\ifdefined\print
 	% Grayscale code boxes for print
+	\lstset{
+		basicstyle=\ttfamily,
+	}
 \else
 	% Colored code boxes for digital
 	\lstset{

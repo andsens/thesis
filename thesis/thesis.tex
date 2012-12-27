@@ -1,7 +1,6 @@
-% \def\media{print}
-\def\media{digital}
+% \def\print{}
 
-\ifx\media\print
+\ifdefined\print
 	% Two sided document for left and right pages - different margins
 	\documentclass[twoside,11pt,openright,a4paper]{report}
 \else
@@ -14,7 +13,6 @@
 \pagestyle{plain}
 
 \begin{document}
-
 
 \subfile{00-cover}
 
