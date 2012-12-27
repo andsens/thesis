@@ -1,7 +1,78 @@
 % !TEX root = thesis.tex
 \chapter{Demo application}
 \label{chap:demo}
+This chapter describes the workings of an application utilizing Comb.
+It demonstrates the results of parsing a rendered template while.
 
-\begin{itemize}
-\item Architecture for retrieval of that information
-\end{itemize}
+\section{Goal}
+The goal of our application is to showcase the return values of a
+rendered template that has been parsed.
+Additionally we also display how Comb can be utilized to implement an
+application.
+
+\section{The application}
+To load a template we click the ``Template'' drop-down in the top menu.
+Here we can select any of the templates we utilized in the first iteration.
+We have converted them into mustache templates.
+
+\subsection{Rendering a template}
+Once a template is selected, we load it and the corresponding comb file via
+\emph{require-js} (\todo{explain}). The template is then rendered with
+\emph{mustache-js} and an empty data set in the right part of the view port.
+
+\subsection{Displaying template information}
+The rendered template is parsed with Comb and its values are retrieved.
+At this point we hold a JavaScript object with many keys but few values,
+because the rendered template contained no section iterations or variable values
+Comb could retrieve. We transform this object into a data structure which is
+compatible with a template (figure \ref{fig:mustache.mustache}) intended for
+viewing these values. The \inline{\{\{>mustache\}\}} tag is invoked for every
+iteration we find in the data set of the loaded template, it points back at our
+form template, allowing nested sections to be rendered.
+
+\begin{figure}
+	\centering
+	\caption{
+		The file \inline{mustache.mustache}.
+		A mustache template intended for viewing values retrieved by comb.}
+	\label{fig:mustache.mustache}
+	\lstinputlisting[language=HTML]{../seconditeration/Demo/app/scripts/templates/mustache.mustache}
+\end{figure}
+
+The rendered template in the left view port presents us with a form containing
+buttons and input fields fitting the nature of the mustache tag.
+An escaped variable is a simple input field,
+while an unescaped variable is a text area.
+Sections have buttons that allow you to push and pop an iteration
+(the applications does not support partials).
+
+\subsection{Parsing the form}
+
+So far we only have a form which displays the data values of a template that was
+rendered with no data values.
+Since this form was rendered with mustache, we can now make it interactive by
+parsing it with Comb. The buttons in the ``section'' section have
+\inline{data-target} attributes, so that we may bind click event listeners to
+them, by accessing the parent nodes of the ``name'' variables. We can listen
+for changes on the input fields for the escaped variables and text areas for the
+unescaped variables in much the same way.
+
+\subsection{Loopbacking Comb}
+
+The fields in our form have corresponding entries in the data passed to
+the template we loaded in the beginning.
+Note that although we passed no data to mustache, Comb will return
+section values as empty lists (see \ref{sec:if-else}) and
+variable values as empty strings.
+By binding event listeners to our fields we can update the original data
+correspondingly. Changes in input fields and text areas trigger a call to the
+\inline{update(text)} function on the original data and update the text in the
+right view port.
+
+Pushing the ``push'' button on a section appends a new entry to the array of the
+original data, while the ``pop'' button removes the last entry from said array.
+When we modify the amount of iterations in an array, we re-render the loaded
+template (see \ref{chap:eval}).
+
+
+
