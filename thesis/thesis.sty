@@ -1,0 +1,93 @@
+\ProvidesPackage{thesis}
+
+% \usepackage{luaotfload}
+% \usepackage[EU2]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[american]{babel}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[labeled]{multibib}
+\usepackage{datetime}
+\usepackage{tocbibind}
+
+% See what the page layout is, with margins etc.
+\usepackage{layout}
+
+% PDF links across pages
+\usepackage{hyperref}
+% Create backlinks for citations
+% \usepackage[hyperpageref]{backref}
+
+\usepackage[a4paper]{geometry}
+
+% Colors
+\usepackage{color,xcolor}
+% Custom colors
+\include{colors}
+
+% Make text boxes
+\usepackage{framed}
+
+% Get Bitstream Vera Mono to be the monospace font
+\usepackage[scaled]{beramono}
+\renewcommand*\ttdefault{fvm}
+
+% List code
+\usepackage{listings}
+
+\lstset{
+	numberstyle=\tiny\color{gray},
+	numbers=left,
+	showspaces=false,
+	showstringspaces=false,
+	frame=single,
+	tabsize=2,
+	breaklines=true,
+	columns=flexible,
+}
+
+\ifx\media\print
+	% Grayscale code boxes for print
+\else
+	% Colored code boxes for digital
+	\lstset{
+		basicstyle=\ttfamily\color{solarized-base00},
+		keywordstyle=\color{solarized-base02},
+		commentstyle=\color{solarized-base01},
+		stringstyle=\color{solarized-green},
+		backgroundcolor=\color{solarized-base3},
+	}
+\fi
+
+\def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
+
+% Allow inclusion of eps images, although we use TikZ
+\usepackage{graphicx,epstopdf}
+\epstopdfsetup{outdir=temp/,suffix=}
+
+% List of all the code listings
+% \lstlistoflistings
+
+% Add todo command
+\newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
+
+\newcites{A,B}{Primary Bibliography,Secondary Bibliography}
+
+% Use TikZ to create diagrams
+\usepackage{tikz}
+
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning,calc}
+\tikzset{corners/.style={fit={#1},rectangle,inner sep=0}}
+\tikzset{>=latex}
+
+\usepackage[nounderscore]{syntax}
+\setlength{\grammarparsep}{0.15cm} % vertical distance between production rules
+\setlength{\grammarindent}{4cm}    % horizontal indent distance
+
+% see http://imf.au.dk/system/latex/bog/
+
+\usepackage{subfiles}
