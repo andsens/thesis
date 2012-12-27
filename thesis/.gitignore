@@ -9,6 +9,7 @@
 *.fdb_latexmk
 *.fls
 *.out
+*.brf
 *.synctex.gz
 *.synctex.gz(busy)
 thesis-diff.tex

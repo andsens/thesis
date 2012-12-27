@@ -59,12 +59,13 @@ There are many flavors of HTML we may choose from to allow in our
 mustache-HTML grammar. To simplify our approach we will only allow well
 structured XML tags, this should ostensibly cover most of HTML.
 HTML 5 allows for self-closing tags on void elements, which with our choice is
-not something we can support. We will refer to HTML tags as XML tags,
-since this a restriction like this is a better fit with their behavior.
+not something we can support. We will therefore refer to HTML tags in our
+templates as XML tags.
 
-We will build an abstract syntax tree with Parsec, in order for our tool to be
-able to create DOM paths through this tree. The EBNF in figure
-\ref{fig:mustache-xml.ebnf} represents the structure of the parser in our tool.
+We build an abstract syntax tree with Parsec, in order for our tool to be
+able to create DOM paths through this tree.
+The EBNF in figure \ref{fig:mustache-xml.ebnf} represents the structure our
+parser understands.
 
 \begin{figure}
 	\centering
@@ -122,21 +123,22 @@ Note that the EBNF restricts the types of
 templates our tool can parse.
 
 \begin{itemize}
-\item XML tags must be closed in the same in the same template and section
-      as they are opened
-\item Sections must adhere to the same structure as XML tags
+\item XML tags must be closed in the same template and section as they are opened
+\item Sections must adhere to the same structure as XML tags\footnote{
+      This also means that sections may not interleave, something mustache
+      does not support in any case}.
 \item Variables and section may not exist in the identifier part of an XML tag
       or attribute
 \end{itemize}
 
-These structural restrictions may not be something a user will run into very
-often, but they give our client library very useful guarantees about the
-rendered templates it passes.
+A user may not run into these structural restrictions very often. Regardless,
+they give our client library very useful guarantees about the rendered templates
+it passes. They also allow use to create proper abstract syntax trees for any
+template.
 If XML tags were to be opened outside the scope of a template
-and closed in the template we are parsing,
-there would be no way to determine the location of mustache tags in
-that template without performing complicated cross-references with the template
-that opened these tags.
+and closed in the template we are parsing, there would be no way to determine
+the location of mustache tags in the DOM without performing complicated
+cross-references with the template that opened these tags.
 
 \subsubsection{Character References}
 The EBNF omits character references (e.g. \inline{\&nbsp;}, \inline{\&aring;}).
@@ -164,8 +166,8 @@ of lexeme token parsers are not desirable.
 White spaces in the beginning of an attribute value or after an XML tag can be
 very significant.
 We will need to be sure when a mustache variable begins and ends.
-If that variable is surrounded only by white spaces, our tool will convey
-data to the client, which details that there is in fact no white space.
+If a variable is surrounded only by white spaces, our tool will convey
+data to the client which details that there is in fact no white space.
 Subsequently the client will assume the white spaces recognized in the
 rendered template belong to the value of the variable.
 
@@ -176,7 +178,7 @@ and simply extended it.
 \subsubsection{HXT (Text.XML.HXT)}
 Haskell XML Tools (HXT) is a very advanced XML parser utilizing, amongst other
 Haskell concepts, arrows. It is intended for querying structures the
-tool has already created by parsing the XML. Using it to discover the structure
+tool creates by parsing the XML. Using it to discover the structure
 of documents is not its main purpose. With this tool, we would have to create a
 new structure on top of the existing HXT XML structure.
 
@@ -184,23 +186,25 @@ new structure on top of the existing HXT XML structure.
 XML is an easy-to-use XML library, which exports its data constructors.
 This allows us to pattern match and use deconstruction assignments in our
 functions.
-Mustache tags would have to be recognized by inspecting all strings in the
-structure we receive. Following that, we have to overlay the structure with
-section beginnings and ends, variable locations etc.. These overlay techniques
-would very quickly grow bigger than the 250 lines of code our Parsec parser
-spans now.
+Mustache tags have to be recognized by inspecting all strings in the
+structure we receive. After recognizing the tags, we have to overlay the
+existing XML structure with section beginnings and ends and variable and partial
+locations.
+These overlay techniques would very quickly dwarf the 250 lines of code our
+Parsec parser spans now.
 
 \section{Mustache-XML DOM Paths}
 \label{sec:paths}
 The abstract syntax tree our parser generates bears some resemblance to the
 Document Object Model available in the browser. There is however the addition of
-mustache section nodes and mustache variable leafs.
+mustache section nodes and mustache variable/partial leafs.
 Once the template is rendered, a mustache section will not be visible and the
 contents of that section will be joined with the siblings of said section.
 Similarly, mustache variables output text which will be joined with neighboring
 text nodes. When constructing DOM paths this fact has to be taken into account.
 
 \subsection{Resolver}
+\label{sec:resolver}
 Our tool passes the abstract syntax tree generate by the parser into a resolver.
 The resolver links mustache tags together and analyzes dependencies between
 them by creating ``Resolutions''. These resolutions have fields to point at
@@ -210,8 +214,8 @@ our custom DOM more quickly.
 \subsection{Lists of numbers as paths}
 There are several ways to pinpoint a node in the DOM. CSS-selectors, XPaths and
 DOM API-call chains among them. The first two methods are easily
-readable and writable for humans, a feature we are not interested in, since our
-tool is only to communicate with our client library.
+readable and writable for humans, a feature we are not interested in.
+Our tool is only intended to output information our client library can read.
 We will instead use the third option: DOM API-call chains. However cumbersome
 and counter-intuitive a method like this may seem in other scenarios, it is
 in fact the optimal tool for our purposes: We are never interested in retrieving
@@ -224,25 +228,23 @@ of numbers, descending one node generation with each iteration.
 
 \subsubsection{Children and offsets}
 \label{sec:children-offsets}
-Paths can be divided into two types which we will call children and offsets.
+Paths for our mustache tags can be divided into two types which we will call
+children and offsets.
 
 Offsets are mustache tags whose location is affected by the string length of a
 previous variable value or by the amount of iterations of a previous section.
-
 To determine their location we will have to know the value of these previous
-tags first. These tags may of course also only be offsets, this chain continues
-until we meet a parent section or the beginning of the template.
-The last part in such a chain will always be a child instead of an offset.
+tags first. The tags may of course also only be offsets, therefore this chain
+continues until we meet a parent section or the beginning of the template.
+
 Children are tags with locations in the template that are not affected by
 the value of a previous tag.
-
 When parsing a rendered template in the client library, we will want to parse
 all children first and continue with offsets that depend on those children.
 
 Figure \ref{fig:section.mustache} from chapter \ref{chap:tools}
 illustrates the difference very well, once we add a last list element as
 shown in figure \ref{fig:offsets.mustache}.
-
 \begin{figure}
 	\centering
 	\caption{Offsets in templates}
@@ -260,7 +262,6 @@ shown in figure \ref{fig:offsets.mustache}.
 	</ul>
 	\end{lstlisting}
 \end{figure}
-
 The \inline{\{\{realname\}\}} variable can only be retrieved once we know how
 many times the messages section has iterated (in this case we could also look
 for the last \inline{<li>} element, this is however not an approach that is
@@ -271,19 +272,20 @@ two numbers:
       the closing tag of the \inline{\{\{\#messages\}\}} section.
       Also counting the text node between those tags, we arrive at \emph{1}
 \item The node index of the \inline{\{\{realname\}\}} variable. Although this
-      variable will be merged with the previous text, we still count it as a
-      separate node. We will adjust for this way of counting child nodes in
+      variable will be merged with the previous text, our tool still counts it
+      as a separate node. We will adjust for this way of counting child nodes in
       the client library. Here we also arrive at index \emph{1}
 \end{itemize}
 
 The only detail missing from our new path is the reference to the node we are
-offsetting from. Assuming we number each mustache tag in the template we can
-simply refer to it by that number and prepend it to our path.
+offsetting from. By assigning a number to each mustache tag in the template we
+can refer to it by that number and prepend it to our path.
 
-Child paths are generated in much the same way. If we were to generate a path
-for the \inline{\{\{subject\}\}} variable in the above template, we would
-proceed in the exact same way as with the \inline{\{\{realname\}\}} variable,
-the only difference being its classification as a child instead of an offset.
+Child paths are generated in much the same way. We proceed in the exact same way
+as with the \inline{\{\{realname\}\}} variable, if we were to generate a path
+for the \inline{\{\{subject\}\}} variable in template \ref{fig:offsets.mustache}.
+The only difference lies in the classification of the path as a child instead of
+an offset.
 The advantage we gain by this classification is our ability to distinguish
 whether a variable is located inside or outside the section.
 
@@ -296,15 +298,16 @@ longer possible. Instead we simply remember the text surrounding the variable.
 Using this prefix text our client library can not only find the beginning of a
 variable, but also verify the preceding text. The succeeding text will be
 used as a delimiter, it marks the end of our variable.
-Using this strategy we can parse an arbitrary number of variables in one text
-node, provided a variable does not contain the text of the succeeding text.
+With this strategy we can parse an arbitrary number of variables in one text
+node, provided a variable does not contain the text of the succeeding
+text\footnote{Why we cannot parse in a different way is detailed in chapter
+\ref{chap:eval}}.
 
 \subsection{Other boundaries}
 The previous and next nodes of a variable may also be HTML or mustache tags.
 In the case of an HTML tag, we will simply relay the name of the tag to the
 client library. If the variable is the first or last node, the client library
 will receive a special ``null node'' as the previous or next node respectively.
-
 We will tackle the case of neighboring nodes being mustache tags in chapter
 \ref{chap:eval}.
 
@@ -313,14 +316,20 @@ To detect whether a section is skipped because its value is an empty
 list or false, we let the client library know what the first child of the
 section is.
 This way we can detect if a section in a rendered template begins with the
-first child node or its neighboring next node.
+first child node and has content or begins with its neighboring next node and is
+empty.
 
 \subsection{Content list}
 \label{sec:content-list}
 We accompany each section with a list of child node types. The client library
 shall consult this list to determine the length of each iteration.
-The length of an iteration is constant, if a section only contains normal
-HTML tags as its children. Once we introduce mustache tags, this can change.
+The length of an iteration is constant if a section only contains normal
+HTML tags as its children. Once we introduce mustache tags as children\footnote{
+	Note the important distinction of ``children'' and ``descendants''.
+	A section may contain an XML node with mustache tags inside it.
+	Those do however not affect the \inline{childNodes} list of the parent tag.
+} of the
+section, this changes.
 The length of a subsection will increase the length of a parent section, while
 unescaped variables may do the same.
 In order for us to still reliably determine said length, we also include
@@ -331,7 +340,10 @@ an iteration.
 
 \subsection{Lambda sections}
 Lambda sections and normal mustache sections can not be distinguished.
-For that reason we will simply treat them as sections when parsing templates.
+We also have no way of determining the input to a function by looking at its
+output. For that reason we will simply treat them as sections when parsing
+templates and assume the user is aware when functions are bound to a dataset
+instead of lists.
 
 \subsection{If-else constructs}
 \label{sec:if-else}
@@ -341,17 +353,25 @@ issue by regarding all sections as iterative sections. We return a list of
 entries, regardless of the original dataset structure that was fed in to the
 template rendering engine.
 
+This behavior is also in accordance with the mustache spec:
+\begin{quote}
+	if the data is truthy (e.g. `!!data == true`), use a single-element list
+	containing the data, otherwise use an empty list. \cite[sections.yml]{MSTSPEC}
+\end{quote}
+
 \section{Outputting information}
 \label{sec:output}
-The information we retrieve from our templates is communicated to the client
-library by way of the JSON data format. We generate it by using the JSON library
-available in the ``Hackage'' Haskell library database (Text.JSON).
+We transmit the information our tool retrieves from templates to the client
+library using the JSON data format. Our tool generates the output by using the
+JSON library available in the ``Hackage'' Haskell library database (Text.JSON).
 
-JSON files may contain an array or an object at the top-level. We chose to use
-an array, in which each entry describes a mustache tag. Referencing between
-those tags functions by way of the index in said array (this index is the same
-number we prepend to the paths of tags, see section \ref{sec:children-offsets}).
-We also prepend array with a ``root'' element. It is referred to by mustache
+JSON files may contain an array or an object as the top-level structure.
+We choose to use an array, in which each entry describes a mustache tag.
+Referencing between those tags functions by way of the index\footnote{
+	This index is the same number we prepend to the paths of tags in section
+	\ref{sec:children-offsets}
+} in said array.
+We also prepend a ``root'' section to the array. It is referred to by mustache
 tags that are not located inside a section and are not offset in their location
 by other mustache tags.
 
@@ -364,15 +384,12 @@ by other mustache tags.
 \subsection{Technology choices}
 
 \subsubsection{CoffeeScript}
-We use use CoffeeScript to program our client library. The language allows us to 
+We use CoffeeScript to program our client library. The language allows us to 
 write expressions very tersely, where plain JavaScript would have required
 verbose instructions. This helps us to overview more code at once.
 CoffeeScript constructs like \inline{unless exp}, which translates to
-\inline{if(!exp)}, also help highlight control flow in a better way
-semantically.
-
-\subsubsection{Asynchronous Module Definition}
-Our client library uses the AMD-API to define its modules.
+\inline{if(!exp)}, also help highlight the control flow in a semantically
+better way.
 
 \subsection{Input}
 The client library expects the user to hand it both the rendered template and
@@ -387,9 +404,8 @@ and converted to JavaScript objects.
 \subsection{Representing mustache tags}
 Our architecture for representing mustache tags is a one-to-one representation
 of the possibilities in mustache.
-Each section object holds all of its iterations. The subsection of a section is
-instantiated as many times as the parent section iterates. The same principle
-holds for variables and partials.
+Each section object holds all of its iterations. A section, variable or partial
+in a section is instantiated as many times as the section iterates.
 
 \subsubsection{Offsets}
 Through the whole process, we will maintain two pointers that identify our
@@ -406,7 +422,7 @@ XML node it is located in. This allows us to increase and decrease the
 \inline{nodeOffset} to access neighboring nodes. This would also be possible by
 using the \inline{previousSibling} and \inline{nextSibling} properties,
 mathematical operations like ``the 5th neighbor of the current node'' will
-however grow more complicated.
+however become quite intricate.
 
 The node offset and string offset is maintained separately for each mustache tag
 object. An object is instantiated with those offsets, giving it a position to
@@ -422,15 +438,17 @@ excluding the first entry, which is a mustache tag reference
 \begin{itemize}
 \item Add the current entry to the \inline{nodeOffset}
 \item Break, if this is the last entry
-\item Set the parent node to the childNode index \inline{nodeOffset} of the
-      current parent node
+\item Set the parent node to point at the childNode index \inline{nodeOffset} of
+      the current parent node
 \end{itemize}
 We break in step 2 to let the parent point at the parent of the mustache tag
 instead of the tag it has been replaced with.
 
 If an entry in the iteration is a string instead of an integer, this indicates
 an attribute name. In that case we set the parent node to be the attribute node
-which supports the childNodes property as well.
+the string identifies.
+Attribute nodes support the childNodes property in the same way an element node
+does.
 
 The string offset is reset to 0 once we leave the string context of the
 current text node. This happens when there is an XML tag between the
@@ -448,9 +466,11 @@ Inside an iteration we will also instantiate variables and partials that are
 children of the current section. Any mustache tag located inside a subsection
 will be handled by that section.
 
-We begin by instantiating all mustache tags that are not offsets. Since these
-tags have their location described relative to our section, we can find their
-nodes immediately. Note that we in each section iteration adjust the node offset
+We begin by instantiating all mustache tags that are not offsets. These
+tags have their location described relative to our section, of which we know the
+location. This means that we can determine their location without any other
+dependencies.
+Note that we in each section iteration adjust the node offset
 to point at the node before the first node in the current iteration.
 This ensures that the path following process works correctly.
 
@@ -473,9 +493,10 @@ iteration or terminate the parsing process for this section.
 
 \subsubsection{Parsing partials}
 \label{sec:parsing-partials}
-Partials can be handled in a simple way by simulating the beginning of an
-entirely new template. Provided the partial is enclosed in an XML tag, we can
-restart the parsing process using the matching template information.
+Partials can be handled by simulating the beginning of an entirely new template.
+Provided the partial is enclosed in an XML tag, we can
+restart the parsing process using the matching template information for that
+partial.
 
 \subsection{Joined text nodes}
 \label{sec:joined}
@@ -518,7 +539,8 @@ filtering mechanism.
 
 \subsubsection{Filter}
 Before our pre-parsing tool outputs the template information, it runs the
-resolutions generated by the Resolver through a set of filters.
+resolutions generated by the Resolver\footnote{See \ref{sec:resolver}}
+through a set of filters.
 
 \begin{itemize}
 \item \emph{unescaped\_offset} Check if a any mustache tags use an unescaped
@@ -529,7 +551,7 @@ resolutions generated by the Resolver through a set of filters.
                             of an XML tag. It may not be a child of a section
                             (see chapter \ref{chap:eval}).
 \item \emph{partial\_only\_child} A partial must be the only child of an XML tag
-                                 (see chapter \ref{chap:eval}).
+                                  (see chapter \ref{chap:eval}).
 \item \emph{no\_lookahead} Neighboring nodes and first and last children may not
                            be mustache tags (see chapter \ref{chap:eval}).
 \item \emph{ambiguous\_boundaries} The first child of a section must be
@@ -544,15 +566,17 @@ output.
 
 \subsection{Returning values}
 We save all instantiated sections, variables and partials for every section
-iteration. Once we have parsed a rendered template, we our root section and
-generate a JavaScript array containing an anonymous object per iteration,
-which maps variable names to their parsed values and section names to their
+iteration. Once we have parsed a rendered template, we retrieve our root section
+and generate a JavaScript array containing one anonymous object per iteration.
+The object maps variable names to their parsed values and section names to their
 iterations.
 As noted in section \ref{sec:parsing-partials}, partials are considered
 sections. Since partials in mustache behave as if the template was inlined,
-we merge the contents of the partial section with the contents of
-parent section (partials only have one iteration like the root section).
-
+we merge the contents of the partial section with the contents of the
+parent section\footnote{
+	As detailed in \ref{sec:parsing-partials} we handle partials like new
+	templates, this means they only have one iteration like the root section.
+}
 Unescaped variables will return a list of their nodes as their value.
 Previous and next nodes will be included if they are text nodes.
 

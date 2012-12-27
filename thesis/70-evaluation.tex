@@ -32,6 +32,12 @@
       context.
 \end{itemize}
 
+\subsection{Removal of standalone lines}
+As noted in section \ref{sec:standalone-lines}, mustache removes lines
+containing only a section beginning/end and whitespaces.
+Our pre-parser tool does not take this into account. A modification of
+\emph{mustache-js} was necessary to...
+
 \section{Challenges}
 \begin{itemize}
 \item Unescaped variables can wreak havoc

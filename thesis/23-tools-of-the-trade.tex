@@ -31,11 +31,10 @@ pattern. In the following we will have a look at one such templating language.
 \subsection{Mustache}
 Mustache is a so called "logic-less" template engine.
 This subtitle derives from the fact that there are no advanced control flow
-statements (e.g. if and else statements and while loops with custom variables).
-Instead there are only tags.
+statements. Instead there are only tags.
 Tags in in this context can be understood as an advanced form of placeholders.
-Some tags are replaced with a string, some are replaced with nothing,
-yet others are replace with series of strings or even more tags.
+Some tags are replaced with a string, some are replaced with HTML tags,
+yet others repeat their content multiple times.
 
 Tags are easily recognizable by their delimiters which always start and end with
 two curly braces (e.g. \inline{\{\{identifier\}\}}).
@@ -45,9 +44,11 @@ identifier mapping (i.e. the dataset) is passed to the engine, which returns the
 rendered template.
 
 \subsubsection{Variables}
+\label{sect:mustache-vars}
 Variables in mustache are string placeholders. We can recognize them by their
 two curly braces before and after an identifier (\inline{\{\{identifier\}\}}).
-The template engine replaces these tags the corresponding value in the dataset.
+The template engine replaces these tags with the corresponding value in the
+dataset.
 The identifier in the tag points at a key in the dataset with the same name.
 Normal variables are HTML escaped. The engine outputs an empty string if the
 key is not specified in the dataset.
@@ -56,7 +57,7 @@ An identifier may also point at properties on objects in the dataset. Like many
 other languages the '.' character is used for that purpose.
 
 \subsubsection{Unescaped variables}
-To output strings with unescaped HTML, triple curly braces are used:
+To output strings as unescaped HTML, triple curly braces are used:
 \inline{\{\{\{identifier\}\}\}}. Alternatively an ampersand may be used as well:
 \inline{\{\{\&identifier\}\}}.
 
@@ -64,10 +65,15 @@ To output strings with unescaped HTML, triple curly braces are used:
 Sections in mustache can be considered equivalent to foreach loops in other
 languages. We write them with an open and close tag:
 \inline{\{\{\#identifier\}\}CONTENT\{\{/identifier\}\}}.
-Depending on the dataset-value the identifier points at, a section may also be
+Depending on the dataset value the identifier points at, a section may also be
 behave like an if-block, which is rendered if the value is true. The values that
 are considered true and false depend on the language specific implementation
-of the engine.\
+of the engine.
+\begin{quote}
+	if the data is truthy (e.g. `!!data == true`), use a single-element list
+	containing the data, otherwise use an empty list. \cite[sections.yml]{MSTSPEC}
+\end{quote}
+
 If the value is a list, the contents of the section are rendered once for each
 entry in the list. Once a section is entered, the key-value pairs of the
 corresponding entry are pushed onto the stack of identifiers.\
@@ -115,7 +121,9 @@ to the "nickname" key of the corresponding dataset entry in the list of messages
 If we were to insert a \inline{\{\{messagecount\}\}} tag inside the section,
 the output would be "2" for every iteration.
 
-Some implementations of mustache also allow the key of the current iteration to
+Mustache\footnote{excluding mustache.js, which may have some implementation
+problems, see \url{https://github.com/janl/mustache.js/issues/185}} also allows
+the key of the current iteration to
 be referenced with a "." (see figure \ref{fig:dot-oper.mustache}).
 \begin{figure}
 	\centering
@@ -138,8 +146,8 @@ be referenced with a "." (see figure \ref{fig:dot-oper.mustache}).
 
 \subsubsection{Inverted sections}
 In case a value in the dataset is an empty list or false, we use an inverted
-section to match that case. We simply replace the hash-mark in the opening tag
-of a section with a caret (see figure \ref{fig:inverted.mustache}).
+section to output fallback content. We simply replace the hash-mark in the
+opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
 \begin{figure}
 	\centering
 	\caption{Inverted sections in mustache templates}
@@ -156,7 +164,7 @@ of a section with a caret (see figure \ref{fig:inverted.mustache}).
 
 We can exploit this behavior to create equivalents of if-else blocks.
 Using the above template we can allow users to leave the subject line empty
-and display a message accordingly (figure \ref{fig:ifelse.mustache}).
+and display a message accordingly.
 \begin{figure}
 	\centering
 	\caption{If-else constructs with sections in mustache templates}
@@ -170,11 +178,15 @@ and display a message accordingly (figure \ref{fig:ifelse.mustache}).
 	\end{lstlisting}
 \end{figure}
 
-The \inline{\{\{subject\}\}} variable in the above template could also have been
-replaced with a \inline{\{\{.\}\}}. As mentioned earlier, variables are replaced
-with empty strings if they do not correspond to an entry in the dataset.
+The \inline{\{\{subject\}\}} variable in figure \ref{fig:ifelse.mustache} could
+also have been replaced with a \inline{\{\{.\}\}}.
+As mentioned earlier, variables are replaced with empty strings if
+they do not correspond to an entry in the dataset.
 This fact allows us to shorten the template even further as can be seen in
 figure \ref{fig:emptystr.mustache}.
+We do not need to check if a variable is not the empty string before outputting
+it. The effect of outputting it regardless of its content is the same.
+
 \begin{figure}
 	\centering
 	\caption{Variables output empty strings in mustache, if there is no values in
@@ -188,19 +200,17 @@ figure \ref{fig:emptystr.mustache}.
 	\end{lstlisting}
 \end{figure}
 
-There is no need to check for the existence of the "subject" variable if it is
-replaced by an empty string regardless.
-
 \subsubsection{Lambdas}
 Mustache tags identified by the hash mark may also represent another form of
 placeholder namely the lambda sections. These sections are not iterations, but
-function calls to lambda functions that have been bound to keys in the dataset.
-The functions are called with the contents of section, which are replaced
-with their return value.
+calls to functions that have been bound to keys in the dataset.
+The functions are called with the contents of section as their parameter, the
+output of a lambda section is the return value of the function call.
 
 \subsubsection{Comments}
 A comment in mustache is identified by an exclamation mark:
 \inline{\{\{! This is a comment \}\}}
+The comment tag creates no output.
 
 \subsubsection{Partials}
 Partials allow templates to be split up into smaller parts. Their tags are
@@ -233,7 +243,8 @@ render recursive data-structures
 \subsubsection{Set delimiter}
 Mustache curly braces may clash with delmiters used in other languages,
 such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
-something else.
+something else (see figure \ref{fig:set-delim.mustache}).
+
 \begin{figure}
 	\centering
 	\caption{Usage of set delimiter tags in mustache templates}
@@ -248,9 +259,22 @@ something else.
 	\end{lstlisting}
 \end{figure}
 
+\subsubsection{Removal of standalone lines}
+\label{sec:standalone-lines}
+Mustache removes lines which beyond a section beginning or end contains
+only whitespace (i.e. standalone lines).
+This is done to match the expectation a user may have when writing templates.
+
+The behavior is however not defined clearly:
+\begin{quote}
+	Section and End Section tags SHOULD be treated as standalone when
+	appropriate. \cite[sections.yml]{MSTSPEC}
+\end{quote}
+
 \subsubsection{Mustache specification}
 Documents specifying the exact behavior of mustache can be viewed at
-\url{https://github.com/mustache/spec}. The specification is written in YAML.
+\url{https://github.com/mustache/spec}. The specification is written in YAML to
+allow automated tests of rendering engines.
 
 \subsection{Limitations}
 \todo{fix entire paragraph}

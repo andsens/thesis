@@ -11,20 +11,21 @@ the original dataset passed to the template engine.
 Parsing can be a process that requires a lot of processing power. We do not want
 our tool to slow down the web application every time a new template is rendered
 and the values are retrieved on the client. To minimize the effort required to
-parse a rendered template we try to compile as much information as possible
-about a template before it is rendered. Using this information we should be able
+parse a rendered template we try to compile as much information about a template
+as possible before it is rendered. Using this information we should be able
 to parse a rendered template more quickly.
 This strategy implies a pre-parsing step that outputs data which aids
-the client library in parsing a rendered template. Since this is an operation
+the client library in the parsing process. Since this is an operation
 that only needs to be run before a web application is deployed, we are not
-constrained by the environment the actual web server runs in.
+constrained by the environment the actual web server runs in. The running time
+of our tool +will only a minor concern.
 
 \section{Compiling template information}
-The data that is required for the client library to run, we need
-to be able to parse a mustache template and acquire the necessary information
-from it.
-Analyzing a mustache template we can deduce the following pieces of information
-before the template is rendered.
+We need to be able to parse a mustache template and acquire the necessary
+information to enable the client library to parse a rendered template.
+We analyze the capabilities of the mustache template language and arrive
+at the following pieces of information, which we can deduce before
+the template is rendered.
 
 \begin{itemize}
 \item The location of variables in the document
@@ -38,18 +39,19 @@ before the template is rendered.
 \item The location of comments in the document
 \end{itemize}
 
-Because of the nature of templates we can however not retrieve the following data:
+Because of the nature of mustache templates we can however not retrieve the
+following data:
 
 \begin{itemize}
 \item The contents of variables (including their type, e.g. integer, string)
 \item The number of iterations a section will run
 \item Whether a section is a loop or an if block
       (except in the case of an inverted section)
-\item Whether a section is a lambda or an actual section.
+\item Whether a section is a lambda section or an actual section.
 \item The behavior of a lambda section.
 \item The template a partial points at
-\item Whether an identifier refers to a key in the current section or
-      a parent section
+\item Whether an identifier refers to a key in the current stack level or
+      a to a key in one of the lower stack levels.
 \end{itemize}
 
 The rendered template is in the Document Object Model format, once it has
@@ -65,13 +67,13 @@ div.innerHTML = "<img/>"
 div.innerHTML
 \end{lstlisting}
 
-The last line does not return the string "\ <img/\ >" but "\ <img\ >" instead.
+The last line does not return the string "\ <img/\ >" but "\ <img\ >".
 In Firefox the last line returns "\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >".
 This means that the rendered templates can not be parsed reliably by using the
 \inline{innerHTML} property.
 
 However, no matter which way the browser decides to represent an HTML tag,
-we can still rely on the tag names to be the same
+we can still rely on the ordering of tags and on the names of tags to be the same
 (case sensitivity can be avoided with a simple
 \inline{element.tagName.toLowerCase()} when comparing tag names client side).
 We therefore opt to relate the information about mustache tags to the DOM instead.
@@ -91,14 +93,14 @@ created by our pre-parser.
 By choosing this approach we leave the user with many optimization
 possibilities.
 \begin{itemize}
-\item Gzipping templates and template information statically to optimize
+\item Gzip templates and template information statically to optimize
       server performance.
-\item Prepending template information to the template and subsequently
-      cutting it out again before passing the template to the template
-      engine. This way only one file needs to be handled and transferred.
-\item Using require-js to load templates and their information in parallel
-      while developing, while inlining both templates and template information
-      in to one big javascript file when deploying.
+\item Prepend template information to the template and subsequently
+      cut it out before passing the template to the template engine.
+      This way only one file needs to be handled and transferred.
+\item Use require-js to load templates and their information in parallel
+      while developing and inline both template and template information
+      into one big JavaScript file when deploying.
 \end{itemize}
 
 \section{Alternatives}
@@ -111,7 +113,7 @@ the client library in parsing rendered templates.
 In chapter~\ref{chap:requirements} we touched upon the fact that it was really
 the template engine that discarded the information and only outputted the
 rendered template. We could choose to modify the template engine to output that
-exact information. This poses a rather big challenge however:
+exact information. This poses a rather big challenge:
 For mustache templates there exists no such thing as \emph{the} template engine.
 Currently the mustache website lists mustache engines in 29 different
 programming languages. (https://github.com/defunkt/mustache/wiki/Other-Mustache-implementations \todo{ref})
@@ -122,10 +124,11 @@ This fact makes the goal of such an approach very hard to achieve.
 The user could decorate mustache template tags with specific HTML tags that
 have no effect on the visual layout but can be retrieved by the library.
 This would make the client side code a very lightweight value retriever
-and it would obsolete the pre-parser.
+and it obsoletes the pre-parser.
 
 Apart from simply shifting the workload of locating template variables
-from the viewmodel maintainer to the template maintainer, the task of
-retrofitting existing web applications becomes much greater.
+from the viewmodel maintainer to the template maintainer\footnote{The scenario
+in chapter \ref{chap:requirements} illustrates this point very well},
+the task of retrofitting existing web applications becomes much greater.
 
 \end{document}

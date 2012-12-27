@@ -5,7 +5,7 @@
 \chapter{Demo application}
 \label{chap:demo}
 This chapter describes the workings of an application utilizing Comb.
-It demonstrates the results of parsing a rendered template while.
+It demonstrates the results of parsing a rendered template.
 
 \section{Goal}
 The goal of our application is to showcase the return values of a
@@ -21,17 +21,18 @@ We have converted them into mustache templates.
 \subsection{Rendering a template}
 Once a template is selected, we load it and the corresponding comb file via
 \emph{require-js} (\todo{explain}). The template is then rendered with
-\emph{mustache-js} and an empty dataset in the right part of the view port.
+\emph{mustache-js} (\todo{explain}) and an empty dataset in the right part of the view port.
 
 \subsection{Displaying template information}
 The rendered template is parsed with Comb and its values are retrieved.
 At this point we hold a JavaScript object with many keys but few values,
 because the rendered template contained no section iterations or variable values
 Comb could retrieve. We transform this object into a data structure which is
-compatible with a template (figure \ref{fig:mustache.mustache}) intended for
-viewing these values. The \inline{\{\{>mustache\}\}} tag is invoked for every
-iteration we find in the dataset of the loaded template, it points back at our
-form template, allowing nested sections to be rendered.
+compatible with a template intended for viewing these values
+(figure \ref{fig:mustache.mustache}).
+The \inline{\{\{>mustache\}\}} tag is invoked for every section iterations we
+find in the dataset of the loaded template, it points back at our form template,
+allowing nested sections to be rendered.
 
 \begin{figure}
 	\centering
@@ -55,8 +56,8 @@ So far we only have a form which displays the dataset values of a template that
 was rendered with an empty dataset.
 Since this form was rendered with mustache, we can now make it interactive by
 parsing it with Comb. The buttons in the ``section'' section have
-\inline{data-target} attributes, so that we may bind click event listeners to
-them, by accessing the parent nodes of the ``name'' variables. We can listen
+\inline{data-target} attributes so that we may bind click event listeners to
+them, by using the parent nodes of the ``name'' variables. We can listen
 for changes on the input fields for the escaped variables and text areas for the
 unescaped variables in much the same way.
 
@@ -65,8 +66,8 @@ unescaped variables in much the same way.
 The fields in our form have corresponding entries in the dataset passed to
 the template we loaded in the beginning.
 Note that although we passed an empty dataset to mustache, Comb will return
-section values as empty lists (see \ref{sec:if-else}) and
-variable values as empty strings.
+section values as empty lists (see section \ref{sec:if-else}) and
+variable values as empty strings (see section \ref{sect:mustache-vars}).
 By binding event listeners to our fields we can update the original dataset
 correspondingly. Changes in input fields and text areas trigger a call to the
 \inline{update(text)} function on the original dataset and update the text in the
@@ -75,6 +76,8 @@ right view port.
 Pushing the ``push'' button on a section appends a new entry to the array of the
 original dataset, while the ``pop'' button removes the last entry from said array.
 When we modify the amount of iterations in an array, we re-render the loaded
-template (see \ref{chap:eval}).
+template\footnote{
+	Chapter \ref{chap:eval} explains this necessity in more detail.
+}.
 
 \end{document}
