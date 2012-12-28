@@ -1,0 +1,6 @@
+[submodule "Comb"]
+	path = Comb
+	url = git@github.com:andsens/Comb
+[submodule "prototype"]
+	path = prototype
+	url = git@github.com:andsens/thesis-prototype
