@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{"path": "proof_of_concept"},
+		{"path": "seconditeration"},
+		{"path": "thesis",
+			"file_exclude_patterns": [
+				"*.aux",
+				"*.fdb_latexmk",
+				"*.fls",
+				"*.log",
+				"*.pdf",
+				"*.synctex.gz",
+				"*.synctex.gz(busy)",
+				"*.brf",
+				"*.toc",
+				"*.blg",
+				"*.bbl",
+				"*.out"
+			]
+		}
+	],
+	"build_systems": [
+		{"cmd": ["latexmk",
+			"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+			"-silent",
+			"-f", "-pdf"],
+		"selector": "source.tex",
+		"osx": {"path": "/bin/:/usr/bin/:/usr/texbin/:/usr/local/bin"}
+	}]
+}
