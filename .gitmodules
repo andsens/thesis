@@ -1,6 +1,6 @@
-[submodule "proof_of_concept"]
-	path = proof_of_concept
-	url = git@github.com:andsens/thesis-proofofconcept.git
-[submodule "seconditeration"]
-	path = seconditeration
-	url = git@github.com:andsens/thesis-seconditeration
+[submodule "prototype"]
+	path = prototype
+	url = git@github.com:andsens/thesis-prototype
+[submodule "Comb"]
+	path = Comb
+	url = git@github.com:andsens/Comb
