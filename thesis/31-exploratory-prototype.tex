@@ -2,11 +2,12 @@
 \documentclass[thesis.tex]{subfiles} 
 \begin{document}
 
-\chapter{First iteration - The initial prototype}
+\chapter{An exploratory prototype}
 \label{chap:first}
 First we make a rudimentary prototype. It is an exploratory prototype,
-meaning none of its code is intended to be carried over into the next iteration.
-The initial prototype is an interactive application for maintaining a movie
+meaning none of its code is intended to be carried over into the final
+implementation.
+The prototype is an interactive application for maintaining a movie
 library. Movie details can be edited and actors can be added to that library.
 It is not very useful in practice, but serves to make the basic idea more
 concrete in the following ways:
@@ -27,9 +28,8 @@ concrete in the following ways:
 	\item \emph{Discover additional requirements}\\
 	The implementation of a movie library allows for practical challenges to
 	arise, which might not have been discovered if we implemented such an
-	application at the conclusion of the project. The advantage in the
-	first iteration is our ability to course correct in subsequent iterations,
-	if such errors should occur.
+	application at the conclusion of the project. This is one of the advantages
+	of beginning a project with an exploratory prototype.
 \end{itemize}
 
 \section{Architecture}
@@ -75,11 +75,9 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 
 \begin{figure}
 	\centering
-	\caption{
-		The file \inline{movie.view.tpl}.
-		A template in the initial prototype.}
-	\label{fig:movie.view.tpl}
 	\lstinputlisting[language=HTML]{../proof_of_concept/view/types/movie.view.tpl}
+	\caption{The file \inline{movie.view.tpl}. A template in the initial prototype.}
+	\label{fig:movie.view.tpl}
 \end{figure}
 
 \begin{itemize}
@@ -229,7 +227,7 @@ This is necessary because XPath is not an exact query language.
 	text nodes.
 \end{itemize}
 
-\section{Results - Plans for next iteration}
+\section{Results}
 \label{sec:first:results}
 In the introduction of this chapter we listed some motivations for making
 this prototype.
@@ -249,8 +247,8 @@ this prototype.
 	We not only mapped fields of models that aggregated another single model,
 	but also collections of models. We solved this challenge in the prototype,
 	by simply iterating through the nodes and adding them to
-	a backbone collection. This method will need to be refined in the following
-	iteration.
+	a backbone collection. This method will need to be refined in the final
+	implementation.
 	We also discovered another major requirement, which we elaborate upon in more
 	detail in the following paragraph.
 \end{itemize}
@@ -258,8 +256,8 @@ this prototype.
 The function \inline{getComplexType()} illustrates, that we will need some form
 of mapping between ViewModels and templates.
 It will be tedious and error prone for the developer to create those mappings
-by hand. A process, which automates the coupling of the ViewModels with
-server-side templates will be needed in the next iteration.
+by hand. We will need a process, which automates the coupling of the ViewModels
+with server-side templates.
 
 While developing this application various libraries have been examined for their
 viability. backbone.js has in this case proven itself to be a very good fit.

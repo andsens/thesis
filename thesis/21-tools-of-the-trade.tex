@@ -83,8 +83,6 @@ Consider the example in figures \ref{fig:section-example}.
 	\caption{An example of a mustache section}
 	\label{fig:section-example}
 	\begin{subfigure}{\textwidth}
-		\caption{Dataset}
-		\label{fig:section-example.json}
 		\begin{lstlisting}[language=JSON]
 { nickname: "andsens"
   messagecount: 2
@@ -96,11 +94,11 @@ Consider the example in figures \ref{fig:section-example}.
   ]
 }
 		\end{lstlisting}
+		\caption{Dataset}
+		\label{fig:section-example.json}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Template}
-		\label{fig:section-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <p>
 	Hello {{nickname}},<br/>
@@ -112,11 +110,11 @@ Consider the example in figures \ref{fig:section-example}.
 	{{/messages}}
 </ul>
 		\end{lstlisting}
+		\caption{Template}
+		\label{fig:section-example.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Result}
-		\label{fig:section-example.html}
 		\begin{lstlisting}[language=HTML]
 <p>
 	Hello andsens,<br/>
@@ -127,6 +125,8 @@ Consider the example in figures \ref{fig:section-example}.
 	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 </ul>
 		\end{lstlisting}
+		\caption{Result}
+		\label{fig:section-example.html}
 	\end{subfigure}
 \end{figure}
 Here the placeholder "nickname" is used in two different contexts.
@@ -145,17 +145,15 @@ operator, as can be seen in figure \ref{fig:dot-oper-example}.
 	\caption{Mustache template using the ``.'' variable}
 	\label{fig:dot-oper-example}
 	\begin{subfigure}{\textwidth}
-		\caption{Dataset}
-		\label{fig:dot-oper-example.json}
 		\begin{lstlisting}[language=JSON]
 ["How did the presentation go? from carl",
 "Welcome to Messageservice Inc. from Messageservice Inc."]
 		\end{lstlisting}
+		\caption{Dataset}
+		\label{fig:dot-oper-example.json}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Template}
-		\label{fig:dot-oper-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#messages}}
@@ -163,17 +161,19 @@ operator, as can be seen in figure \ref{fig:dot-oper-example}.
 	{{/messages}}
 </ul>
 		\end{lstlisting}
+		\caption{Template}
+		\label{fig:dot-oper-example.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Result}
-		\label{fig:dot-oper-example.html}
 		\begin{lstlisting}[language=HTML]
 <ul>
 	<li>How did the presentation go? from carl</li>
 	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 </ul>
 		\end{lstlisting}
+		\caption{Result}
+		\label{fig:dot-oper-example.html}
 	\end{subfigure}
 \end{figure}
 
@@ -183,8 +183,6 @@ section to output fallback content. We simply replace the hash-mark in the
 opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
 \begin{figure}
 	\centering
-	\caption{Inverted sections in mustache templates}
-	\label{fig:inverted.mustache}
 	\begin{lstlisting}[language=mustache]
 {{#messages}}
 <li>{{subject}} from {{nickname}}</li>
@@ -193,6 +191,8 @@ opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
 <li>You have no messages</li>
 {{/messages}}
 	\end{lstlisting}
+	\caption{Inverted sections in mustache templates}
+	\label{fig:inverted.mustache}
 \end{figure}
 
 We can exploit this behavior to create equivalents of if-else blocks.
@@ -201,8 +201,6 @@ and display a message accordingly, figure \ref{fig:ifelse.mustache} illustrates
 this method.
 \begin{figure}
 	\centering
-	\caption{If-else constructs with sections in mustache templates}
-	\label{fig:ifelse.mustache}
 	\begin{lstlisting}[language=mustache]
 <li>
 	{{#subject}}{{subject}}{{/subject}}
@@ -210,6 +208,8 @@ this method.
 	from {{nickname}}
 </li>
 	\end{lstlisting}
+	\caption{If-else constructs with sections in mustache templates}
+	\label{fig:ifelse.mustache}
 \end{figure}
 
 We can also access the message subject by using \inline{\{\{.\}\}},
@@ -220,8 +220,6 @@ since values that are not lists are converted into lists by mustache\footnote{
 
 \begin{figure}
 	\centering
-	\caption{Using the dot variable on strings}
-	\label{fig:dot-oper2.mustache}
 	\begin{lstlisting}[language=mustache]
 <li>
 	{{#subject}}{{.}}{{/subject}}
@@ -229,6 +227,8 @@ since values that are not lists are converted into lists by mustache\footnote{
 	from {{nickname}}
 </li>
 	\end{lstlisting}
+	\caption{Using the dot variable on strings}
+	\label{fig:dot-oper2.mustache}
 \end{figure}
 
 As mentioned earlier, variables are replaced with empty strings if
@@ -240,14 +240,14 @@ it. The effect of outputting it regardless of its content is the same.
 
 \begin{figure}
 	\centering
-	\caption{Variables output empty strings in mustache, if there is no values in the dataset for them}
-	\label{fig:emptystr.mustache}
 	\begin{lstlisting}[language=mustache]
 <li>
 	{{subject}}{{^subject}}(No subject){{/subject}}
 	from {{nickname}}
 </li>
 	\end{lstlisting}
+	\caption{Variables output empty strings in mustache, if there is no values in the dataset for them}
+	\label{fig:emptystr.mustache}
 \end{figure}
 
 \subsubsection{Lambdas}
@@ -265,8 +265,6 @@ to the key ``reldate''.
 	\caption{An example of lambda sections in mustache templates}
 	\label{fig:lambda-example}
 	\begin{subfigure}{\textwidth}
-		\caption{Data}
-		\label{fig:lambda-example.data}
 		\begin{lstlisting}[language=JSON]
 { reldate: function(text) {
   	return 'some time ago';
@@ -281,11 +279,11 @@ to the key ``reldate''.
   ]
 }
 		\end{lstlisting}
+		\caption{Data}
+		\label{fig:lambda-example.data}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Template}
-		\label{fig:lambda-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#messages}}
@@ -293,17 +291,19 @@ to the key ``reldate''.
 	{{/messages}}
 </ul>
 		\end{lstlisting}
+		\caption{Template}
+		\label{fig:lambda-example.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Result}
-		\label{fig:lambda-example.html}
 		\begin{lstlisting}[language=HTML]
 <ul>
 	<li>How did the presentation go? from carl sent some time ago</li>
 	<li>A disturbance in the force, I felt... from Yoda sent some time ago</li>
 </ul>
 		\end{lstlisting}
+		\caption{Result}
+		\label{fig:lambda-example.html}
 	\end{subfigure}
 \end{figure}
 
@@ -328,8 +328,6 @@ render recursive data-structures. For example the template in figure
 	\caption{Mustache templates can be recursive by utilizing partial tags}
 	\label{fig:partial-example}
 	\begin{subfigure}{\textwidth}
-		\caption{Data}
-		\label{fig:partial-example.data}
 		\begin{lstlisting}[language=JSON]
 { directories: [{
 		name: "bin",
@@ -346,11 +344,11 @@ render recursive data-structures. For example the template in figure
 	}]
 }
 		\end{lstlisting}
+		\caption{Data}
+		\label{fig:partial-example.data}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Template, the partial named ``filesystem'' points at this template}
-		\label{fig:partial-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#directories}}
@@ -361,11 +359,11 @@ render recursive data-structures. For example the template in figure
 	{{/files}}
 </ul>
 		\end{lstlisting}
+		\caption{Template, the partial named ``filesystem'' points at this template}
+		\label{fig:partial-example.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
-		\caption{Resulting filesystem list\footnote{The indentations may be incorrect}}
-		\label{fig:partial-example.html}
 		\begin{lstlisting}[language=HTML]
 <ul>
 	<li>bin/:
@@ -387,6 +385,8 @@ render recursive data-structures. For example the template in figure
 	</li>
 </ul>
 		\end{lstlisting}
+		\caption{Resulting filesystem list\footnote{The indentations may be incorrect}}
+		\label{fig:partial-example.html}
 	\end{subfigure}
 \end{figure}
 
@@ -400,8 +400,6 @@ normal mustache tags again.
 
 \begin{figure}
 	\centering
-	\caption{Usage of set delimiter tags in mustache templates}
-	\label{fig:set-delim.mustache}
 	\begin{lstlisting}[language=HTML]
 Subject: {{subject}}
 {{=<? ?>=}}
@@ -411,6 +409,8 @@ Curly braces (and text): {{ This will be normal text enclosed by curly braces }}
 No output: {{undefined_variable}}
 PHP tags: PHP begins with "<?" and ends with "?>"
 	\end{lstlisting}
+	\caption{Usage of set delimiter tags in mustache templates}
+	\label{fig:set-delim.mustache}
 \end{figure}
 
 \subsubsection{Removal of standalone lines}

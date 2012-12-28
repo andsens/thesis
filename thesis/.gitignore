@@ -5,7 +5,6 @@
 *.log
 *.toc
 *.ps
-*.pdf
 *.fdb_latexmk
 *.fls
 *.out

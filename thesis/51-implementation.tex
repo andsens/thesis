@@ -2,7 +2,7 @@
 \documentclass[thesis.tex]{subfiles} 
 \begin{document}
 
-\chapter{Second iteration - Implementation}
+\chapter{Implementation}
 \label{chap:impl}
 
 In this chapter we will walk through the implementation of the pre-parsing tool
@@ -25,8 +25,6 @@ The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
 
 \begin{figure}
 	\centering
-	\caption{Mustache EBNF}
-	\label{fig:mustache.ebnf}
 	\setlength{\grammarindent}{3.5cm}
 	\begin{grammar}
 <variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
@@ -49,6 +47,8 @@ The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
 
 <content> ::= <tag\_or\_char>*
 	\end{grammar}
+	\caption{Mustache EBNF}
+	\label{fig:mustache.ebnf}
 \end{figure}
 
 \subsection{Mustache-XML EBNF}
@@ -70,8 +70,6 @@ parser understands.
 
 \begin{figure}
 	\centering
-	\caption{Mustache-XML EBNF}
-	\label{fig:mustache-xml.ebnf}
 	\setlength{\grammarindent}{4.2cm}
 	\begin{grammar}
 <variable> ::= `{{{' <ident> `}}}' | `{{&' <ident> `}}' | `{{' <ident> `}}'
@@ -107,6 +105,8 @@ parser understands.
 
 <content> ::= <template\_content>*
 	\end{grammar}
+	\caption{Mustache-XML EBNF}
+	\label{fig:mustache-xml.ebnf}
 \end{figure}
 
 The mustache comment tag has been left out in this grammar, since it does not
@@ -247,8 +247,6 @@ illustrates the difference very well, once we add a last list element as
 shown in figure \ref{fig:offsets.mustache}.
 \begin{figure}
 	\centering
-	\caption{Offsets in templates}
-	\label{fig:offsets.mustache}
 	\begin{lstlisting}[language=HTML]
 	<p>
 		Hello {{nickname}},<br/>
@@ -261,6 +259,8 @@ shown in figure \ref{fig:offsets.mustache}.
 		<li>That's all {{realname}}</li>
 	</ul>
 	\end{lstlisting}
+	\caption{Offsets in templates}
+	\label{fig:offsets.mustache}
 \end{figure}
 The \inline{\{\{realname\}\}} variable can only be retrieved once we know how
 many times the messages section has iterated (in this case we could also look

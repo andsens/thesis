@@ -5,10 +5,10 @@
 \chapter{Revised Requirements}
 \label{chap:revised}
 In this chapter we will analyze which parts of our exploratory prototype we can
-utilize in our next iteration. To that end we will examine every tool used and
+utilize in our implementation. To that end we will examine every tool used and
 arrive at a subset of these tools, which we will complement with a fresh set of
-parts. Our goal is to have a plan laid out for the next iteration at the end of
-this chapter.
+parts. Our goal is to have a plan laid out for the final architecture at the end
+of this chapter.
 
 The prototype featured a large amount of moving parts that were constructed for
 the occasion. Among others this includes our templates, that were not mustache
@@ -19,8 +19,7 @@ example of an ad-hoc constructed tool.
 These parts bring with them their own set of problems and bugs.
 Since they are custom developed in a limited time frame they will have coding
 errors other seasoned related tools do not have.
-Seeing how the last iteration resulted in a prototype,
-we decided to develop these tools regardless,
+We decided to develop these tools for our prototype regardless,
 because evaluating alternatives that would fit the purpose precisely
 would have taken up more time.
 This is however not a sound strategy going forward, assuming we have the goal to
@@ -76,8 +75,7 @@ As a consequence, the template engine (mustache), will of course need to be
 able to interface with that language. For the prototype we omitted these
 templates and wrote them directly in PHP instead.
 
-Our plan however is to write the server-side templates in mustache in the next
-iteration.
+Our plan however is to write the server-side templates in mustache.
 Locating placeholders in these templates and outputting their location
 is the solution we proposed in the beginning of this thesis to the problem
 we identified with server side templates.
@@ -134,7 +132,7 @@ process of utilizing the placeholder data.
 
 \subsection{The consequences of our simplification}
 
-Let us summarize what these changes mean for our next iteration.
+Let us summarize what these changes mean for our final architecture.
 
 We have kept quite a few client libraries and those we deemed non-essential were
 only discounted to reduce complexity.
@@ -145,9 +143,9 @@ We deemed the ORM and the database backing inconsequential to our tool, although
 many fully fledged web applications of course can not function without it.
 
 These reductions leave us with a clear picture of which tools we carry over into
-the next iteration.
+the implementation of our project.
 On the server-side we will only need the mustache template engine
-and our parser, which we will create in the next iteration.
+and our parser.
 On the client-side we have a collection of libraries that when combined gives us
 part of the architecture that will allow us to utilize the information generated
 by the server.
@@ -214,12 +212,12 @@ automatically. The developer should not be required to interact with the
 selectors.
 
 \subsection{Data types}
-In the first iteration we not only retrieved the values located in the DOM but
-also specified what types these values were. In fact, retrieving data from the
-DOM and mapping data fields to types are two very different processes. We will
-not try to map data to types or Models in the next iteration, it would exceed
-the scope of our tool and expose the user to a layer of abstraction that may not
-be desired.
+In the exploratory prototype we not only retrieved the values located in the DOM
+but also specified what types these values were. In fact, retrieving data from
+the DOM and mapping data fields to types are two very different processes.
+We will not try to map data to types or Models in our implementation,
+it would exceed the scope of our tool and expose the user to a layer of
+abstraction that may not be desired.
 
 In section \ref{sec:first:results} of chapter \ref{chap:first} we
 recognized the need for knowing the types of data.
