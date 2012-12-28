@@ -1,15 +1,22 @@
 % \def\print{}
+\def\computer{}
+% \def\ebook{}
 
 \ifdefined\print
 	% Two sided document for left and right pages - different margins
 	\documentclass[twoside,11pt,openright,a4paper]{report}
-\else
+\fi
+\ifdefined\computer
 	% One sided document for digital version, chapters do not start on new pages
-	\documentclass[oneside,11pt,a4paper]{report}
+	\documentclass[oneside,11pt,openany,a4paper]{report}
+\fi
+\ifdefined\ebook
+	% One sided document for digital version, chapters do not start on new pages
+	\documentclass[oneside,11pt,openany]{report}
 \fi
 
 \usepackage{thesis}
-
+% hyperref: pdfauthor={AUTHOR},pdftitle={TITLE}
 \pagestyle{plain}
 
 \begin{document}

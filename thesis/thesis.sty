@@ -13,6 +13,34 @@
 \usepackage{datetime}
 \usepackage{tocbibind}
 
+% Set geometry for different versions
+\ifdefined\print
+	\usepackage[a4paper]{geometry}
+\fi
+\ifdefined\computer
+	\usepackage[a4paper]{geometry}
+\fi
+\ifdefined\ebook
+	\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
+	\setlength{\parskip}{2pt}
+
+	\usepackage{fourier-orns}
+	\newcommand\textbreak{%
+		\begin{center}%
+		\decothreeleft \aldineleft \decosix \aldineright \decothreeright%
+		\end{center}}
+	
+	\sloppy
+	% Use french spacing standards 
+	\frenchspacing
+	
+	% Allow breaking of figures
+	\renewenvironment{figure}[1][]{%
+		\def\@captype{figure}%
+		\par\nobreak\begin{center}\nobreak}
+		{\par\nobreak\end{center}}
+\fi
+
 % See what the page layout is, with margins etc.
 \usepackage{layout}
 
@@ -23,8 +51,6 @@
 
 % URLs
 \usepackage{url}
-
-\usepackage[a4paper]{geometry}
 
 % Colors
 \usepackage{color,xcolor}
@@ -42,6 +68,7 @@
 \usepackage{listings}
 
 \lstset{
+	basicstyle=\ttfamily,
 	numberstyle=\tiny\color{gray},
 	numbers=left,
 	showspaces=false,
@@ -54,11 +81,9 @@
 
 \ifdefined\print
 	% Grayscale code boxes for print
-	\lstset{
-		basicstyle=\ttfamily,
-	}
-\else
-	% Colored code boxes for digital
+\fi
+\ifdefined\computer
+	% Colored code boxes for computer
 	\lstset{
 		basicstyle=\ttfamily\color{solarized-base00},
 		keywordstyle=\color{solarized-base02},
@@ -66,6 +91,9 @@
 		stringstyle=\color{solarized-green},
 		backgroundcolor=\color{solarized-base3},
 	}
+\fi
+\ifdefined\ebook
+	% Grayscale code boxes for ebook
 \fi
 
 \def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
