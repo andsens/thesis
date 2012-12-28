@@ -52,12 +52,13 @@ The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
 \end{figure}
 
 \subsection{Mustache-XML EBNF}
-We want our parser to not only be able to understand mustache grammar, but also
-HTML grammar intermingled with it.
+We want our parser to not only be able to understand mustache, but also HTML
+intermingled with it. As such we extend our mustache grammar to incorporate
+HTML as well.
 
 There are many flavors of HTML we may choose from to allow in our
-mustache-HTML grammar. To simplify our approach we will only allow well
-structured XML tags, this should ostensibly cover most of HTML.
+combined mustache-HTML grammar. To simplify our approach we will only allow well
+structured XML tags, as this should ostensibly cover most of HTML.
 HTML 5 allows for self-closing tags on void elements, which with our choice is
 not something we can support. We will therefore refer to HTML tags in our
 templates as XML tags.
@@ -123,17 +124,17 @@ Note that the EBNF restricts the types of
 templates our tool can parse.
 
 \begin{itemize}
-\item XML tags must be closed in the same template and section as they are opened
+\item XML tags must be closed in the same template and section as they are opened.
 \item Sections must adhere to the same structure as XML tags\footnote{
       This also means that sections may not interleave, something mustache
       does not support in any case}.
 \item Variables and section may not exist in the identifier part of an XML tag
-      or attribute
+      or attribute.
 \end{itemize}
 
 A user may not run into these structural restrictions very often. Regardless,
 they give our client library very useful guarantees about the rendered templates
-it passes. They also allow use to create proper abstract syntax trees for any
+it parses. They also allow us to create proper abstract syntax trees for any
 template.
 If XML tags were to be opened outside the scope of a template
 and closed in the template we are parsing, there would be no way to determine
@@ -147,9 +148,8 @@ returned in their interpreted form. This forces our tool to also be able to
 understand character references. To that end we simply scan any text we have
 recognized between tags for ampersands, all characters from that point on until
 a semicolon is found are passed to the \inline{lookupEntity} function available
-in the TagSoup library (\todo{Ref to Text.HTML.TagSoup.Entity}). The
-\inline{lookupEntity} function converts XML character references to UTF-8
-characters.
+in the TagSoup library (\todo{Ref to Text.HTML.TagSoup.Entity}), which converts
+XML character references to UTF-8 characters.
 
 \subsubsection{Lexeme token parsers}
 Parsec can create token parsers given a configuration with definitions of
@@ -184,13 +184,13 @@ new structure on top of the existing HXT XML structure.
 
 \subsubsection{XML (Text.XML.Light)}
 XML is an easy-to-use XML library, which exports its data constructors.
-This allows us to pattern match and use deconstruction assignments in our
-functions.
+This allows our functions to pattern match the data records the library has
+created.
 Mustache tags have to be recognized by inspecting all strings in the
 structure we receive. After recognizing the tags, we have to overlay the
 existing XML structure with section beginnings and ends and variable and partial
 locations.
-These overlay techniques would very quickly dwarf the 250 lines of code our
+These overlay techniques would quickly outnumber the 250 lines of code our
 Parsec parser spans now.
 
 \section{Mustache-XML DOM Paths}
@@ -352,12 +352,11 @@ distinguish from normal sections, which iterate over a list. We tackle this
 issue by regarding all sections as iterative sections. We return a list of
 entries, regardless of the original dataset structure that was fed in to the
 template rendering engine.
-
 This behavior is also in accordance with the mustache spec:
-\begin{quote}
+\begin{citequote}{\cite[sections.yml]{MSTSPEC}}
 	if the data is truthy (e.g. `!!data == true`), use a single-element list
-	containing the data, otherwise use an empty list. \cite[sections.yml]{MSTSPEC}
-\end{quote}
+	containing the data, otherwise use an empty list.
+\end{citequote}
 
 \section{Outputting information}
 \label{sec:output}

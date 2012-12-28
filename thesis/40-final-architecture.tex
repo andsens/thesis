@@ -16,9 +16,8 @@ as possible before it is rendered. Using this information we should be able
 to parse a rendered template more quickly.
 This strategy implies a pre-parsing step that outputs data which aids
 the client library in the parsing process. Since this is an operation
-that only needs to be run before a web application is deployed, we are not
-constrained by the environment the actual web server runs in. The running time
-of our tool +will only a minor concern.
+that only needs to be run once before a web application is deployed, we are not
+constrained by the environment the actual web server runs in.
 
 \section{Compiling template information}
 We need to be able to parse a mustache template and acquire the necessary
@@ -48,10 +47,10 @@ following data:
 \item Whether a section is a loop or an if block
       (except in the case of an inverted section)
 \item Whether a section is a lambda section or an actual section.
-\item The behavior of a lambda section.
+\item The behavior of a lambda section
 \item The template a partial points at
 \item Whether an identifier refers to a key in the current stack level or
-      a to a key in one of the lower stack levels.
+      to a key in one of the lower stack levels
 \end{itemize}
 
 The rendered template is in the Document Object Model format, once it has
@@ -69,7 +68,7 @@ div.innerHTML
 
 The last line does not return the string "\ <img/\ >" but "\ <img\ >".
 In Firefox the last line returns "\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >".
-This means that the rendered templates can not be parsed reliably by using the
+This means that the rendered templates cannot be parsed reliably by using the
 \inline{innerHTML} property.
 
 However, no matter which way the browser decides to represent an HTML tag,
@@ -99,8 +98,8 @@ possibilities.
       cut it out before passing the template to the template engine.
       This way only one file needs to be handled and transferred.
 \item Use require-js to load templates and their information in parallel
-      while developing and inline both template and template information
-      into one big JavaScript file when deploying.
+      while developing and subsequently inline both template and
+      template information into one big JavaScript file when deploying.
 \end{itemize}
 
 \section{Alternatives}
@@ -124,11 +123,11 @@ This fact makes the goal of such an approach very hard to achieve.
 The user could decorate mustache template tags with specific HTML tags that
 have no effect on the visual layout but can be retrieved by the library.
 This would make the client side code a very lightweight value retriever
-and it obsoletes the pre-parser.
+thereby obsoleting the pre-parser.
 
 Apart from simply shifting the workload of locating template variables
 from the viewmodel maintainer to the template maintainer\footnote{The scenario
-in chapter \ref{chap:requirements} illustrates this point very well},
+in chapter \ref{chap:requirements} illustrates this point},
 the task of retrofitting existing web applications becomes much greater.
 
 \end{document}
