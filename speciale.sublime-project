@@ -1,7 +1,7 @@
 {
 	"folders": [
-		{"path": "proof_of_concept"},
-		{"path": "seconditeration"},
+		{"path": "prototype"},
+		{"path": "Comb"},
 		{"path": "thesis",
 			"file_exclude_patterns": [
 				"*.aux",
