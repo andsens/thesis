@@ -32,10 +32,9 @@ pattern. In the following we will have a look at one such templating language.
 Mustache is a so called "logic-less" template engine.
 This subtitle derives from the fact that there are no advanced control flow
 statements. Instead there are only tags.
-Tags in in this context can be understood as an advanced form of placeholders.
+Tags in this context can be understood as an advanced form of placeholders.
 Some tags are replaced with a string, some are replaced with HTML tags,
 yet others repeat their content multiple times.
-
 Tags are easily recognizable by their delimiters which always start and end with
 two curly braces (e.g. \inline{\{\{identifier\}\}}).
 
@@ -54,7 +53,7 @@ Normal variables are HTML escaped. The engine outputs an empty string if the
 key is not specified in the dataset.
 
 An identifier may also point at properties on objects in the dataset. Like many
-other languages the '.' character is used for that purpose.
+other languages the '.' character is used to access those properties (e.g. \inline{\{\{object.field\}\}}).
 
 \subsubsection{Unescaped variables}
 To output strings as unescaped HTML, triple curly braces are used:
@@ -69,50 +68,66 @@ Depending on the dataset value the identifier points at, a section may also be
 behave like an if-block, which is rendered if the value is true. The values that
 are considered true and false depend on the language specific implementation
 of the engine.
-\begin{quote}
-	if the data is truthy (e.g. `!!data == true`), use a single-element list
-	containing the data, otherwise use an empty list. \cite[sections.yml]{MSTSPEC}
-\end{quote}
-
-If the value is a list, the contents of the section are rendered once for each
+\begin{citequote}{\cite[sections.yml]{MSTSPEC}}
+	If the data is not of a list type, it is coerced into a list as follows: if
+	the data is truthy (e.g. `!!data == true`), use a single-element list
+	containing the data, otherwise use an empty list.
+\end{citequote}
+If the value is a list, the content of the section is rendered once for each
 entry in the list. Once a section is entered, the key-value pairs of the
 corresponding entry are pushed onto the stack of identifiers.\
-Consider the example in figure \ref{fig:section.mustache}.
+Consider the example in figures \ref{fig:section-example}.
+
 \begin{figure}
 	\centering
 	\caption{An example of a mustache section}
-	\label{fig:section.mustache}
-	\begin{lstlisting}[language=HTML]
-| Template |
+	\label{fig:section-example}
+	\begin{subfigure}{\textwidth}
+		\caption{Dataset}
+		\label{fig:section-example.json}
+		\begin{lstlisting}[language=JSON]
+{ nickname: "andsens"
+  messagecount: 2
+  messages: [
+  	{subject: "How did the presentation go?",
+  	 nickname: "carl"},
+  	{subject: "Welcome to Messageservice Inc.",
+  	 nickname: "Messageservice Inc."}
+  ]
+}
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:section-example.mustache}
+		\begin{lstlisting}[language=mustache]
 <p>
 	Hello {{nickname}},<br/>
 	you have {{messagecount}} new messages:
 </p>
 <ul>
-	{{#messages}}
+	{{\#messages}}
 	<li>{{subject}} from {{nickname}}</li>
 	{{/messages}}
 </ul>
-| Dataset |
- nickname: "andsens"
- messagecount: 2
- messages:
- 	0:
- 		subject: "How did the presentation go?"
- 		nickname: "carl"
- 	1:
- 		subject: "Welcome to Messageservice Inc."
- 		nickname: "Messageservice Inc."
-	| Result |
-	<p>
-		Hello andsens,<br/>
-		you have 2 new messages:
-	</p>
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:section-example.html}
+		\begin{lstlisting}[language=HTML]
+<p>
+	Hello andsens,<br/>
+	you have 2 new messages:
+</p>
 <ul>
 	<li>How did the presentation go? from carl</li>
 	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 </ul>
-	\end{lstlisting}
+		\end{lstlisting}
+	\end{subfigure}
 \end{figure}
 Here the placeholder "nickname" is used in two different contexts.
 The first usage occurs while the identifier stack is only one level high.
@@ -123,25 +138,43 @@ the output would be "2" for every iteration.
 
 Mustache\footnote{excluding mustache.js, which may have some implementation
 problems, see \url{https://github.com/janl/mustache.js/issues/185}} also allows
-the key of the current iteration to
-be referenced with a "." (see figure \ref{fig:dot-oper.mustache}).
+the current item in a list iteration to be referenced with a special ``dot''
+operator, as can be seen in figure \ref{fig:dot-oper-example}.
 \begin{figure}
 	\centering
-	\caption{Mustache template using the `.' variable}
-	\label{fig:dot-oper.mustache}
-	\begin{lstlisting}[language=HTML]
-| Template |
+	\caption{Mustache template using the ``.'' variable}
+	\label{fig:dot-oper-example}
+	\begin{subfigure}{\textwidth}
+		\caption{Dataset}
+		\label{fig:dot-oper-example.json}
+		\begin{lstlisting}[language=JSON]
+["How did the presentation go? from carl",
+"Welcome to Messageservice Inc. from Messageservice Inc."]
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:dot-oper-example.mustache}
+		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#messages}}
-	<li>Message {{.}}: {{subject}} from {{nickname}}</li>
+	<li>{{.}}</li>
 	{{/messages}}
 </ul>
-| Result |
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:dot-oper-example.html}
+		\begin{lstlisting}[language=HTML]
 <ul>
-	<li>Message 0: How did the presentation go? from carl</li>
-	<li>Message 1: Welcome to Messageservice Inc. from Messageservice Inc.</li>
+	<li>How did the presentation go? from carl</li>
+	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 </ul>
-	\end{lstlisting}
+		\end{lstlisting}
+	\end{subfigure}
 \end{figure}
 
 \subsubsection{Inverted sections}
@@ -152,7 +185,7 @@ opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
 	\centering
 	\caption{Inverted sections in mustache templates}
 	\label{fig:inverted.mustache}
-	\begin{lstlisting}[language=HTML]
+	\begin{lstlisting}[language=mustache]
 {{#messages}}
 <li>{{subject}} from {{nickname}}</li>
 {{/messages}}
@@ -164,12 +197,13 @@ opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
 
 We can exploit this behavior to create equivalents of if-else blocks.
 Using the above template we can allow users to leave the subject line empty
-and display a message accordingly.
+and display a message accordingly, figure \ref{fig:ifelse.mustache} illustrates
+this method.
 \begin{figure}
 	\centering
 	\caption{If-else constructs with sections in mustache templates}
 	\label{fig:ifelse.mustache}
-	\begin{lstlisting}[language=HTML]
+	\begin{lstlisting}[language=mustache]
 <li>
 	{{#subject}}{{subject}}{{/subject}}
 	{{^subject}}(No subject){{/subject}}
@@ -178,8 +212,25 @@ and display a message accordingly.
 	\end{lstlisting}
 \end{figure}
 
-The \inline{\{\{subject\}\}} variable in figure \ref{fig:ifelse.mustache} could
-also have been replaced with a \inline{\{\{.\}\}}.
+We can also access the message subject by using \inline{\{\{.\}\}},
+since values that are not lists are converted into lists by mustache\footnote{
+	The subject will be coerced into a list containing the subject string as its
+	first and only entry.
+}. Figure \ref{fig:dot-oper2.mustache} illustrates this shortcut.
+
+\begin{figure}
+	\centering
+	\caption{Using the dot variable on strings}
+	\label{fig:dot-oper2.mustache}
+	\begin{lstlisting}[language=mustache]
+<li>
+	{{#subject}}{{.}}{{/subject}}
+	{{^subject}}(No subject){{/subject}}
+	from {{nickname}}
+</li>
+	\end{lstlisting}
+\end{figure}
+
 As mentioned earlier, variables are replaced with empty strings if
 they do not correspond to an entry in the dataset.
 This fact allows us to shorten the template even further as can be seen in
@@ -189,10 +240,9 @@ it. The effect of outputting it regardless of its content is the same.
 
 \begin{figure}
 	\centering
-	\caption{Variables output empty strings in mustache, if there is no values in
-	         the dataset for them}
+	\caption{Variables output empty strings in mustache, if there is no values in the dataset for them}
 	\label{fig:emptystr.mustache}
-	\begin{lstlisting}[language=HTML]
+	\begin{lstlisting}[language=mustache]
 <li>
 	{{subject}}{{^subject}}(No subject){{/subject}}
 	from {{nickname}}
@@ -206,6 +256,56 @@ placeholder namely the lambda sections. These sections are not iterations, but
 calls to functions that have been bound to keys in the dataset.
 The functions are called with the contents of section as their parameter, the
 output of a lambda section is the return value of the function call.
+In figure \ref{fig:lambda-example} we have bound a function to convert a
+unix epoch time stamp into a relative date\footnote{... or an approximation of that}
+to the key ``reldate''.
+
+\begin{figure}
+	\centering
+	\caption{An example of lambda sections in mustache templates}
+	\label{fig:lambda-example}
+	\begin{subfigure}{\textwidth}
+		\caption{Data}
+		\label{fig:lambda-example.data}
+		\begin{lstlisting}[language=JSON]
+{ reldate: function(text) {
+  	return 'some time ago';
+  },
+  messages: [
+  	{ subject: "How did the presentation go?",
+  	  nickname: "carl",
+  	  sent: 1355328898 },
+  	{ subject: "A disturbance in the force, I felt...",
+  	  nickname: "Yoda",
+  	  sent: 513136200}
+  ]
+}
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:lambda-example.mustache}
+		\begin{lstlisting}[language=mustache]
+<ul>
+	{{#messages}}
+	<li>{{subject}} from {{nickname}} sent {{#reldate}}{{sent}}{{/reldate}}</li>
+	{{/messages}}
+</ul>
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:lambda-example.html}
+		\begin{lstlisting}[language=HTML]
+<ul>
+	<li>How did the presentation go? from carl sent some time ago</li>
+	<li>A disturbance in the force, I felt... from Yoda sent some time ago</li>
+</ul>
+		\end{lstlisting}
+	\end{subfigure}
+\end{figure}
 
 \subsubsection{Comments}
 A comment in mustache is identified by an exclamation mark:
@@ -220,56 +320,109 @@ The contents of the partial templates have to be passed to the rendering engine
 together with the main template and the dataset.
 
 The inlining happens when a template is rendered. This enables mustache to
-render recursive data-structures
-(see an example in figure \ref{fig:partial.mustache}).
+render recursive data-structures. For example the template in figure
+\ref{fig:partial-example} will render a directory structure using nested lists.
+
 \begin{figure}
 	\centering
 	\caption{Mustache templates can be recursive by utilizing partial tags}
-	\label{fig:partial.mustache}
-	\begin{lstlisting}[language=HTML]
-| Filesystem template |
-{{! this template is mapped as a partial named "filesystem" }}
+	\label{fig:partial-example}
+	\begin{subfigure}{\textwidth}
+		\caption{Data}
+		\label{fig:partial-example.data}
+		\begin{lstlisting}[language=JSON]
+{ directories: [{
+		name: "bin",
+		direcories: []
+		files: ["echo", "ls"]
+	},
+	{
+		name: "usr",
+		direcories: [{
+			name:"local"
+			files: ["notes.txt", "donotopen.jpg"]
+		}],
+		files: ["randomfile.bin"]
+	}]
+}
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Template, the partial named ``filesystem'' points at this template}
+		\label{fig:partial-example.mustache}
+		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#directories}}
-	<li>{{name}}: {{>filesystem}}</li>
+	<li>{{name}}/ {{>filesystem}}</li>
 	{{/directories}}
 	{{#files}}
-	<li>{{name}}</li>
+	<li>{{.}}</li>
 	{{/files}}
 </ul>
-	\end{lstlisting}
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\caption{Resulting filesystem list\footnote{The indentations may be incorrect}}
+		\label{fig:partial-example.html}
+		\begin{lstlisting}[language=HTML]
+<ul>
+	<li>bin/:
+		<ul>
+			<li>echo</li>
+			<li>ls</li>
+		</ul>
+	</li>
+	<li>usr/:
+		<ul>
+			<li>local/:
+				<ul>
+					<li>notes.txt</li>
+					<li>donotopen.jpg</li>
+				</ul>
+			</li>
+			<li>randomfile.bin</li>
+		</ul>
+	</li>
+</ul>
+		\end{lstlisting}
+	\end{subfigure}
 \end{figure}
 
 \subsubsection{Set delimiter}
 Mustache curly braces may clash with delmiters used in other languages,
 such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
-something else (see figure \ref{fig:set-delim.mustache}).
+something else. The equals sign is used to signify a change in delimiters.
+In figure \ref{fig:set-delim.mustache}, we change the delimiters
+to PHP tags, write some text using the now inactive mustache tags and enable the
+normal mustache tags again.
 
 \begin{figure}
 	\centering
 	\caption{Usage of set delimiter tags in mustache templates}
 	\label{fig:set-delim.mustache}
 	\begin{lstlisting}[language=HTML]
-{{ default_tags }}
+Subject: {{subject}}
 {{=<? ?>=}}
-<? php_tags ?>
-{{ This will be normal text enclosed by curly braces }}
+Nickname: <?nickname?>
+Curly braces (and text): {{ This will be normal text enclosed by curly braces }}
 <?={{ }}=?>
-{{ default_tags }}
+No output: {{undefined_variable}}
+PHP tags: PHP begins with "<?" and ends with "?>"
 	\end{lstlisting}
 \end{figure}
 
 \subsubsection{Removal of standalone lines}
 \label{sec:standalone-lines}
 Mustache removes lines which beyond a section beginning or end contains
-only whitespace (i.e. standalone lines).
+only white space (i.e. standalone lines).
 This is done to match the expectation a user may have when writing templates.
-
 The behavior is however not defined clearly:
-\begin{quote}
+\begin{citequote}{\cite[sections.yml]{MSTSPEC}}
 	Section and End Section tags SHOULD be treated as standalone when
-	appropriate. \cite[sections.yml]{MSTSPEC}
-\end{quote}
+	appropriate. 
+\end{citequote}
 
 \subsubsection{Mustache specification}
 Documents specifying the exact behavior of mustache can be viewed at

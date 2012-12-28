@@ -25,8 +25,8 @@
 	\setlength{\parskip}{2pt}
 
 	\usepackage{fourier-orns}
-	\newcommand\textbreak{%
-		\begin{center}%
+	\newcommand\textbreak{
+		\begin{center}
 		\decothreeleft \aldineleft \decosix \aldineright \decothreeright%
 		\end{center}}
 	
@@ -35,11 +35,14 @@
 	\frenchspacing
 	
 	% Allow breaking of figures
-	\renewenvironment{figure}[1][]{%
-		\def\@captype{figure}%
+	\renewenvironment{figure}[1][]{
+		\def\@captype{figure}
 		\par\nobreak\begin{center}\nobreak}
 		{\par\nobreak\end{center}}
 \fi
+
+%
+\usepackage{subcaption}
 
 % See what the page layout is, with margins etc.
 \usepackage{layout}
@@ -59,6 +62,16 @@
 
 % Make text boxes
 \usepackage{framed}
+
+% Pretty quote blocks
+\def\signed #1{{\leavevmode\unskip\nobreak\hfil\penalty50\hskip2em
+	\hbox{}\nobreak\hfil#1
+	\parfillskip=0pt \finalhyphendemerits=0 \endgraf}}
+
+\newsavebox\citebox
+\newenvironment{citequote}[1]
+	{\savebox\citebox{#1}\begin{quote}\itshape\begin{shaded}}
+	{\signed{\usebox\citebox}\end{shaded}\end{quote}}
 
 % Get Bitstream Vera Mono to be the monospace font
 \usepackage[scaled]{beramono}
@@ -96,7 +109,51 @@
 	% Grayscale code boxes for ebook
 \fi
 
-\def\inline#1{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
+\newcommand{\inline}[1]{{\setlength{\fboxsep}{1pt}\colorbox{lgray}{\lstinline{#1}}}}
+
+% JSON language
+\lstdefinelanguage{json}{
+	%morestring=[b]"',
+	morestring=[s]{'}{'},
+	morestring=[s]{"}{"},
+}
+% Mustache templates, copied from HTML
+\lstdefinelanguage{mustache}{
+	morekeywords={A,ABBR,ACRONYM,ADDRESS,APPLET,AREA,B,BASE,BASEFONT,
+		BDO,BIG,BLOCKQUOTE,BODY,BR,BUTTON,CAPTION,CENTER,CITE,CODE,COL,
+		COLGROUP,DD,DEL,DFN,DIR,DIV,DL,DOCTYPE,DT,EM,FIELDSET,FONT,FORM,
+		FRAME,FRAMESET,HEAD,HR,H1,H2,H3,H4,H5,H6,HTML,I,IFRAME,IMG,INPUT,
+		INS,ISINDEX,KBD,LABEL,LEGEND,LH,LI,LINK,LISTING,MAP,META,MENU,
+		NOFRAMES,NOSCRIPT,OBJECT,OPTGROUP,OPTION,P,PARAM,PLAINTEXT,PRE,
+		OL,Q,S,SAMP,SCRIPT,SELECT,SMALL,SPAN,STRIKE,STRING,STRONG,STYLE,
+		SUB,SUP,TABLE,TBODY,TD,TEXTAREA,TFOOT,TH,THEAD,TITLE,TR,TT,U,UL,
+		VAR,XMP,
+		accesskey,action,align,alink,alt,archive,axis,background,bgcolor,
+		border,cellpadding,cellspacing,charset,checked,cite,class,classid,
+		code,codebase,codetype,color,cols,colspan,content,coords,data,
+		datetime,defer,disabled,dir,event,error,for,frameborder,headers,
+		height,href,hreflang,hspace,http-equiv,id,ismap,label,lang,link,
+		longdesc,marginwidth,marginheight,maxlength,media,method,multiple,
+		name,nohref,noresize,noshade,nowrap,onblur,onchange,onclick,
+		ondblclick,onfocus,onkeydown,onkeypress,onkeyup,onload,onmousedown,
+		profile,readonly,onmousemove,onmouseout,onmouseover,onmouseup,
+		onselect,onunload,rel,rev,rows,rowspan,scheme,scope,scrolling,
+		selected,shape,size,src,standby,style,tabindex,text,title,type,
+		units,usemap,valign,value,valuetype,vlink,vspace,width,xmlns},
+	tag=**[s]<>,
+	sensitive=f,
+	morestring=[d]",
+	morestring=[s]{\{\{}{\}\}},
+	MoreSelectCharTable=
+		\lst@CArgX--\relax\lst@DefDelimB{}{}
+				{\ifnum\lst@mode=\lst@tagmode\else
+						 \expandafter\@gobblethree
+				 \fi}
+				\lst@BeginComment\lst@commentmode{{\lst@commentstyle}}
+		\lst@CArgX--\relax\lst@DefDelimE{}{}{}
+				\lst@EndComment\lst@commentmode
+}[keywords,comments,strings,html]
+
 
 % Allow inclusion of eps images, although we use TikZ
 \usepackage{graphicx,epstopdf}
@@ -107,8 +164,6 @@
 
 % Add todo command
 \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
-
-% \newcites{A,B}{Primary Bibliography,Secondary Bibliography}
 
 % Use TikZ to create diagrams
 \usepackage{tikz}
