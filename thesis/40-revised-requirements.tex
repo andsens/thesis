@@ -23,8 +23,7 @@ We decided to develop these tools for our prototype regardless,
 because evaluating alternatives that would fit the purpose precisely
 would have taken up more time.
 This is however not a sound strategy going forward, assuming we have the goal to
-develop a reliable tool to realize our concept of binding server-side templates
-to client-side models.
+develop a reliable tool a developer may use to build web applications.
 Succinctly put: There is no reason to reinvent the wheel.
 Most of these parts have nothing to do directly with the concept of this thesis.
 They are rather tools that help achieve the goals of it.
@@ -35,24 +34,63 @@ prototype, that can be replaced by existing well maintained tools. Once we have
 achieved this, we can begin concentrating on the core of our concept and define
 it with greater precision.
 
-\section{Additional requirements}
-In the prototype we omitted some parts of the concept architecture by "faking"
-them. This holds true especially, when we look at how the information gained
-by parsing the server templates is transmitted to the client.
-The information itself is hard coded into the client, meaning both the part for
-parsing templates and the matter of client communication is missing.
+\section{Revised Goal}
+We set out with the goal to couple server-side templates with client side
+models. In reality this goal consists of two parts:\
+First we need to extract the dataset passed into the template engine together
+with the template from the render template\footnote{Read: from the HTML in the browser.}.
+In the prototype we did this by utilizing hard-coded XPaths. The motivation
+behind hard-coding this part was the assumption that we would generate the those
+paths dynamically in our real implementation.\
+Once the dataset is rebuilt the second part consists of mapping its values
+to models on the client side. In the prototype we realized the mapping process
+by hard-coding the types of backbone fields into the ModelView.
 
-The traversal of the DOM happened in a very limited way, where the parser was
-finely tuned to parse only our specific case but nothing more.
-We will have to analyze which, if any, of these gaps can be filled by generic
-tools and which gaps belong to the core of our concept.
+Our final implementation will only feature the first of these processes.
+This drastic change of our goal is grounded in the desire to create a tool that
+is applicable in as many types of web applications as possible.
+The mustache template engine is the only precondition for using the first part
+of our mapping process. The second part however can have preconditions
+other than backbone that were not explored in our prototype:\
+To generate a mapping for client-side models, our tool will require to know the
+origin of the values in the retrieved dataset\footnote{
+	The dataset itself will contain only string values retrieved from the rendered
+	template. Its structure can similarly only resemble the structure of the
+	template.
+}. These values usually originate in models on the server-side\footnote{
+	They may also come from client-side models, where the mapping would make less
+	sense, since the values are already mapped to the models.
+	However chapter \ref{chap:eval} details why such a mapping would be
+	advantageous regardless of that fact.
+	\todo{Specific section}
+}, where the developer may have chosen from any number of server-side languages
+and model frameworks. Unless we require the developer to specify the types and
+relations between models in a format our tool can understand, we will have to
+choose a language and model framework to automate this process. This choice
+reduces the applicability of our tool greatly. Leaving only the option of
+requiring the developer to specify the relations. For big web applications this
+requirement may slow the development process significantly.
+For this reason we choose to pursue only the first part of the mapping process.
+With that choice the implementation will no longer concentrate on mapping values
+sent by the server via rendered templates to client-side models,
+but on extracting data from rendered templates.
 
-Some gaps may not even need to be filled. This will surely be the case,
-when we consider that the desired end result is a tool and not a framework.
-Many frameworks and tools in the prototype were used to illustrate the concept
-via a demo application. There are a lot more parts needed to create a working
-web-application than there are to create a tools for said application.
-
+By concentrating on one part of the process we are also able to create a tool in
+the proper sense. We can now fulfill the first four points detailed in the
+``The UNIX Philosophy'':
+\begin{citequote}{\cite{UNIXP}}
+	\begin{itemize}
+		\item Small is beautiful.
+		\item Make each program do one thing well.
+		\item Build a prototype as soon as possible.
+		\item Choose portability over efficiency.
+		\item Store data in flat text files.
+		\item Use software leverage to your advantage.
+		\item Use shell scripts to increase leverage and portability.
+		\item Avoid captive user interfaces.
+		\item Make every program a filter.
+	\end{itemize}
+\end{citequote}
 
 
 \section{Simplifying the project}
@@ -99,63 +137,30 @@ leverage the additional information.
 \begin{itemize}
 \item Beginning with the periphery, we can easily see how a framework to ease
 the development of CSS is not part of our tool.
-\item The Javascript language is required on the basis that we need some form of
-client side programming. We have discussed its alternatives earlier in this
-thesis and are going to keep this choice.
+\item The JavaScript language is required on the basis that we need some form of
+client side programming. We have discussed its alternatives in
+\ref{sec:javascript-alts}, depending on the challenges we face in the
+implementation, we may choose a language which compiles to JavaScript instead.
 \item underscore.js helps us to iterate through arrays and manage other
-operations more easily than in pure Javascript. We can solve the same problems
-without it (although it requires more effort). This makes underscore.js a
-non-crucial part of our tool.
-\item jQuery is used to retrieve the values from the DOM. We may later change
-how we retrieve those values, but some method of retrieval will be needed.
-At this point jQuery seems to fit the bill and we must consider jQuery a crucial
-part of our tool.
+operations more easily than in pure JavaScript. We can solve the same problems
+without it\footnote{
+	although it requires more effort.
+}. This makes underscore.js a non-crucial part of our tool.
 \item We use backbone.js to hold the values we retrieve from the DOM. The
 framework enables us to interact with these values. They can however also be
 modeled with simple JavaScript objects. Because of that backbone.js can not be
 considered a crucial part of our tool.
 \end{itemize}
 
-This concludes the evaluation of tools we used in our prototype. There is
-still the matter of categorizing our own custom DOM traverser, which
-takes a root model as input and recursively reads the nested values in the DOM.
-During this traversal it also creates Models attached to corresponding
-ViewModels.
-Using this strategy we obtain a consistent and predictable control flow of the
-initialization process. The disadvantages include rigidity in the way
-the placeholder information from the server is used and a need to specify what
-type of view each placeholder represents.
-We desire a decentralization of responsibility and a more liberal use of
-the template placeholder data. This means that we must replace the parser with
-something else that is not a substitute, but a rethinking of its role in the
-process of utilizing the placeholder data.
+In essence we will not retain any client-side \emph{libraries}.
 
-\subsection{The consequences of our simplification}
 
-Let us summarize what these changes mean for our final architecture.
 
-We have kept quite a few client libraries and those we deemed non-essential were
-only discounted to reduce complexity.
-The only client side code we decided to remove, was the one we wrote ourselves.
-Similarly we removed from the server-side our ad-hoc implementation of a
-template engine.
-We deemed the ORM and the database backing inconsequential to our tool, although
-many fully fledged web applications of course can not function without it.
-
-These reductions leave us with a clear picture of which tools we carry over into
-the implementation of our project.
-On the server-side we will only need the mustache template engine
-and our parser.
-On the client-side we have a collection of libraries that when combined gives us
-part of the architecture that will allow us to utilize the information generated
-by the server.
-There are however still gaps in this architecture. We require a framework, that
-allows us to organize our models and views properly. It should also support
-the addition of our discarded parsing feature, by supplying a structure to bind
-it to. "Chaplin" will in this case be our framework of choice.
-
-\todo{Figure out if we want to fight the fight and call the view viewmodel}
 \subsection{chaplin}
+
+\todo{Figure out if we want to fight the fight and call the view viewmodel}\
+\todo{Move this section or delete it}
+
 Chaplin is a new client side framework, which was created in February 2012.
 The motivation behind it was to create a framework that allows developers to
 follow a set of conventions more easily. Backbone.js has both views and models
@@ -210,30 +215,6 @@ rerendering of the entire DOM sub-tree.
 We intend to modify Chaplin to take advantage of these placeholder selectors
 automatically. The developer should not be required to interact with the
 selectors.
-
-\subsection{Data types}
-In the exploratory prototype we not only retrieved the values located in the DOM
-but also specified what types these values were. In fact, retrieving data from
-the DOM and mapping data fields to types are two very different processes.
-We will not try to map data to types or Models in our implementation,
-it would exceed the scope of our tool and expose the user to a layer of
-abstraction that may not be desired.
-
-In section \ref{sec:first:results} of chapter \ref{chap:first} we
-recognized the need for knowing the types of data.
-This is not in conflict with this decision, we are still interested in
-knowing when data (or rather a mustache tag) behaves recursively, so that we may
-take appropriate steps to parse a rendered template accordingly. This holds true
-specifically for mustache partials, which can refer to the template they are
-specified in.
-
-Removing the data typing feature may still reduce the immediate usefulness
-of our tool. The removal increases the applicability of it however.
-A mapping layer may still be put on top of our tool to abstract raw data
-into backbone models.
-Such a mapping layer could also be a form validation tool or a custom
-data model to abstract a very specific use case.
-This way we construct a tool instead of a framework.
 
 
 
