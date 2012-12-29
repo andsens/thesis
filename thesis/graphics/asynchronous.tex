@@ -3,6 +3,7 @@
 \newcommand{\boxheight}{\drawheight/3}
 \newcommand{\lnlength}{\textwidth/7}
 \newcommand{\commlength}{\textwidth/7/4}
+\tikzset{corners/.style={fit={#1},rectangle,inner sep=0}}
 \begin{tikzpicture}
 	\node[fill=lgray,
 		corners={(0,0) (\textwidth,\boxheight)}]

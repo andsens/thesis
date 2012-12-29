@@ -167,11 +167,35 @@
 
 % Use TikZ to create diagrams
 \usepackage{tikz}
-
-\usetikzlibrary{fit}
-\usetikzlibrary{positioning,calc}
-\tikzset{corners/.style={fit={#1},rectangle,inner sep=0}}
+\usetikzlibrary{fit,positioning,calc,shadows,backgrounds}
+\usepackage{tikz-er2}
 \tikzset{>=latex}
+
+
+	\tikzstyle{every entity} = [top color=white, bottom color=black!30, 
+	                            draw=gray!50!black!100, drop shadow]
+\tikzstyle{every weak entity} = [drop shadow={shadow xshift=.7ex, 
+                                 shadow yshift=-.7ex}]
+\tikzstyle{every attribute} = [top color=white, bottom color=yellow!20, 
+                               draw=yellow, node distance=1cm, drop shadow]
+	\tikzstyle{every relationship} = [top color=gray!20, bottom color=gray!30, 
+	                                  draw=gray!30!black!100, drop shadow]
+\tikzstyle{every isa} = [top color=white, bottom color=green!20, 
+                         draw=green!50!black!100, drop shadow]
+
+% Pretty colors for computer
+\ifdefined\computer
+	\tikzstyle{every entity} = [top color=white, bottom color=blue!30, 
+	                            draw=blue!50!black!100, drop shadow]
+	\tikzstyle{every weak entity} = [drop shadow={shadow xshift=.7ex, 
+	                                 shadow yshift=-.7ex}]
+	\tikzstyle{every attribute} = [top color=white, bottom color=yellow!20, 
+	                               draw=yellow, node distance=1cm, drop shadow]
+\tikzstyle{every relationship} = [top color=white, bottom color=red!20, 
+                                  draw=red!50!black!100, drop shadow]
+	\tikzstyle{every isa} = [top color=white, bottom color=green!20, 
+	                         draw=green!50!black!100, drop shadow]
+\fi
 
 \usepackage[nounderscore]{syntax}
 \setlength{\grammarparsep}{0.15cm} % vertical distance between production rules

@@ -563,6 +563,17 @@ through a set of filters.
 We output a message if any of the filters fail and exclude that tag from the
 output.
 
+Having created all the phases necessary for our pre-parser tool to output the
+right information, we can now overview the architecture in figure \ref{fig:tool-arch}.
+\todo{explain the image}
+
+\begin{figure}
+	\centering
+	\input{graphics/tool-components}
+	\caption{Architectural diagram of the pre-parser tool}
+	\label{fig:tool-arch}
+\end{figure}
+
 \subsection{Returning values}
 We save all instantiated sections, variables and partials for every section
 iteration. Once we have parsed a rendered template, we retrieve our root section

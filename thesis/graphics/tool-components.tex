@@ -1,0 +1,28 @@
+% !TEX root = ../thesis.tex
+\begin{tikzpicture}[every edge/.style={link}]
+	\node[entity] (json) {JSON};
+  \node[relationship] (generator) [left=of json] {Generator} edge [->] (json);
+	\node[entity] (filtered) [left=of generator] {Resolutions (filtered)} edge [->] (generator);
+  \node[relationship] (filter) [above=of filtered] {Filter} edge [->] (filtered);
+	\node[entity] (resolutions) [right=of filter] {Resolutions} edge [->] (filter);
+  \node[relationship] (resolver) [right=of resolutions] {Resolver} edge [->] (resolutions);
+	\node[entity] (dom) [above=of resolver] {Mustache-XML DOM} edge [->] (resolver);
+  \node[relationship] (parsec) [left=of dom] {Parsec} edge [->] (dom);
+	\node[entity] (tpl) [left=of parsec] {Template} edge [->] (parsec);
+	
+  
+  
+	% \node[draw=black,thick,inner sep=2mm,rectangle,fit=(tplinfo) (tpl)] (static) {};
+	% \node[anchor=north,inner sep=1mm] at (static.south) {Static content};
+	
+	% \node[draw=black,thick,inner sep=2mm,rectangle,fit=(mustache) (parser) (cdata)] (dynamic) {};
+	% \node[anchor=north,inner sep=1mm] at (dynamic.south) {Dynamic content};
+	
+	% \begin{scope}[on background layer]
+	% 	\node[fill=gray!20,inner sep=2mm,rectangle,fit=(mustache) (tpl) (tplinfo)] (server) {};
+	% 	\node[anchor=south,inner sep=1mm] at (server.north) {Server};
+		
+	% 	\node[fill=gray!20,inner sep=2mm,rectangle,fit=(dom) (parser) (cdata)] (client) {};
+	% 	\node[inner sep=1mm] at (client) {Client};
+	% \end{scope}
+\end{tikzpicture}
