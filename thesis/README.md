@@ -1,1 +1,0 @@
-Compile with ``make thesis``

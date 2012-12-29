@@ -76,22 +76,35 @@ sent by the server via rendered templates to client-side models,
 but on extracting data from rendered templates.
 
 By concentrating on one part of the process we are also able to create a tool in
-the proper sense. We can now fulfill the first four points detailed in the
-``The UNIX Philosophy'':
-\begin{citequote}{\cite{UNIXP}}
-	\begin{itemize}
-		\item Small is beautiful.
-		\item Make each program do one thing well.
-		\item Build a prototype as soon as possible.
-		\item Choose portability over efficiency.
-		\item Store data in flat text files.
-		\item Use software leverage to your advantage.
-		\item Use shell scripts to increase leverage and portability.
-		\item Avoid captive user interfaces.
-		\item Make every program a filter.
-	\end{itemize}
+the proper sense. As a guide for the properties of such a tool we can apply
+some of the rules set by Eric Steven Raymond in his book
+``The Art of Unix Programming''.
+\begin{citequote}{\cite[Chapter 1]{UXART}}
+\begin{itemize}
+	\item Rule of Modularity: Write simple parts connected by clean interfaces.
+	\item Rule of Clarity: Clarity is better than cleverness.
+	\item Rule of Composition: Design programs to be connected to other programs.
+	\item Rule of Separation: Separate policy from mechanism; separate interfaces from engines.
+	\item Rule of Simplicity: Design for simplicity; add complexity only where you must.
+	\item Rule of Parsimony: Write a big program only when it is clear by demonstration that nothing else will do.
+	\item Rule of Transparency: Design for visibility to make inspection and debugging easier.
+	\item Rule of Robustness: Robustness is the child of transparency and simplicity.
+	\item Rule of Representation: Fold knowledge into data so program logic can be stupid and robust.
+	\item Rule of Least Surprise: In interface design, always do the least surprising thing.
+	\item Rule of Silence: When a program has nothing surprising to say, it should say nothing.
+	\item Rule of Repair: When you must fail, fail noisily and as soon as possible.
+	\item Rule of Economy: Programmer time is expensive; conserve it in preference to machine time.
+	\item Rule of Generation: Avoid hand-hacking; write programs to write programs when you can.
+	\item Rule of Optimization: Prototype before polishing. Get it working before you optimize it.
+	\item Rule of Diversity: Distrust all claims for ``one true way''.
+	\item Rule of Extensibility: Design for the future, because it will be here sooner than you think.
+\end{itemize}
 \end{citequote}
 
+By focusing on data extraction we can follow the Rule of Composition more
+easily: A layer to map the values we extract to client-side models can still be
+implemented on top of it, thereby enabling developers to integrate our tool into
+other client libraries than backbone.
 
 \section{Simplifying the project}
 
