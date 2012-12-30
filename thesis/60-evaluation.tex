@@ -57,6 +57,16 @@ is not followed by a semicolon\footnote{
 }. This issue can fortunately be corrected with some minor effort.
 \todo{Fix comment recognition to at least not crash the parse ffs!}
 
+\subsubsection{Standalone mustache tag lines}
+As describe in \ref{sec:standalone-lines} mustache removes
+lines containing only white space and a mustache section tag.
+The demo application runs a modified version of mustache.js where this feature
+is removed\footnote{
+	Specifically we removed the highlighted line seen at
+	\url{https://github.com/janl/mustache.js/blob/master/mustache.js\#L512}
+}. Our parser does currently not account for this detail. This causes
+our client library to expect a whitespace line where there is none.
+
 \subsubsection{Mustache comments}
 In \ref{sec:mustache-xml-ebnf} we deemed comments ``since it does not
 output any content our client library can retrieve''. In \ref{sec:parent-nodes}
@@ -77,30 +87,156 @@ they were out of scope.
 
 \subsection{Resolver}
 
+\subsubsection{Identifier origins}
+In section \ref{sec:arch-comp-tpl} we determined that we would not be able to
+determine the origin of a key in the dataset precisely, when the context
+stack is greater than one. This holds true for all cases except the inverted
+section. The inverted section does not push a new context on top of our existing
+context stack because it is only rendered when its identifier points at an empty
+list\footnote{
+	Or the data it points at is coerced into an empty list
+} in the dataset. This is guaranteed by the specification\footnote{
+	Read: ``This section MUST be rendered if and only if the data list is empty.''
+}:
+\begin{citequote}{\cite[inverted.yml]{MSTSPEC}}
+This section MUST NOT be rendered unless the data list is empty.
+\end{citequote}
+
+We can be certain that all identifiers referenced in an inverted section do not
+belong to the identifier of the section. This fact allows us to lift the parsed
+values into the parent context.
+
+\subsubsection{Lookahead}
+\label{sec:lookahead}
+The filter in our pre-parse tool currently requires mustache tags to be
+separated by strings or XML tags. This restriction is necessary to ensure that
+our client library can recognize the end of variables as well as the beginning
+and end of section iterations. The parser employs a limited form of lookahead
+when it checks whether an iteration is followed by another iteration. Variables
+consider stop parsing as soon as they encounter the first occurrence of their
+next sibling. This is a rather limiting restriction which can hinder developers
+in writing templates.
+
+We can overcome this restriction by enhancing the parsing capabilities of our
+client library. From the pre-parser tool we only need to remove the
+\emph{no\_lookahead} function located in the list of filters.
+
+To create a simplistic form of lookahead we can catch errors thrown by
+mustache tag objects when they are unable to verify their siblings and try
+alternative possibilities until we succeed. This is however not only resource
+intensive but may result a faulty dataset extraction, because more than one
+combination of possibilities can be applied to a DOM tree.
+
+A more sound approach requires extending our pre-parser tool as well. It can
+combine the same aforementioned possibilities of parsing a template and replace
+any unknowns (i.e. variables) with wildcard characters our client library can
+recognize. Whether a section is entered is also not knowable when
+analyzing a template, but we can create a binary tree of possibilities,
+where each node represents a list of XML tags. Upon encountering a section we
+branch and continue the tree generation. This tree generation can continue until
+we encounter the end of a DOM tree. We can also set a limit on the depth of the
+tree, thereby limiting the amount of possibilities our client library has to
+try. Once the tree is generated the filter may analyze it and print errors if
+two paths are indistinguishable. The tree can then be cut until the smallest
+size without ambiguous paths is reached.
+
+The client library can for example use this tree to determine whether a
+section containing a variable as its first child and a variable as its
+next sibling has another iteration by analyzing the content that follows this
+ambiguity.
+
+Such an improvement would also obsolete our filter that checks whether the
+first child and next node of a section can be confused
+(\emph{ambiguous\_boundaries}, section \ref{sec:filter}).
+
+\subsubsection{Variable boundary ambiguity}
+\label{sec:var-boundary-ambiguity}
+Our lookahead improvement can not help alleviate a similar problems a developer
+may encounter with two ore more variables in one text node as shown in figure 
+\ref{fig:twovars-no-sep}.
+\begin{figure}
+	\centering
+	\caption{Two variables without a separator between them}
+	\label{fig:twovars-no-sep}
+	\begin{subfigure}{\textwidth}
+		\begin{lstlisting}[language=mustache]
+<span>{{var_one}}{{var_two}</span>
+		\end{lstlisting}
+		\caption{Template}
+		\label{fig:twovars-no-sep.mustache}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\begin{lstlisting}[language=HTML]
+<span>This text can be split between the two variables or belong to only one.</span>
+		\end{lstlisting}
+		\caption{Result}
+		\label{fig:twovars-no-sep.html}
+	\end{subfigure}
+\end{figure}
+The parser cannot split a string originating from two variables that are not
+separated by text in any meaningful way. It is impossible to determine how much
+text belongs to the first variable and how much text belongs to the second
+variable\footnote{This also applies to more than two variables of course.}.
+
+Separating variables with text can alleviate this problem only if the variable
+values do not contain the separator itself. Consider the example in figure
+\ref{fig:twovars-sep}, here the library cannot split the string in any
+meaningful way either. We know that \inline{var\_two} at least contains
+``slashes'', because there is no slash after the second variable in the
+template. We can also determine that \inline{var\_one} at least contains
+``path'', because we would see two subsequent slashes if \inline{var\_one} was
+empty. Of the remaining slashes in the ``/with/multiple/'' string the
+original separator can be any one of them.
+\begin{figure}
+	\centering
+	\caption{Two variables separated with a `/'}
+	\label{fig:twovars-sep}
+	\begin{subfigure}{\textwidth}
+		\begin{lstlisting}[language=mustache]
+<a href="http://www.example.com/{{var_one}}/{{var_two}</a>
+		\end{lstlisting}
+		\caption{Template}
+		\label{fig:twovars-sep.mustache}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\begin{lstlisting}[language=HTML]
+<a href="http://www.example.com/path/with/multiple/slashes</a>
+		\end{lstlisting}
+		\caption{Result}
+		\label{fig:twovars-sep.html}
+	\end{subfigure}
+\end{figure}
+
 \subsection{Filter}
 
+\subsubsection{Suggestions}
+Thanks to the Parsec library, the developer receives helpful messages when a
+template cannot be parsed. Our filter component also outputs detailed error
+messages. The errors can be improved by accompanying them with suggestions for
+how to resolve them. Filters have access to enough information to calculate how
+an error may be avoided.
+
 \section{Client library improvements}
+
+\subsubsection{Properties of values}
+When a property of an identifier is accessed, we know this identifier points at
+an object rather than a list. If we in the same template encounter a section
+using the same identifier, we can recreate the original dataset more precisely
+by having the section return an object instead of a list with a single item
+containing that object.
+
+\subsubsection{}
+intro if-else coerced into list. We can hide that from the user.
+Improve datastructure by allowing ambiguous referencing. If the developer knows
+a section is an if, and accesses the object like that return the first item in the list.
+If the list contains more than one item, return an error. This is goooood :-)
 
 \section{Future work}
 
 \section{Limitations}
 \begin{itemize}
-	\item Parsec: Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
-	\item Parsec: \& Does not throw proper error when not closed
-	\item Parsec: Comment not working
-	\item Parsec: comment nodes useful, should not have been discarded
-	\item Resolver: variable text boundary recognition not perfect
-	\item Resolver: Can stack levels and identifier dottings be resolved?
-	      Mustache identifiers can access more than the keys in the current context,
-	      they may also drill down and access properties of objects in the current
-	      context.
-	\item Resolver: No lookahead, neighboring nodes etc.
-	\item Filter: Suggestions to resolve errors
-	\item Filter: inverted sections don't iterate, no need to filter
-	\item Client: Bug in mustache.js (not a bug, it's the spec)
-	      https://github.com/mustache/spec/blob/master/specs/sections.yml\#L192
-	      https://github.com/janl/mustache.js/blob/master/mustache.js\#L512
-	      Removal of whitespace lines
 	\item Client: Lambda parsing not possible, unfixable, that's ok
 	\item Client: inverted sections don't iterate, no need to return array
 	\item Client: Allow annotations or helper stuff to tell the parser more about the data - or not actually...

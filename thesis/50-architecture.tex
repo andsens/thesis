@@ -20,6 +20,7 @@ that only needs to be run once before a web application is deployed, we are not
 constrained by the environment the actual web server runs in.
 
 \section{Compiling template information}
+\label{sec:arch-comp-tpl}
 We need to be able to parse a mustache template and acquire the necessary
 information to enable the client library to parse a rendered template.
 We analyze the capabilities of the mustache template language and arrive
@@ -49,8 +50,9 @@ following data:
 \item Whether a section is a lambda section or an actual section.
 \item The behavior of a lambda section
 \item The template a partial points at
-\item Whether an identifier refers to a key in the current stack level or
-      to a key in one of the lower stack levels
+\item Whether an identifier refers to a key in the current context level or
+      to a key in one of the lower context levels\footnote{
+            Except if we are located at the root level}
 \end{itemize}
 
 The rendered template is in the Document Object Model format, once it has

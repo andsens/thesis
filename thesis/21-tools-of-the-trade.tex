@@ -75,7 +75,9 @@ of the engine.
 \end{citequote}
 If the value is a list, the content of the section is rendered once for each
 entry in the list. Once a section is entered, the key-value pairs of the
-corresponding entry are pushed onto the stack of identifiers.\
+corresponding entry are pushed onto the stack of identifiers\footnote{
+	This is called the ``context stack''
+}.\
 Consider the example in figures \ref{fig:section-example}.
 
 \begin{figure}
@@ -130,7 +132,7 @@ Consider the example in figures \ref{fig:section-example}.
 	\end{subfigure}
 \end{figure}
 Here the placeholder "nickname" is used in two different contexts.
-The first usage occurs while the identifier stack is only one level high.
+The first usage occurs while the context stack is only one level high.
 The second usage occurs inside a section. Here the "nickname" identifier refers
 to the "nickname" key of the corresponding dataset entry in the list of messages.
 If we were to insert a \inline{\{\{messagecount\}\}} tag inside the section,
