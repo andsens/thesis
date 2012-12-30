@@ -52,6 +52,7 @@ The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
 \end{figure}
 
 \subsection{Mustache-XML EBNF}
+\label{sec:mustache-xml-ebnf}
 We want our parser to not only be able to understand mustache, but also HTML
 intermingled with it. As such we extend our mustache grammar to incorporate
 HTML as well.
@@ -591,6 +592,7 @@ Unescaped variables will return a list of their nodes as their value.
 Previous and next nodes will be included if they are text nodes.
 
 \subsubsection{Parent nodes}
+\label{sec:parent-nodes}
 We add a second useful value to the return value of variables. Often times a
 user may want to listen to changes concerning the nodes in which mustache tags
 are placed. Variables may be values in attributes on key XML tags

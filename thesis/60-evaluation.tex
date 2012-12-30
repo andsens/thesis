@@ -4,34 +4,117 @@
 
 \chapter{Evaluation}
 \label{chap:eval}
+In this chapter we will analyze whether we achieved the goals we set ourselves.
+We will also examine Comb in more detail to find potential for improvement and
+uncover scenarios where Comb is not up to the task.
+
+\section{}
+In the requirements for the prototype (chapter \ref{chap:requirements})
+we set out to couple the dataset fed into the server-side template engine with
+the models on the client-side. In \ref{sec:revised-goal} we revised this
+requirement by splitting the task into two distinct actions and changed the goal
+to implementing the first part only: Extracting the dataset from a rendered
+template.
+
+The architecture we set to achieve this goal aimed at a two parted process where
+we retrieve information from templates and later use that information to parse
+rendered templates. The demo application\todo{-s ?} from chapter \ref{chap:demo}
+integrates Comb to do exactly that. It renders a template with a custom dataset,
+extracts the data from the rendered template and displays that data to the user.
+
+\section{Pre-Parser tool improvements}
+As with any piece of software, there is always room for improvement.
+Comb is no different. In this section we will look at which parts of the
+pre-parser can be improved.
+
+\subsection{Parser}
+
+\subsubsection{Extending the template grammar}
+Looking at the Mustache-XML EBNF\footnote{figure \ref{fig:mustache-xml.ebnf}} we
+can see how the grammar is simplistic, when compared with the
+full XML \cite[section 2/\#sec-documents]{XMLSPEC} EBNF or to
+HTML \cite{HTMLSPEC}\footnote{
+	HTML 5 has no EBNF, the reason for that is detailed at
+	\url{http://lists.w3.org/Archives/Public/www-tag/2009Sep/0013.html}
+}. The intention is not to build a fully capable HTML parser, but the question
+remains whether our grammar matches a superset which is generic enough to allow
+for all templates that can be converted into a DOM. Among the possible problems
+that may be encountered is namespacing of tag names. The \inline{identLetter}
+\cite[\#v:identLetter]{PARSECDOC} property of our XML token parser in our
+pre-parser tool lists the allowed letters in an identifier,
+which in our case are xml tag names and attribute names. Among those letters is
+the colon. This does however not guarantee a proper parsing of rendered
+templates when querying the DOM with our client library.
+\todo{Figure out if this works or not}
+
+\subsubsection{Character references}
+Character references are converted into characters by our parser and the
+TagSoup library ostensibly contains a full lookup table of these references.
+The recognition method of character references is unfortunately not very robust:
+The user will be presented with a rather unhelpful error message if an ampersand
+is not followed by a semicolon\footnote{
+	i.e. the parser reaches at some point the end of the string and crashes
+}. This issue can fortunately be corrected with some minor effort.
+\todo{Fix comment recognition to at least not crash the parse ffs!}
+
+\subsubsection{Mustache comments}
+In \ref{sec:mustache-xml-ebnf} we deemed comments ``since it does not
+output any content our client library can retrieve''. In \ref{sec:parent-nodes}
+we introduced parent nodes into the dataset we return for variables.
+This addition makes comments useful even though it does not output any data.
+By placing comments in key locations in a template, the developer can access
+nodes in a rendered template by referencing those comments and accessing their
+parent node. Comments do however not contain identifiers but free form strings.
+To simplify referencing we could consider anything up to a set of
+separators as the identifier. The alternative would be to simply require the
+developer to specify the entire string.
+
+Although this feature addition can be considered a significant improvement to
+the possibilities of our tool, it can not be considered a shortcoming.
+Our goal was to retrieve the original dataset from a rendered template.
+Comments do not receive any dataset value and do not output any value, as such
+they were out of scope.
+
+\subsection{Resolver}
+
+\subsection{Filter}
+
+\section{Client library improvements}
+
+\section{Future work}
+
 \section{Limitations}
 \begin{itemize}
-\item comment nodes useful, should not have been discarded
-\item We don't get the entire section structure of a template unless all
-      sections have at least one iteration
-\item variables as tag names and attribute names are not impossible, just hard
-\item Suggestions to resolve errors
-\item Cannot push or pop iterations without rerendering
-\item Lambdas
-\item Choice of parsing method
-\item Client
-\item Parsing problems on the client
-\item Filter on compiler
-\item Bug in mustache.js (not a bug, it's the spec)
-      https://github.com/mustache/spec/blob/master/specs/sections.yml\#L192
-      https://github.com/janl/mustache.js/blob/master/mustache.js\#L512
-\item Removal of whitespace lines
-\item Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
-\item \& Does not throw proper error when not closed
-\item Lexeme token parser versus normal token parser
-\item Comment not working
-\item variable text boundary recognition not perfect
-\item inverted sections don't iterate, no need to filter
-\item and no need to return array
-\item If-else section return lists with single entry
-\item Mustache identifiers can access more than the keys in the current context,
-      they may also drill down and access properties of objects in the current
-      context.
+	\item Parsec: Full XML EBNF a bit out of scope: http://www.jelks.nu/XML/xmlebnf.html
+	\item Parsec: \& Does not throw proper error when not closed
+	\item Parsec: Comment not working
+	\item Parsec: comment nodes useful, should not have been discarded
+	\item Resolver: variable text boundary recognition not perfect
+	\item Resolver: Can stack levels and identifier dottings be resolved?
+	      Mustache identifiers can access more than the keys in the current context,
+	      they may also drill down and access properties of objects in the current
+	      context.
+	\item Resolver: No lookahead, neighboring nodes etc.
+	\item Filter: Suggestions to resolve errors
+	\item Filter: inverted sections don't iterate, no need to filter
+	\item Client: Bug in mustache.js (not a bug, it's the spec)
+	      https://github.com/mustache/spec/blob/master/specs/sections.yml\#L192
+	      https://github.com/janl/mustache.js/blob/master/mustache.js\#L512
+	      Removal of whitespace lines
+	\item Client: Lambda parsing not possible, unfixable, that's ok
+	\item Client: inverted sections don't iterate, no need to return array
+	\item Client: Allow annotations or helper stuff to tell the parser more about the data - or not actually...
+	      e.g. If-else section return lists with single entry
+	\item Client: Extension. Cannot push or pop iterations without rerendering
+	\item Client: Extension. Allow creation of text nodes
+	\item Client: variables as tag names and attribute names are not impossible, just hard
+	\item Client: We don't get the entire section structure of a template unless all
+	      sections have at least one iteration
+	\item Client: getValues not perfect, can change because one or more variables (var->array of vars)
+	\item Client: Updating variables over section iterations may a bit hard
+	\item As template changes, so does the data
+	      Future Work may require better resemblance to original data set
+	\item Future work: Form libraries on top, model libraries etc.
 \end{itemize}
 
 \subsection{Removal of standalone lines}
