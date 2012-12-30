@@ -121,6 +121,7 @@ still allows for mustache tag structures. This allows the user to communicate
 additional information to the client, without showing it in the browser.
 
 \subsubsection{Template constraints}
+\label{sec:template-constraints}
 Note that the EBNF restricts the types of
 templates our tool can parse.
 
@@ -343,8 +344,8 @@ an iteration.
 Lambda sections and normal mustache sections can not be distinguished.
 We also have no way of determining the input to a function by looking at its
 output. For that reason we will simply treat them as sections when parsing
-templates and assume the user is aware when functions are bound to a dataset
-instead of lists.
+templates and assume the user is aware when a function is bound to a dataset
+instead of any type of value.
 
 \subsection{If-else constructs}
 \label{sec:if-else}
@@ -545,14 +546,16 @@ through a set of filters.
 
 \begin{itemize}
 \item \emph{unescaped\_offset} Check if a any mustache tags use an unescaped
-                               variable as their path base
-                               (see chapter \ref{chap:eval}).
+                               variable as their path base\footnote{
+                               	Because of the \emph{unescaped\_pos} filter,
+                               	this filter is actually superfluous.
+                               }. \todo{Remove this filter from the code}
 \item \emph{empty\_section} Check for empty sections. They should be removed.
 \item \emph{unescaped\_pos} An unescaped variable may only be the last child
                             of an XML tag. It may not be a child of a section
-                            (see chapter \ref{chap:eval}).
+                            (see \ref{sec:unescaped-variable-filter}).
 \item \emph{partial\_only\_child} A partial must be the only child of an XML tag
-                                  (see chapter \ref{chap:eval}).
+                                  (see \ref{sec:partial-only-child}).
 \item \emph{no\_lookahead} Neighboring nodes and first and last children may not
                            be mustache tags (see \ref{sec:lookahead}).
 \item \emph{ambiguous\_boundaries} The first child of a section must be
