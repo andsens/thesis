@@ -62,7 +62,7 @@ for changes on the input fields for the escaped variables and text areas for the
 unescaped variables in much the same way.
 
 \subsection{Loopbacking Comb}
-
+\label{sec:loopbacking}
 The fields in our form have corresponding entries in the dataset passed to
 the template we loaded in the beginning.
 Note that although we passed an empty dataset to mustache, Comb will return
@@ -77,7 +77,7 @@ Pushing the ``push'' button on a section appends a new entry to the array of the
 original dataset, while the ``pop'' button removes the last entry from said array.
 When we modify the amount of iterations in an array, we re-render the loaded
 template\footnote{
-	Chapter \ref{chap:eval} explains this necessity in more detail.
+	\ref{sec:update-dom} explains this necessity in more detail.
 }.
 
 \end{document}

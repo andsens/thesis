@@ -8,7 +8,7 @@ In this chapter we will analyze whether we achieved the goals we set ourselves.
 We will also examine Comb in more detail to find potential for improvement and
 uncover scenarios where Comb is not up to the task.
 
-\section{}
+\section{Reviewing our goal}
 In the requirements for the prototype (chapter \ref{chap:requirements})
 we set out to couple the dataset fed into the server-side template engine with
 the models on the client-side. In \ref{sec:revised-goal} we revised this
@@ -266,6 +266,7 @@ by having the section return an object instead of a list with a single item
 containing that object.
 
 \subsubsection{Improving the retrieved dataset}
+\todo{This is ingenious and fucking important, read and correct multiple times}
 A more general approach to improving the retrieved dataset is to introduce
 ambiguity. The developer may be more familiar with the structure of the dataset
 passed to the template engine than the structure of the template, which dictates
@@ -275,25 +276,66 @@ When a section intended as an if block is retrieved from the rendered template
 the client library returns an array regardless of the amount of iterations the
 section has performed\footnote{
 	not accounting for effects of the modification proposed in \ref{sec:flatten-section}
-}.
+} (which in the case of if blocks should be zero or one).
+Since the original dataset held a single object at that position,
+the developer will not expect to find an array.
 
-Sections intended as if blocks in the template 
-intro if-else coerced into list. We can hide that from the user.
-Improve datastructure by allowing ambiguous referencing. If the developer knows
-a section is an if, and accesses the object like that return the first item in the list.
-If the list contains more than one item, return an error. This is goooood :-)
+Our tool has no way of determining the semantic meaning of a section in a
+template.
+Fortunately we do not need to be certain what the intended usage of the section
+is to rebuild the original dataset structure.
+If a section iterated only once we can decorate the resulting array with every
+property of the first entry in the array. Whichever version the developer
+expected, he will now be able to access it that way. This approach will however
+not work when there are no iterations since we cannot let a key in our dataset
+be both an empty list and the value false\footnote{
+	\inline{\!\![]} returns true instead of false unfortunately (in our use-case)
+}. This means the user will not be able to check for the existence of an object.
 
+\todo{Highlight the idiocy of actually deleting a variable mapping after converting it to an array}
+
+We can continue improving the dataset by introducing even more ambiguity.
+Our tool does not know at which context stack level an identifier originates,
+this can lead to the tool situating values in the wrong place in the retrieved
+dataset. We can alleviate this by propagating these values upwards as long as no
+conflicting identifier values are encountered. We can do this in the case of a
+section with a single iteration and with values that remain constant through all
+section iterations.
+
+This propagation can however introduce values to sections where the identifier
+did not originate from. Apart from this inaccuracy we may also supply the user
+with false values. The original dataset can contain values, which are unused in
+the template. This means we will not be able to recognize all conflicts when
+propagating.
+
+\section{Future Work}
+
+\subsection{Modifying rendered templates}
+\label{sec:update-dom}
+The \inline{update()} function\footnote{section \ref{sec:update}} returned by
+variables is helpful when the developer intends to update strings in the
+template. In \ref{sec:loopbacking} we demonstrated how our demo application
+could ``push'' and ``pop'' iterations onto and from a dataset and then re-render
+the template with the new values to display the changes.
+This re-rendering performs a lot of unnecessary work considering it is only
+the rendered template content of one section that needs to be appended or
+removed.
+
+If our pre-parser tool were to extract the template content of a section, we
+could append an additional iteration by only rendering this content with the
+newly pushed item using \emph{mustache.js}.
+
+If we are to remove an iteration we simply remove the nodes that were recognized
+as belonging to that iteration when the rendered template was parsed.
+
+\subsection{Two-way binding of models}
 
 \section{Limitations}
 \begin{itemize}
-	\item Client: Allow annotations or helper stuff to tell the parser more about the data - or not actually...
-	      e.g. If-else section return lists with single entry
 	\item Client: Future Work. Cannot push or pop iterations without rerendering
 	\item Client: Extension. Allow creation of text nodes
-	\item Client: variables as tag names and attribute names are not impossible, just hard
 	\item Client: We don't get the entire section structure of a template unless all
 	      sections have at least one iteration
-	\item Client: getValues not perfect, can change because one or more variables (var->array of vars)
 	\item Client: Updating variables over section iterations may a bit hard
 	\item As template changes, so does the data
 	      Future Work may require better resemblance to original data set
