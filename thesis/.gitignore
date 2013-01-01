@@ -9,6 +9,9 @@
 *.fls
 *.out
 *.brf
+*-blx.bib
+*.bcf
+*.run.xml
 *.synctex.gz
 *.synctex.gz(busy)
 thesis-diff.tex

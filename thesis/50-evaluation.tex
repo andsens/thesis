@@ -40,7 +40,9 @@ HTML \cite{HTMLSPEC}\footnote{
 remains whether our grammar matches a superset which is generic enough to allow
 for all templates that can be converted into a DOM. Among the possible problems
 that may be encountered is namespacing of tag names. The \inline{identLetter}
-\cite[\#v:identLetter]{PARSECDOC} property of our XML token parser in our
+\cite{PARSECDOC}\footnote{
+	Go to: /doc/html/Text-Parsec-Token.html\#v:identLetter
+} property of our XML token parser in our
 pre-parser tool lists the allowed letters in an identifier,
 which in our case are xml tag names and attribute names. Among those letters is
 the colon. This does however not guarantee a proper parsing of rendered

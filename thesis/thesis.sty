@@ -3,15 +3,18 @@
 % \usepackage{luaotfload}
 % \usepackage[EU2]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[american]{babel}
+%\usepackage[american]{babel}
 \usepackage{latexsym}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[labeled]{multibib}
 \usepackage{datetime}
+
+% Bibliography
 \usepackage{tocbibind}
+\usepackage[backend=biber,backref=true,citestyle=numeric]{biblatex}
+\addbibresource{thesis.bib}
 
 % Set geometry for different versions
 \ifdefined\print
@@ -50,7 +53,7 @@
 % PDF links across pages
 \usepackage{hyperref}
 % Create backlinks for citations
-\usepackage[hyperpageref]{backref}
+% \usepackage[hyperpageref]{backref}
 
 % URLs
 \usepackage{url}
