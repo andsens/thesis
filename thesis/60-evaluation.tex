@@ -329,18 +329,18 @@ If we are to remove an iteration we simply remove the nodes that were recognized
 as belonging to that iteration when the rendered template was parsed.
 
 \subsection{Two-way binding of models}
+After implementing \ref{sec:update-dom} layers can be constructed as
+mediators between Comb and client model libraries. As an example of such a
+library we will choose backbone. The backbone library features an event
+architecture which allows the developer to be notified when properties of
+objects change. Using this architecture we can create a tool that allows the
+developer to specify which identifier in the dataset returned by Comb a
+backbone model property corresponds to. Lists in the dataset may be mapped to
+collections.
 
-\section{Limitations}
-\begin{itemize}
-	\item Client: Future Work. Cannot push or pop iterations without rerendering
-	\item Client: Extension. Allow creation of text nodes
-	\item Client: We don't get the entire section structure of a template unless all
-	      sections have at least one iteration
-	\item Client: Updating variables over section iterations may a bit hard
-	\item As template changes, so does the data
-	      Future Work may require better resemblance to original data set
-	\item Future work: Form libraries on top, model libraries etc.
-\end{itemize}
-\section{Future work}
+Once such a mapping is established, our tool can propagate changes in the models
+to the DOM. Reversing this effect is also possible by listening for changes in
+the DOM (e.g. a change of an input field value) and updating the mapped model
+instead.
 
 \end{document}
