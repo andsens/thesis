@@ -220,7 +220,7 @@ an error may be avoided.
 
 \section{Client library improvements}
 
-\subsubsection{Mustache tags as tag and attribute names}
+\subsection{Mustache tags as tag and attribute names}
 In \ref{sec:template-constraints} listed the inability to specify mustache
 tags in XML tag names and attribute names as a restriction on the templates our
 tool can parse. We may however be able to allow this by changing our grammar and
@@ -230,7 +230,7 @@ names and can therefore find these tags with no modifications. Tag names are
 however used to determine various aspects of mustache tag boundaries. These
 checks will have to be rewritten to allow for variable tag names.
 
-\subsubsection{Fall back to lambda sections}
+\subsection{Fall back to lambda sections}
 Lambda sections may currently cause unexpected errors in our client library.
 It assumes every section is a normal section and throws errors if it does not
 find what is expected to be found. Instead of stopping the parsing process
@@ -240,14 +240,14 @@ boundaries this strategy may be problematic as well. The parser can in many
 cases not be sure when a lambda section is actually finished because its content
 can vary wildly.
 
-\subsubsection{Partials must be only children}
+\subsection{Partials must be only children}
 \label{sec:partial-only-child}
 The filter of our pre-parser tool requires partials to be contained within an
 XML tag as its only child. This is done to simplify the parsing process, which
 would otherwise be complicated by accounting for siblings of root nodes in
 a template.
 
-\subsubsection{Unescaped variables as last children}
+\subsection{Unescaped variables as last children}
 \label{sec:unescaped-variable-filter}
 Much like lambda section the content of unescaped variables is hard to predict
 and can be confused with the next sibling of the variable. We added the filter
@@ -257,7 +257,7 @@ of an XML tag, our client library can add all nodes it encounters to the value
 list of an unescaped variable beginnning at the location of that variable until
 it finds no more nodes.
 
-\subsubsection{Properties of values}
+\subsection{Properties of values}
 \label{sec:flatten-section}
 When a property of an identifier is accessed, we know this identifier points at
 an object rather than a list. If we in the same template encounter a section
@@ -265,7 +265,7 @@ using the same identifier, we can recreate the original dataset more precisely
 by having the section return an object instead of a list with a single item
 containing that object.
 
-\subsubsection{Improving the retrieved dataset}
+\subsection{Improving the retrieved dataset}
 \todo{This is ingenious and fucking important, read and correct multiple times}
 A more general approach to improving the retrieved dataset is to introduce
 ambiguity. The developer may be more familiar with the structure of the dataset
@@ -329,18 +329,27 @@ If we are to remove an iteration we simply remove the nodes that were recognized
 as belonging to that iteration when the rendered template was parsed.
 
 \subsection{Two-way binding of models}
+\label{sec:two-way-binding}
 After implementing \ref{sec:update-dom} layers can be constructed as
 mediators between Comb and client model libraries. As an example of such a
 library we will choose backbone. The backbone library features an event
 architecture which allows the developer to be notified when properties of
-objects change. Using this architecture we can create a tool that allows the
+objects change. Using this architecture we can create a layer that allows the
 developer to specify which identifier in the dataset returned by Comb a
 backbone model property corresponds to. Lists in the dataset may be mapped to
 collections.
 
-Once such a mapping is established, our tool can propagate changes in the models
-to the DOM. Reversing this effect is also possible by listening for changes in
-the DOM (e.g. a change of an input field value) and updating the mapped model
-instead.
+Once such a mapping is established, our layer can propagate changes in the
+models to the DOM. Reversing this effect is also possible by listening for
+changes in the DOM (e.g. a change of an input field value) and updating the
+mapped model instead.
+
+Such a layer implements the feature we originally set out with implementing as
+well, but chose to forgo when we in chapter \ref{chap:revised} revised the
+requirements of our tool.
+
+A feature like this will surely also encourage the use of Comb even if the
+template was rendered on the client, making the retrieval of values from the DOM
+a secondary objective.
 
 \end{document}
