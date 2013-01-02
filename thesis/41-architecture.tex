@@ -68,8 +68,8 @@ div.innerHTML = "<img/>"
 div.innerHTML
 \end{lstlisting}
 
-The last line does not return the string "\ <img/\ >" but "\ <img\ >".
-In Firefox the last line returns "\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >".
+The last line does not return the string ``\ <img/\ >'' but ``\ <img\ >''.
+In Firefox the last line returns ``\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >''.
 This means that the rendered templates cannot be parsed reliably by using the
 \inline{innerHTML} property.
 

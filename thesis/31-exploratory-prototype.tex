@@ -106,11 +106,11 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 Every Model on the server-side is linked to the database.
 One instance of a model represents one entity in the database.
 Each of these Models is also represented on the client-side using backbone.js,
-which provides us with a "Backbone.Model" base class that can be extended.
-\todo{Note for clarity that with "class" in JavaScript
+which provides us with a ``Backbone.Model'' base class that can be extended.
+\todo{Note for clarity that with ``class'' in JavaScript
 we actually mean object prototype}
 
-Using the "Backbone.View", we can create ViewModels that bind the Model and the
+Using the ``Backbone.View'', we can create ViewModels that bind the Model and the
 DOM together. For example, this can be used to listen to changes in
 form elements, which the ViewModel translates into changes of the corresponding
 fields in the Model. The Model can in turn synchronize those changes to the
@@ -174,12 +174,13 @@ the Models they are attached to.
 A recursive approach will simplify the parsing in this matter, since the DOM
 is a tree structure.
 
-We bootstrap the parsing function by giving it a "Root" model and a "RootView"
-ViewModel. Both are prototype objects, that will later be instantiated.
+We bootstrap the parsing function by giving it a ``Root'' model and
+a ``RootView'' ViewModel.
+Both are prototype objects, that will later be instantiated.
 The RootView has an XPath attached to it, which points to the list of movies
 in the DOM. The parsing function returns an instantiated ViewModel with a Model
-attached to it (e.g. the bootstrapping yields a "RootView" object containing
-a "Root" object).
+attached to it (e.g. the bootstrapping yields a ``RootView'' object containing
+a ``Root'' object).
 
 During the process every XPath in the ViewModel is examined.
 Since any XPath is labeled with the name of the corresponding field on the

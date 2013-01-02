@@ -106,10 +106,10 @@ situations:
 		from the local storage.
 	\item \emph{The technology stack is more controllable.}\\
 		The main browser technology stack, i.e., CSS, HTML and JavaScript,
-		has suffered greatly under the "browser wars" \todo{reference}
+		has suffered greatly under the ``browser wars'' \todo{reference}
 		and has only gained widespread standardization in the last 5 years.
 		There are still many inconsistencies, especially when tackling edge cases
-		(for example the "Guillotine bug" in Microsoft Internet Explorer 6 and 7,
+		(for example the ``Guillotine bug'' in Microsoft Internet Explorer 6 and 7,
 		each with their own variation
 		\todo{http://www.positioniseverything.net/explorer/guillotine.html}).
 		This technology stack and its edge cases is greatly reduced when
@@ -120,7 +120,7 @@ situations:
 \subsection{Client-side web applications}
 Web applications can also be developed solely using client-side code,
 leaving the server to only supply static content.
-"Mashups" \todo{definition} are fitting examples of such an approach.
+``Mashups'' \todo{definition} are fitting examples of such an approach.
 These web applications rely on external JavaScript APIs
 (Google Maps, Twitter, Weather services) to combine readily available in new
 ways. The client browser requests and combines this data without interacting
@@ -163,8 +163,7 @@ in any comparisons or alternatives.
 \subsection{Combining the strengths}
 The arguments from
 \ref{list:client-side-arguments} and \ref{list:server-side-arguments}
-do not make the case
-for either approach to construct a web application.
+do not make the case for either approach to construct a web application.
 They instead highlight the strengths of both.
 A combination of server-side and client-side processing where their respective
 advantages are utilized and their drawbacks avoided, will help in creating
@@ -176,6 +175,21 @@ responsive. The client-side code can then guess what the result from the server
 will be and update the interface accordingly.
 Later it can correct any discrepancies between the guess and the actual
 response from the server.
+
+A simple example is the deletion of an item from a list: Once a user has given
+the command to delete an item, the client sends a request to the
+server to perform the deletion. This can be a file, folder or an address from an
+address book. The client does in such a case not need to wait for the server to
+respond to remove this item from the view, it can do so immediately.
+This increases the felt performance of an application for the user.
+If the deletion did not succeed (e.g. the user has insufficient rights,
+the address does not exist any longer, the folder is not empty),
+the client can upon receival of the error reintroduce the item into the list and
+notify the user of the error.
+A drawback of such a strategy is an interruption of the work flow,
+where the user may already be working on another task.
+It must therefore be applied only when the interrupted work flow is a price
+worth paying (e.g. interface responsiveness is paramount, errors rarely happen). 
 
 \section{The development process}
 The development process of a web application is similar to most
@@ -190,7 +204,7 @@ components are in place.
 \subsection{Usual design patterns}
 Design patterns help developers to organize software projects into agreed upon
 components, where each component has a specific function
-(also referred to as "concerns" or "responsibility").
+(also referred to as ``concerns'' or ``responsibility'').
 Although their exact features may not be known when a developer is first
 introduced to a new software project, design patterns help him to quickly
 recognize where functionality may be located in the code.
@@ -211,29 +225,29 @@ model, components of this pattern can be present on both sides allowing the
 structure to be homogeneous.
 
 \begin{itemize}
-	\item The "Model" part represents the "data". All dynamic parts of an
+	\item The ``Model'' part represents the ``data''. All dynamic parts of an
 	application modify, create or delete data, however ephemeral this data may
 	be. Since much of the data can grouped, because it belongs to the same
 	entity, it makes sense to represent those entities in the code and
 	attach the data to them. This constitutes a Model. Besides this data,
 	the Model can also have functions attached to it, which can act upon the data
 	in various ways.
-	\item A "Controller" implements the business logic that is decoupled from one
+	\item A ``Controller'' implements the business logic that is decoupled from one
 	specific Model. It draws on the functions tied to the models to perform its
 	duties. Both of these components may be present on the server as well
 	as the client.
-	\item This is true for the "View" component as well. Its purpose however only
+	\item This is true for the ``View'' component as well. Its purpose however only
 	comes to fruition on the client. This component is present on both the server
 	and the client. Any HTML the server sends to the client is considered part of
-	the "View" component.\\
-	The job of the "View" component is to present the data to the user and
+	the ``View'' component.\\
+	The job of the ``View'' component is to present the data to the user and
 	tie calls to the controller to elements of the interface that can be acted
 	upon by the user.
 \end{itemize}
 
 Designs of web applications change with time, features are added or
 removed and common processes simplified. In light of this, it is
-desirable to ensure that the "View" part of the Model-View-Controller
+desirable to ensure that the ``View'' part of the Model-View-Controller
 pattern is easily modifiable.
 
 Modifications of this pattern have evolved in the web application domain to
@@ -242,10 +256,10 @@ Model-View-ViewModel pattern. It was designed by Microsoft and targeted at
 interface development platforms including Windows Presentation Foundation and
 Silverlight but also HTML5.\todo{reference}
 
-The "ViewModel" component allows developers to implement interface logic that
+The ``ViewModel'' component allows developers to implement interface logic that
 lies between the Model and the View, allowing the view to be entirely free
 of code. This component is meant to hold data-bindings to the Model while
-listening to interface events at the same time. It "translates" user actions
+listening to interface events at the same time. It ``translates'' user actions
 into operations on the Model. Without it, the view would have to be aware of how
 data is laid out internally, making refactoring of code harder.
 
