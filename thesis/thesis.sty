@@ -62,6 +62,8 @@
 
 % Make text boxes
 \usepackage{framed}
+% ...with background colors
+\usepackage{mdframed}
 
 % Pretty quote blocks
 \def\signed #1{{\leavevmode\unskip\nobreak\hfil\penalty50\hskip2em
@@ -69,9 +71,12 @@
 	\parfillskip=0pt \finalhyphendemerits=0 \endgraf}}
 
 \newsavebox\citebox
+%\newenvironment{citequote}[1]
+%	{\savebox\citebox{#1}\begin{quote}\itshape\begin{shaded}}
+%	{\signed{\usebox\citebox}\end{shaded}\end{quote}}
 \newenvironment{citequote}[1]
-	{\savebox\citebox{#1}\begin{quote}\itshape\begin{shaded}}
-	{\signed{\usebox\citebox}\end{shaded}\end{quote}}
+	{\savebox\citebox{#1}\begin{quote}\itshape\begin{mdframed}[backgroundcolor=lgray,linewidth=0]}
+	{\signed{\usebox\citebox}\end{mdframed}\end{quote}}
 
 % Get Bitstream Vera Mono to be the monospace font
 \usepackage[scaled]{beramono}
