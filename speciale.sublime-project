@@ -5,6 +5,7 @@
 		{"path": "thesis",
 			"file_exclude_patterns": [
 				"*.aux",
+				"*.auxlock",
 				"*.fdb_latexmk",
 				"*.fls",
 				"*.log",
@@ -12,16 +13,19 @@
 				"*.synctex.gz",
 				"*.synctex.gz(busy)",
 				"*.brf",
+				"*.bcf",
 				"*.toc",
 				"*.blg",
 				"*.bbl",
+				"*-figure*.dpth",
+				"*.run.xml",
 				"*.out"
 			]
 		}
 	],
 	"build_systems": [
 		{"cmd": ["latexmk",
-			"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+			"-pdflatex='pdflatex -shell-escape -synctex=1 %O %S'",
 			"-silent",
 			"-f", "-pdf"],
 		"selector": "source.tex",
