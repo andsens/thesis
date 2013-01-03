@@ -22,13 +22,5 @@
 				"*.out"
 			]
 		}
-	],
-	"build_systems": [
-		{"cmd": ["latexmk",
-			"-pdflatex='pdflatex -shell-escape -synctex=1 %O %S'",
-			"-silent",
-			"-f", "-pdf"],
-		"selector": "source.tex",
-		"osx": {"path": "/bin/:/usr/bin/:/usr/texbin/:/usr/local/bin"}
-	}]
+	]
 }

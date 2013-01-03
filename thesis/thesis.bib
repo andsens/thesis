@@ -56,6 +56,13 @@
 		 Marshall Kirk McKusick, Keith Packard, Henry Spencer,
 		 and Ken Thompson.},
 }
+@manual{TPLEXTRACT,
+	author = {Audrey Tang},
+	date = {2007-10-16},
+	title = {Template::Extract},
+	subtitle = {Use TT2 syntax to extract data from documents},
+	url = {http://search.cpan.org/~audreyt/Template-Extract-0.41/lib/Template/Extract.pm},
+}
 @article{MAWL,
   title = {{M}awl: {A} Domain-Specific Language for Form-Based
 		 Services},
@@ -87,7 +94,7 @@
   annote = {incomplete},
 	url = {http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=00798323},
 }
-@InProceedings{BIGWIG,
+@InProceedings{DYNDOC,
 	author = {Anders Sandholm and Michael I. Schwartzbach},
 	title = {A Type System for Dynamic Web Documents.},
 	pages = {290--301},
@@ -145,4 +152,43 @@
 	address = {Dallas, TX, USA},
 	month = {6},
 	year = {2004},
+}
+@Article{STRINGTPL,
+  title = {Enforcing Strict Model-View Separation in Template
+		 Engines},
+  author = {Terence Parr},
+  year = 	{2004},
+  month = {1},
+  abstract = {The mantra of every experienced web application
+		 developer is the same: thou shalt separate business
+		 logic from display. Ironically, almost all template
+		 engines allow violation of this separation principle,
+		 which is the very impetus for HTML template engine
+		 development. This situation is due mostly to a lack of
+		 formal definition of separation and fear that enforcing
+		 separation emasculates a template{'}s power. I show
+		 that not only is strict separation a worthy design
+		 principle, but that we can enforce separation while
+		 providing a potent template engine. I demonstrate my
+		 StringTemplate engine, used to build jGuru.com and
+		 other commercial sites, at work solving some nontrivial
+		 generational tasks My goal is to formalize the study of
+		 template engines, thus, providing a common
+		 nomenclature, a means of classifying template
+		 generational power, and a way to leverage interesting
+		 results from formal language theory. I classify three
+		 types of restricted templates analogous to Chomsky{'}s
+		 type 1..3 grammar classes and formally define
+		 separation including the rules that embody separation.
+		 Because this paper provides a clear definition of
+		 model-view separation, template engine designers may no
+		 longer blindly claim enforcement of separation.
+		 Moreover, given theoretical arguments and empirical
+		 evidence, programmers no longer have an excuse to
+		 entangle model and view.},
+  bibsource = {OAI-PMH server at wwwconf.ecs.soton.ac.uk},
+  oai = {oai:wwwconf.ecs.soton.ac.uk:578},
+  subject = {B-5: Web Site Engineering; D.1: Programming
+		 Techniques; D.3: Programming Languages},
+  url = {http://wwwconf.ecs.soton.ac.uk/archive/00000578/01/p224-parr.pdf},
 }

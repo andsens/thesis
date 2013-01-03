@@ -4,9 +4,68 @@
 
 \chapter{Related Work}
 \section{MAWL}
-\cite{MAWL}
-\cite{BIGWIG}
+Mawl\cite{MAWL} is a framework and domain-specific language developed in 1999
+to aid the handling of HTML forms as well as telephone forms.
+It does this by supplying the developer with a framework which compiles
+a set of MAWL templates and ``sessions''\footnote{
+	These are not sessions in the modern sense of web development but rather
+	the programmatic glue between multipage forms.
+} to executables
+the browser can communicate with via the CGI on the web server.
+
+The primary goal behind MAWL is to empower the developer with a better
+organization of the data flow in form-based services.
+This goal is achieved by creating a form abstraction language in which the
+semantics of forms can be specified while the presentation layer of these forms
+is handled by MAWL templates (MHTML).
+CGI programs handling the data flow need no longer be programmed in
+perl, Tcl or the Korn Shell, but can be compiled from said language.
+
+A secondary advantageous property of MAWL is its ability to verify the
+type signature of the form abstraction against structure of an MHTML template.
+Although the paper does not go into detail explaining how these templates are
+analyzed a parallel can be drawn to our Comb pre-parser tool which employs
+Parsec to construct an abstract syntax tree. Much like MHTML is checked for
+consistency, our parser also verifies mustache templates and displays any
+possible errors.
+\todo{ref to emergent props}
+\begin{citequote}{\cite{MAWL}}
+First, the sessions and the MHTML can be independently analyzed to ensure that
+they are internally consistent.
+For the sessions, this means standard type checking and semantics checking.
+For MHTML templates, this means verifying that a template is legal MHTML.
+\end{citequote}
+
+
+\section{Template::Extract}
+Template::Extract\cite{TPLEXTRACT} is a perl module with a functionality much
+like Comb. It is written for the ``Template Toolkit'' templating language and
+allows the developer to extract values from a rendered template when given the
+template. This extraction is accomplished by compiling a regular expression
+based on the template and applying it to the rendered template.
+
+\begin{citequote}{\cite{TPLEXTRACT}}
+Extraction is done by transforming the result from Template::Parser to a highly
+esoteric regular expression, which utilizes the (?\{...\}) construct to insert
+matched parameters into the hash reference.
+\end{citequote}
+
+Our revised goal exactly matches Template::Extract, Comb however operates on the
+Document Object Model while Template::Extract operates on a single string.
+In \ref{chap:arch} we evaluated that possibility but discovered that the strings
+returned by the \inline{innerHTML} property of DOM elements differs between
+browsers and does not reflect the original rendered template.
+By extracting values from the DOM we also retrieve references to the nodes they
+were extracted from\footnote{
+	as detailed in \ref{sec:parent-nodes}
+}. This additional piece of information allows Comb to become more than a simple
+value extraction library.
+
+\section{}
+\cite{DYNDOC}
+
 \cite{HASKELL}
 \cite{WASH}
 \cite{ML}
+
 \end{document}
