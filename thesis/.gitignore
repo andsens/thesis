@@ -1,4 +1,5 @@
 *.aux
+*.auxlock
 *.bbl
 *.blg
 *.dvi
@@ -14,5 +15,7 @@
 *.run.xml
 *.synctex.gz
 *.synctex.gz(busy)
+*-figure*.dpth
+*.pdf
 thesis-diff.tex
 temp
