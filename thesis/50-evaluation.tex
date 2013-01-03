@@ -161,23 +161,23 @@ may encounter with two ore more variables in one text node as shown in figure
 \ref{fig:twovars-no-sep}.
 \begin{figure}
 	\centering
-	\caption{Two variables without a separator between them}
-	\label{fig:twovars-no-sep}
 	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:twovars-no-sep.mustache}
 		\begin{lstlisting}[language=mustache]
 <span>{{var_one}}{{var_two}</span>
 		\end{lstlisting}
-		\caption{Template}
-		\label{fig:twovars-no-sep.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:twovars-no-sep.html}
 		\begin{lstlisting}[language=HTML]
 <span>This text can be split between the two variables or belong to only one.</span>
 		\end{lstlisting}
-		\caption{Result}
-		\label{fig:twovars-no-sep.html}
 	\end{subfigure}
+	\caption{Two variables without a separator between them}
+	\label{fig:twovars-no-sep}
 \end{figure}
 The parser cannot split a string originating from two variables that are not
 separated by text in any meaningful way. It is impossible to determine how much
@@ -195,23 +195,23 @@ empty. Of the remaining slashes in the ``/with/multiple/'' string the
 original separator can be any one of them.
 \begin{figure}
 	\centering
-	\caption{Two variables separated with a `/'}
-	\label{fig:twovars-sep}
 	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:twovars-sep.mustache}
 		\begin{lstlisting}[language=mustache]
 <a href="http://www.example.com/{{var_one}}/{{var_two}</a>
 		\end{lstlisting}
-		\caption{Template}
-		\label{fig:twovars-sep.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:twovars-sep.html}
 		\begin{lstlisting}[language=HTML]
 <a href="http://www.example.com/path/with/multiple/slashes</a>
 		\end{lstlisting}
-		\caption{Result}
-		\label{fig:twovars-sep.html}
 	\end{subfigure}
+	\caption{Two variables separated with a `/'}
+	\label{fig:twovars-sep}
 \end{figure}
 
 \subsection{Filter}

@@ -82,9 +82,9 @@ Consider the example in figures \ref{fig:section-example}.
 
 \begin{figure}
 	\centering
-	\caption{An example of a mustache section}
-	\label{fig:section-example}
 	\begin{subfigure}{\textwidth}
+		\caption{Dataset}
+		\label{fig:section-example.json}
 		\begin{lstlisting}[language=JSON]
 { nickname: "andsens"
   messagecount: 2
@@ -96,11 +96,11 @@ Consider the example in figures \ref{fig:section-example}.
   ]
 }
 		\end{lstlisting}
-		\caption{Dataset}
-		\label{fig:section-example.json}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:section-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <p>
 	Hello {{nickname}},<br/>
@@ -112,11 +112,11 @@ Consider the example in figures \ref{fig:section-example}.
 	{{/messages}}
 </ul>
 		\end{lstlisting}
-		\caption{Template}
-		\label{fig:section-example.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:section-example.html}
 		\begin{lstlisting}[language=HTML]
 <p>
 	Hello andsens,<br/>
@@ -127,9 +127,9 @@ Consider the example in figures \ref{fig:section-example}.
 	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 </ul>
 		\end{lstlisting}
-		\caption{Result}
-		\label{fig:section-example.html}
 	\end{subfigure}
+	\caption{An example of a mustache section}
+	\label{fig:section-example}
 \end{figure}
 Here the placeholder "nickname" is used in two different contexts.
 The first usage occurs while the context stack is only one level high.
@@ -144,18 +144,18 @@ the current item in a list iteration to be referenced with a special ``dot''
 operator, as can be seen in figure \ref{fig:dot-oper-example}.
 \begin{figure}
 	\centering
-	\caption{Mustache template using the ``.'' variable}
-	\label{fig:dot-oper-example}
 	\begin{subfigure}{\textwidth}
+		\caption{Dataset}
+		\label{fig:dot-oper-example.json}
 		\begin{lstlisting}[language=JSON]
 ["How did the presentation go? from carl",
 "Welcome to Messageservice Inc. from Messageservice Inc."]
 		\end{lstlisting}
-		\caption{Dataset}
-		\label{fig:dot-oper-example.json}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Template}
+		\label{fig:dot-oper-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#messages}}
@@ -163,20 +163,20 @@ operator, as can be seen in figure \ref{fig:dot-oper-example}.
 	{{/messages}}
 </ul>
 		\end{lstlisting}
-		\caption{Template}
-		\label{fig:dot-oper-example.mustache}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:dot-oper-example.html}
 		\begin{lstlisting}[language=HTML]
 <ul>
 	<li>How did the presentation go? from carl</li>
 	<li>Welcome to Messageservice Inc. from Messageservice Inc.</li>
 </ul>
 		\end{lstlisting}
-		\caption{Result}
-		\label{fig:dot-oper-example.html}
 	\end{subfigure}
+	\caption{Mustache template using the ``.'' variable}
+	\label{fig:dot-oper-example}
 \end{figure}
 
 \subsubsection{Inverted sections}
@@ -264,9 +264,9 @@ to the key ``reldate''.
 
 \begin{figure}
 	\centering
-	\caption{An example of lambda sections in mustache templates}
-	\label{fig:lambda-example}
 	\begin{subfigure}{\textwidth}
+		\caption{Data}
+		\label{fig:lambda-example.data}
 		\begin{lstlisting}[language=JSON]
 { reldate: function(text) {
   	return 'some time ago';
@@ -281,11 +281,11 @@ to the key ``reldate''.
   ]
 }
 		\end{lstlisting}
-		\caption{Data}
-		\label{fig:lambda-example.data}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Result}
+		\label{fig:lambda-example.html}
 		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#messages}}
@@ -304,9 +304,9 @@ to the key ``reldate''.
 	<li>A disturbance in the force, I felt... from Yoda sent some time ago</li>
 </ul>
 		\end{lstlisting}
-		\caption{Result}
-		\label{fig:lambda-example.html}
 	\end{subfigure}
+	\caption{An example of lambda sections in mustache templates}
+	\label{fig:lambda-example}
 \end{figure}
 
 \subsubsection{Comments}
@@ -327,9 +327,9 @@ render recursive data-structures. For example the template in figure
 
 \begin{figure}
 	\centering
-	\caption{Mustache templates can be recursive by utilizing partial tags}
-	\label{fig:partial-example}
 	\begin{subfigure}{\textwidth}
+		\caption{Data}
+		\label{fig:partial-example.data}
 		\begin{lstlisting}[language=JSON]
 { directories: [{
 		name: "bin",
@@ -346,11 +346,11 @@ render recursive data-structures. For example the template in figure
 	}]
 }
 		\end{lstlisting}
-		\caption{Data}
-		\label{fig:partial-example.data}
 	\end{subfigure}
 	
 	\begin{subfigure}{\textwidth}
+		\caption{Template, the partial named ``filesystem'' points at this template}
+		\label{fig:partial-example.mustache}
 		\begin{lstlisting}[language=mustache]
 <ul>
 	{{#directories}}
@@ -361,11 +361,17 @@ render recursive data-structures. For example the template in figure
 	{{/files}}
 </ul>
 		\end{lstlisting}
-		\caption{Template, the partial named ``filesystem'' points at this template}
-		\label{fig:partial-example.mustache}
 	\end{subfigure}
+	\caption{Mustache templates can be recursive by utilizing partial tags}
+	\label{fig:partial-example}
+\end{figure}
 	
+\begin{figure}
+	\ContinuedFloat
+	\centering
 	\begin{subfigure}{\textwidth}
+		\caption{Resulting filesystem list}
+		\label{fig:partial-example.html}
 		\begin{lstlisting}[language=HTML]
 <ul>
 	<li>bin/:
@@ -387,9 +393,8 @@ render recursive data-structures. For example the template in figure
 	</li>
 </ul>
 		\end{lstlisting}
-		\caption{Resulting filesystem list\footnote{The indentations may be incorrect}}
-		\label{fig:partial-example.html}
 	\end{subfigure}
+	\caption{Mustache templates can be recursive by utilizing partial tags}
 \end{figure}
 
 \subsubsection{Set delimiter}
