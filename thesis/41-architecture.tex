@@ -127,7 +127,9 @@ rendered template. We could choose to modify the template engine to output that
 exact information. This poses a rather big challenge:
 For mustache templates there exists no such thing as \emph{the} template engine.
 Currently the mustache website lists mustache engines in 29 different
-programming languages. (https://github.com/defunkt/mustache/wiki/Other-Mustache-implementations \todo{ref})
+programming languages\footnote{
+      \url{https://github.com/defunkt/mustache/wiki/Other-Mustache-implementations/9ff07950f0983b58248e6a18d17cce5c47743344}
+}.
 This fact makes the goal of such an approach very hard to achieve.
 
 \subsection{Decorating templates}
@@ -141,5 +143,23 @@ Apart from simply shifting the workload of locating template variables
 from the viewmodel maintainer to the template maintainer\footnote{The scenario
 in chapter \ref{chap:requirements} illustrates this point},
 the task of retrofitting existing web applications becomes much greater.
+
+\subsection{Rule of Parsimony}
+\ref{sec:revised-goal}
+
+The Rule of Parsimony states
+\begin{citequote}{\cite[Chapter 1]{UXART}}
+Rule of Parsimony: Write a big program only when it is clear by demonstration
+that nothing else will do.
+\end{citequote}
+
+By examining the output of the \inline{innerHTML} property in different browsers
+and hypothesizing\footnote{though not really``demonstrating''} how our goal
+could be solved by decorating templates, we have shown ``that nothing else will
+do''. The approach to parse rendered templates after analyzing them may be are
+more complex operation than other solutions, but it is the only one
+``that will do'' to achieve our goal. We have also shown that integrating
+directly with the template engine would in fact result in a bigger program.
+We are therefore following The Rule of Parsimony.
 
 \end{document}

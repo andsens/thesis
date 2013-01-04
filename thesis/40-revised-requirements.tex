@@ -46,8 +46,13 @@ paths dynamically in our real implementation.\
 Once the dataset is rebuilt the second part consists of mapping its values
 to models on the client side. In the prototype we realized the mapping process
 by hard-coding the types of backbone fields into the ModelView.
-
 Our final implementation will only feature the first of these processes.
+To state it clearly:
+\begin{quote}
+Our goal is to extract the dataset passed to the mustache template engine from
+the rendered template.
+\end{quote}
+
 This drastic change of our goal is grounded in the desire to create a tool that
 is applicable in as many types of web applications as possible.
 The mustache template engine is the only precondition for using the first part
@@ -100,12 +105,18 @@ some of the rules set by Eric Steven Raymond in his book
 	\item Rule of Extensibility: Design for the future, because it will be here sooner than you think.
 \end{itemize}
 \end{citequote}
-\todo{elaboraaaate *Rule of Simplicity}
 
 By focusing on data extraction we can follow the Rule of Composition more
 easily: A layer to map the values we extract to client-side models can still be
 implemented on top of it, thereby enabling developers to integrate our tool into
 other client libraries than backbone.
+The Rule of Modularity is a fitting extension of that layering, by carefully
+designing the structure of the extracted data returned by our tool we can
+provide a clean interface to layers that may be written later on.
+
+The binding of models is a feature which would add to the complexity of our
+tool. The tool still has a purpose and relevance without the feature.
+We simplify our approach and thereby follow Rule of Simplicity.
 
 \section{Simplifying the project}
 
