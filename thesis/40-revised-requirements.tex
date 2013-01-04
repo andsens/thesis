@@ -118,12 +118,19 @@ The binding of models is a feature which would add to the complexity of our
 tool. The tool still has a purpose and relevance without the feature.
 We simplify our approach and thereby follow Rule of Simplicity.
 
+By following these rules we hope to be able to develop a tool that will be able
+to fit into an ecosystem of existing software. To do this we focus on our
+previously stated goal and remove all superfluous features that do not
+contribute to that goal. There may later be feature additions that can help the
+developer when writing software and lie in the functional scope of our tool.
+
 \section{Simplifying the project}
 
 Bear in mind that despite the following simplifications we may still use some
-of the tools. We intend our tool to perform in an ecosystem of other software,
-which can integrate loosely with our tool instead of requiring deep integration
-with it.
+of the libraries.
+As stated in the previous section, we intend our tool to perform in an ecosystem
+of other software, minimizing dependencies can help developers integrate it into
+their existing software without conflicts.
 
 \subsection{Server-side}
 We begin our simplification on the server. Here we communicated with a database

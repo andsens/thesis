@@ -7,10 +7,9 @@
 
 \todo{Explain how this is better than generating jQuery selectors. Namely we even retrieve \emph{implied} values.}
 
-\todo{Talk about how template modifications may not need a second look at the viewmodel}
-
 \todo{Make a checker, to figure out if the retrieved dataset structure has changed}
 
+\todo{Unescaped variables starting with a close tag won't work}
 
 In this chapter we will analyze whether we achieved the goals we set ourselves.
 We will also examine Comb in more detail to find potential for improvement and
@@ -361,5 +360,36 @@ requirements of our tool.
 A feature like this will surely also encourage the use of Comb even if the
 template was rendered on the client, making the retrieval of values from the DOM
 a secondary objective.
+
+\section{Emergent Properties}
+
+In \ref{sec:revised-goal} we outlined the rules from Eric Steven Raymonds book
+``The Art of Unix Programming''. Although, the rules are meant for developing
+Unix programs, we chose to apply them to the development of Comb.
+Comb can not be regarded as a framework but a tool. It does not dictate what
+software the developer should use (beyond mustache)\footnote{
+	In fact, Comb is even agnostic about HTTP. How the comb file is transfered
+	is up to the developer.
+} and it does not expect a specific structural layout of a web application.
+This fact allows developers to integrate Comb in a larger set of software
+combinations, extending its applicability.
+In fact, Comb may be used in ways we may not have outlined in this evaluation:
+Node.js\footnote{\todo{ref to node.js}} allows execution of JavaScript on the
+server side. With node.js Comb could be used in the parsing of rendered
+templates without involving any browser\footnote{
+	This could also be a great way to write unit tests for Comb.
+}.
+
+By choosing to develop Comb as a tool we can also observe a set of emergent
+properties that have become apparent during the implementation, usage and
+evaluation of it.
+
+
+\todo{We verify templates!}
+
+\todo{Almost a query language like jQuery}
+
+\todo{Can become a fully fledged live renderer of mustache templates - model binding...}
+\todo{Talk about how template modifications may not need a second look at the viewmodel}
 
 \end{document}
