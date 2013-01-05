@@ -1,0 +1,17 @@
+{
+    "name": "comb/moviedb",
+    "description": "Movie Database Server for Comb Demo",
+    "autoload": {
+        "psr-0": {"MovieDatabase": "src/"}
+    },
+    "require": {
+        "php-activerecord/php-activerecord": "dev-master",
+        "mustache/mustache": "v2.0.2"
+    },
+    "authors": [
+        {
+            "name": "Anders Ingemann",
+            "email": "anders@ingemann.de"
+        }
+    ]
+}

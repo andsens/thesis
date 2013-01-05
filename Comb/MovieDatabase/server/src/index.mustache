@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Movie Collection Organizer</title>
+	<link rel="stylesheet/less" type="text/css" href="/view/main.less">
+	<script type="text/javascript" src="/lib/less-1.3.0.min.js"></script>
+	<script type="text/javascript" src="/lib/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="/lib/underscore-min.js"></script>
+	<script type="text/javascript" src="/lib/backbone.js"></script>
+	<script type="text/javascript" src="/controller/parser.js"></script>
+	<script type="text/javascript" src="/model/Role.js"></script>
+	<script type="text/javascript" src="/model/Actor.js"></script>
+	<script type="text/javascript" src="/model/Movie.js"></script>
+	<script type="text/javascript" src="/model/Root.js"></script>
+	<script type="text/javascript" src="/view/main.js"></script>
+</head>
+<body id="overview">
+	<header>
+		<nav>
+			<ul>
+				{{#menu}}
+				<li><a href="{{href}}">{{title}}</a></li>
+				{{/menu}}
+			</ul>
+		</nav>
+	</header>
+	<section id="movies">
+		<ol>
+			{{#movies}}
+			<li id="movie-{{id}}">
+				<details>
+					<summary class="title">{{title}}</summary>
+					<header>
+						<section class="operations">
+							<span class="edit command">Edit</span>
+							<a>Delete</a>
+						</section>
+					</header>
+					<div class="main">
+						<h1>{{title}}</h1>
+						(<span class="year">{{year}}</span>)
+						<div class="poster">
+							{{poster}}
+						</div>
+						<details class="plot">
+							<summary class="synopsis">
+									Synopsis: <span>{{synopsis}}</span>
+								</summary>
+							<p>{{plot}}</p>
+						</details>
+						<table class="cast">
+							<thead>
+								<tr>
+									<td>Actor</td>
+									<td>Character</td>
+								</tr>
+							</thead>
+							<tbody>
+								{{#cast}}
+									<tr id="id-{{id}}">
+										<td class="actor"><span id="actor-{{id}}">{{name}}</span></td>
+										<td class="character">{{character}}</td>
+								</tr>
+								{{/cast}}
+							</tbody>
+						</table>
+						<span id="add_actor_button" class="command">add</span>
+					</div>
+				</details>
+			</li>
+			{{/movies}}
+		</ol>
+		<span id="add_movie_button" class="command">add</span>
+	</section>
+	<footer></footer>
+</body>
+</html>
