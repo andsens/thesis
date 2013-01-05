@@ -1,0 +1,144 @@
+@grey: #F2F2F2;
+@blue: #D9E0FF;
+@black: #000000;
+*:focus {
+    outline: none;
+}
+body {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+@header-height: 35px;
+body>header {
+	width: 100%;
+	border-bottom: 1px solid black;
+	margin-bottom: 15px;
+	height: @header-height;
+	nav ul {
+		list-style: none;
+		li {
+			display: inline;
+			padding-left: 15px;
+			a {
+				color: black;
+				text-decoration: none;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+	display: none;
+}
+summary::-webkit-details-marker {
+	display: none;
+}
+
+span.command {
+	cursor: pointer;
+	margin-left: 15px;
+	text-decoration: none;
+	color: @black;
+	&:hover {
+		text-decoration: underline;
+		color: @grey;
+	}
+}
+
+section#movies {
+	@movie-list-width: 150px;
+	@movie-list-height: 500px;
+	@list-indentation: 15px;
+	&>ol {
+		padding-left: 0px;
+		list-style: none;
+		width: @movie-list-width;
+		overflow-y: scroll;
+		margin-bottom: 10px;
+		&>li {
+			overflow-y: visible;
+			&>details {
+				background-color: @grey;
+				&>summary {
+					cursor: pointer;
+					padding: 5px 5px 0px @list-indentation;
+					font-size: 20px;
+				}
+				&>header {
+					display: none;
+					padding-left: @list-indentation;
+					font-size:12px;
+					vertical-align: top;
+				}
+				&[open] {
+						background-color: @blue;
+					&>summary {
+						&:after {
+							content: '>';
+							float: right;
+							vertical-align: middle;
+						}
+					}
+					&>header {
+						display: inline-block;
+					}
+				}
+			}
+		}
+		div.main {
+			position: absolute;
+			top: @header-height;
+			left: @movie-list-width + 20px;
+			h1 {
+				display: inline-block;
+			}
+			span.year {
+				font-size: 20px;
+			}
+			table.cast {
+				margin: 15px;
+				thead tr {
+					background: @grey;
+					font-size: 20px;
+					font-weight: bold;
+				}
+				tr {
+					td:first-child {
+						width: 200px;
+					}
+				}
+				tr:nth-child(even) {
+					background: @grey;
+				}
+				tr:nth-child(odd) {
+				}
+			}
+		}
+	}
+}
+
+section#movie-form {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+	fieldset {
+		legend {
+			/*margin-bottom: 15px;*/
+		}
+		/*border: none;*/
+		label {
+			float: left;
+			width: 120px;
+			/*display: inline-block;*/
+		}
+		input {
+			/*width: 120px;*/
+		}
+	}
+	ol {
+		list-style: none;
+		li {
+			line-height: 30px;
+		}
+	}
+}

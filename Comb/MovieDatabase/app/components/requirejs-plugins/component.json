@@ -1,9 +1,0 @@
-{
-  "name": "requirejs-plugins",
-  "version": "0.0.0",
-  "commit": "3ff54566f8ece37a5d53b9b374b34080d26715ca",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/millermedeiros/requirejs-plugins.git"
-  }
-}

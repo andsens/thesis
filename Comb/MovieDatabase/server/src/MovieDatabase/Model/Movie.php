@@ -1,6 +1,5 @@
 <?php
 namespace MovieDatabase\Model;
-var_dump(class_exists('\MovieDatabase\Model\Movie', false));
 
 class Movie extends \ActiveRecord\Model {
 	static $has_many = array(
@@ -10,4 +9,3 @@ class Movie extends \ActiveRecord\Model {
 	static $alias_attribute = array(
      'cast' => 'roles');
 }
-var_dump('after');
