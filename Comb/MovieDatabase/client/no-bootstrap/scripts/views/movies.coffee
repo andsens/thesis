@@ -1,9 +1,15 @@
 define [
 	'cs!views/base/collection_view'
-	'cs!views/movie'
+	'cs!views/$movie'
+	'cs!views/Cmovie'
 	'cs!models/movie'
-], (CollectionView, MovieView, Movie) ->
+], (CollectionView, $MovieView, CMovieView, Movie) ->
 	'use strict'
+	
+	MovieView = switch window.localStorage.getItem('type')
+		when '$' then $MovieView
+		when 'C' then CMovieView
+		else throw new Error 'Set a data retrieval type with "window.localStorage.setItem(\'type\', \'$|C\')"'
 	
 	class MoviesView extends CollectionView
 		
@@ -20,7 +26,6 @@ define [
 					@subview "itemView:#{view.model.cid}", view
 					@collection.push view.model, silent: true
 				@$list = @$ @listSelector
-				@$('ol>li>details')[0].open = true
 			
 			
 			@delegate 'click', 'ol>li>details', (e) =>

@@ -1,14 +1,18 @@
 define [
-	'cs!views/base/view'
+	'cs!views/base/Cview'
 	'text!/templates/actor.mustache'
+	'text!/templates/actor.mustache-comb'
 	'cs!models/actor'
-], (View, template, Actor) ->
+], (View, template, spec, Actor) ->
 	'use strict'
 	
 	class ActorView extends View
 		
 		template: template
 		template = null
+		
+		spec: spec
+		spec = null
 		
 		tagName: "span"
 		

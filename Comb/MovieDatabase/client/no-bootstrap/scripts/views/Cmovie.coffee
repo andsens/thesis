@@ -1,11 +1,12 @@
 define [
-	'cs!views/base/view'
+	'cs!views/base/Cview'
 	'text!/templates/movie.mustache'
-	'cs!views/cast'
+	'json!templates/movie.mustache-comb'
+	'cs!views/Ccast'
 	'cs!models/movie'
 	'cs!collections/cast'
 	'chaplin'
-], (View, template, CastView, Movie, Cast, Chaplin) ->
+], (View, template, spec, CastView, Movie, Cast, Chaplin) ->
 	'use strict'
 	
 	class MovieView extends View
@@ -13,11 +14,14 @@ define [
 		template: template
 		template = null
 		
+		spec: spec
+		spec = null
+		
 		tagName: "li"
 		
 		initialize: ->
 			super
-			
+			console.log @data
 			unless @model?
 				@model = new Movie
 			

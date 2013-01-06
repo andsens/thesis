@@ -1,16 +1,20 @@
 define [
-	'cs!views/base/view'
+	'cs!views/base/Cview'
 	'text!/templates/role.mustache'
-	'cs!views/actor'
+	'text!/templates/role.mustache-comb'
+	'cs!views/Cactor'
 	'cs!models/role'
 	'chaplin'
-], (View, template, ActorView, Role, Chaplin) ->
+], (View, template, spec, ActorView, Role, Chaplin) ->
 	'use strict'
 	
 	class RoleView extends View
 		
 		template: template
 		template = null
+		
+		spec: spec
+		spec = null
 		
 		tagName: "tr"
 		

@@ -22,6 +22,7 @@
       },
       paths: {
         jquery: 'vendor/jquery.min',
+        comb: 'vendor/comb',
         watch: 'vendor/jquery.watch',
         underscore: 'vendor/underscore-min',
         backbone: 'vendor/backbone/backbone',

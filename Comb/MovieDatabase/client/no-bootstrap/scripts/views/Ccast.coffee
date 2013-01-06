@@ -1,6 +1,6 @@
 define [
 	'cs!views/base/collection_view'
-	'cs!views/role'
+	'cs!views/Crole'
 	'cs!models/role'
 ], (CollectionView, RoleView, Role) ->
 	'use strict'
@@ -14,7 +14,7 @@ define [
 		
 		initialize: ->
 			super
-			if @options.el
+			if @options.el?
 				for el in @$('tbody tr')
 					view = new RoleView {el, movie: @options.movie}
 					@subview "itemView:#{view.model.cid}", view

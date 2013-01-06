@@ -12,7 +12,7 @@ define [
 		
 		parse: ->
 			super
-			unless @partials? and @partials[@name]?
+			unless @partials?[@name]?
 				throw new Error ("Partial specification for " + @name + " not found")
 			@partials[@name].verbose = @spec.verbose
 			@root = new Section.Section 0, @partials[@name], @partials, @parent
