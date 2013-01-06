@@ -21,7 +21,7 @@ define [
 					@collection.push view.model, silent: true
 				@$list = @$ @listSelector
 			
-			@delegate 'click', '#add_role_button', =>
+			@delegate 'click', '.add-role', =>
 				@collection.push new Role()
 		
 		getView: (model) ->

@@ -22,35 +22,32 @@ define [
 				@model = new Movie
 			
 			if @options.el?
-				@model.set 'id', (@$('>details').attr 'id').substring 6
-				@model.set 'title', @$('summary.title').text()
-				@model.set 'year', @$('span.year').text()
-				@model.set 'synopsis', @$('summary.synopsis span').text()
-				@model.set 'plot', @$('details.plot p').text()
+				@model.set 'id', (@$('>div').attr 'id').substring 6
+				@model.set 'title', @$('h1').text()
+				@model.set 'year', @$('h3').text()
+				@model.set 'synopsis', @$("#plot-#{@model.id} div").text()
+				@model.set 'plot', @$("#synopsis-#{@model.id} div").text()
 			
 				@subview 'cast', new CastView
 					el: @$('table.cast')[0]
 					collection: new Cast()
 					movie: @model
 			
-			@delegate 'keyup', 'h1', =>
-				@$('summary.title').text (@$ 'h1').text()
-			
 			@editable 'title', 'h1'
-			@editable 'year', 'span.year'
-			@editable 'synopsis', 'summary.synopsis span'
-			@editable 'plot', 'details.plot p'
+			@editable 'year', 'h3'
+			@editable 'synopsis', "#plot-#{@model.id} div"
+			@editable 'plot', "#synopsis-#{@model.id} div"
 			
 			@subscribeToEditableEvents "edit:movie:#{@model.cid}", "save:movie:#{@model.cid}"
 			Chaplin.mediator.subscribe "save:movie:#{@model.cid}", =>
-				@$('.edit.command').text 'Edit'
+				@$('.edit-movie i').attr 'class', 'icon-edit'
 			
 			Chaplin.mediator.subscribe "edit:movie:#{@model.cid}", =>
-				@$('.edit.command').text 'Save'
+				@$('.edit-movie i').attr 'class', 'icon-ok'
 			
 			
 			editing = false
-			@delegate 'click', '.edit.command', =>
+			@delegate 'click', '.edit-movie', =>
 				editing = !editing
 				if editing
 					Chaplin.mediator.publish "edit:movie:#{@model.cid}"
