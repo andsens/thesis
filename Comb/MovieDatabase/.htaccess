@@ -1,6 +1,6 @@
 DirectoryIndex /server/src/index.php
 RewriteEngine On
-RewriteRule /rest /server/src/rest.php
+RewriteRule /rest/.* /server/src/rest.php [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ client/no-bootstrap/$1

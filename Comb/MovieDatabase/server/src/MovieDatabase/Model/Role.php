@@ -6,4 +6,7 @@ class Role extends \ActiveRecord\Model {
 		array('movie'),
 		array('actor')
 	);
+	# Hack to get activerecord to return true when asked if the property is set... ffs
+	static $alias_attribute = array(
+     'actor' => 'actor');
 }

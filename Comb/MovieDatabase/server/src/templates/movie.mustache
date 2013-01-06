@@ -1,0 +1,34 @@
+<details id="movie-{{id}}">
+	<summary class="title">{{title}}</summary>
+	<header>
+		<section class="operations">
+			<span class="edit command">Edit</span>
+			<a>Delete</a>
+		</section>
+	</header>
+	<div class="main">
+		<h1>{{title}}</h1>
+		(<span class="year">{{year}}</span>)
+		<div class="poster">
+			{{poster}}
+		</div>
+		<details class="plot">
+			<summary class="synopsis">
+					Synopsis: <span>{{synopsis}}</span>
+				</summary>
+			<p>{{plot}}</p>
+		</details>
+		<table class="cast">
+			<thead>
+				<tr>
+					<td>Actor</td>
+					<td>Character</td>
+				</tr>
+			</thead>
+			<tbody>
+				{{#cast}}<tr>{{>role}}</tr>{{/cast}}
+			</tbody>
+		</table>
+		<span id="add_actor_button" class="command">add</span>
+	</div>
+</details>
