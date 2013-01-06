@@ -6,7 +6,6 @@ import qualified Comb.Parser as P
 import qualified Comb.Resolver as R
 import Text.JSON.Types(toJSObject, toJSString, JSObject, JSValue(..))
 import Text.Parsec.Pos(sourceLine)
-import Data.Hashable(hash)
 import Numeric
 import Data.List(elemIndex,findIndex)
 
