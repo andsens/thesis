@@ -69,12 +69,10 @@
 
       UnescapedVariable.prototype.getValues = function(merge) {
         if (merge != null) {
-          if (!_.isArray(merge)) {
-            merge = [merge];
-          }
           merge.push(this.getRoot());
         } else {
-          merge = this.getRoot();
+          merge = [this.getRoot()];
+          merge.type = 'unescaped';
         }
         return merge;
       };

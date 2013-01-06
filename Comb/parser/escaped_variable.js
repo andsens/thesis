@@ -99,10 +99,9 @@
       EscapedVariable.prototype.getValues = function(merge) {
         var _this = this;
         if (merge != null) {
-          if (!(merge instanceof Array)) {
-            merge = [merge];
-          }
           merge.push(this.getRoot());
+        } else {
+          merge = [this.getRoot()];
           merge.type = 'escaped';
           merge.value = this.string;
           merge.update = function(text) {
@@ -114,8 +113,6 @@
             }
             return _results;
           };
-        } else {
-          merge = this.getRoot();
         }
         return merge;
       };

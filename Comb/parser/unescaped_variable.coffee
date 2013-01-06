@@ -41,11 +41,10 @@ define [
 		
 		getValues: (merge) ->
 			if merge?
-				unless _.isArray merge
-					merge = [merge]
 				merge.push @getRoot()
 			else
-				merge = @getRoot()
+				merge = [@getRoot()]
+				merge.type = 'unescaped'
 			return merge
 		
 		update: ->

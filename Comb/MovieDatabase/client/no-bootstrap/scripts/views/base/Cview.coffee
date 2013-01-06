@@ -29,11 +29,12 @@ define [
 				@once 'parsed', => @editable prop, field
 				return
 			
-			$node = $(@data[field].parentNode)
-			@editableNodes.push $node
-			$node.on 'keyup', =>
-				@saveRequired = true
-				@model.set prop, $node.text(), silent: true
+			for node in @data[field]
+				$node = $(node.parentNode)
+				@editableNodes.push $node
+				$node.on 'keyup', =>
+					@saveRequired = true
+					@model.set prop, $node.text(), silent: true
 		
 		setEditable: (editable) ->
 			for $node in @editableNodes

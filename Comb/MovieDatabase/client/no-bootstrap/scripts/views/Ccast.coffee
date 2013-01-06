@@ -16,7 +16,7 @@ define [
 			super
 			if @options.data?
 				for role in @options.data
-					view = new RoleView {el: role.id.parentNode, id: role.id.value, movie: @options.movie}
+					view = new RoleView {el: role.id[0].parentNode, id: role.id.value, movie: @options.movie}
 					@subview "itemView:#{view.model.cid}", view
 					@collection.push view.model, silent: true
 				@$list = @$ @listSelector
