@@ -71,11 +71,11 @@ define [
 		
 		mapUnescaped: (unescaped, output, data) ->
 			name = unescaped.name.value
-			input = unescaped.value
-			val = output[name]
+			input = unescaped.nodes[0]
+			val = output[name][0]
 			data[name] = val.value
 			
-			$input = $ val.parentNode
+			$input = $ input.parentNode
 			$input.on 'keyup', (e) ->
 				string = $input.val()
 				data[name] = string
@@ -83,10 +83,8 @@ define [
 		
 		mapEscaped: (escaped, output, data) ->
 			name = escaped.name[0].value
-			input = escaped.value
-			val = output[name]
-			unless val?
-				val = output[name][0]
+			input = escaped.value[0]
+			val = output[name][0]
 			data[name] = val.value
 			
 			$input = $ input.parentNode
