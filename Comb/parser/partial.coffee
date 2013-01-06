@@ -12,18 +12,21 @@ define [
 		
 		parse: ->
 			super
-			unless @partials?[@name]?
-				throw new Error ("Partial specification for " + @name + " not found")
-			@partials[@name].verbose = @spec.verbose
-			@root = new Section.Section 0, @partials[@name], @partials, @parent
+			if @partials?[@name]?
+				@partials[@name].verbose = @spec.verbose
+				@root = new Section.Section 0, @partials[@name], @partials, @parent
 		
 		getRoot: ->
-			{ type: 'partial', iterations: @root.getObject().iterations[0]}
+			if @partials?[@name]?
+				{ type: 'partial', iterations: @root.getObject().iterations[0]}
+			else
+				{ type: 'partial', iterations: {}}
 		
 		getValues: (merge) ->
-			values = @root.getValues([])[0]
-			for name, value of values
-				merge[name] = value
+			if @partials?[@name]?
+				values = @root.getValues([])[0]
+				for name, value of values
+					merge[name] = value
 			return merge
 	
 	exports.Partial = Partial

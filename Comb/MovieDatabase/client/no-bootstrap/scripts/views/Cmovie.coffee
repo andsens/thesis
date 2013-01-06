@@ -21,7 +21,6 @@ define [
 		
 		initialize: ->
 			super
-			console.log @data
 			unless @model?
 				@model = new Movie
 			
@@ -40,17 +39,17 @@ define [
 			@delegate 'keyup', 'h1', =>
 				@$('summary.title').text (@$ 'h1').text()
 			
-			@editable 'title', 'h1'
-			@editable 'year', 'span.year'
-			@editable 'synopsis', 'summary.synopsis span'
-			@editable 'plot', 'details.plot p'
+			# @editable 'title', 'h1'
+			# @editable 'year', 'span.year'
+			# @editable 'synopsis', 'summary.synopsis span'
+			# @editable 'plot', 'details.plot p'
 			
-			@subscribeToEditableEvents "edit:movie:#{@model.cid}", "save:movie:#{@model.cid}"
-			Chaplin.mediator.subscribe "save:movie:#{@model.cid}", =>
-				@$('.edit.command').text 'Edit'
+			# @subscribeToEditableEvents "edit:movie:#{@model.cid}", "save:movie:#{@model.cid}"
+			# Chaplin.mediator.subscribe "save:movie:#{@model.cid}", =>
+			# 	@$('.edit.command').text 'Edit'
 			
-			Chaplin.mediator.subscribe "edit:movie:#{@model.cid}", =>
-				@$('.edit.command').text 'Save'
+			# Chaplin.mediator.subscribe "edit:movie:#{@model.cid}", =>
+			# 	@$('.edit.command').text 'Save'
 			
 			
 			editing = false

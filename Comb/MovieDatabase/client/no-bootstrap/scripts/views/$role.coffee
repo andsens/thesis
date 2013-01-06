@@ -24,7 +24,7 @@ define [
 				@model.set 'id', (@$el.attr 'id').substring 5
 				@model.set 'character', @$('td.character').text()
 				
-				@subview 'actor', new ActorView {movie, el: @$ 'td.actor span'}
+				@subview 'actor', new ActorView {movie, el: @$ 'td.actor'}
 				
 				@model.set 'actor_id', (@subview 'actor').model.id
 				@model.set 'movie_id', movie.id
@@ -55,4 +55,4 @@ define [
 					@saveRequired = false
 		
 		afterRender: ->
-			@$('td.actor').append (@subview 'actor').render().el
+			@$el.prepend (@subview 'actor').render().el

@@ -1,7 +1,7 @@
 define [
 	'cs!views/base/Cview'
 	'text!/templates/actor.mustache'
-	'text!/templates/actor.mustache-comb'
+	'json!/templates/actor.mustache-comb'
 	'cs!models/actor'
 ], (View, template, spec, Actor) ->
 	'use strict'
@@ -14,15 +14,16 @@ define [
 		spec: spec
 		spec = null
 		
-		tagName: "span"
+		tagName: "td"
+		className: "actor"
 		
 		initialize: ->
 			super
 			unless @model?
 				@model = new Actor
 				if @options.el?
-					@model.set 'id', (@$el.attr 'id').substring 6
-					@model.set 'name', @$el.text()
+					@model.set 'id', (@$('span').attr 'id').substring 6
+					@model.set 'name', @$('span').text()
 			
-			@editable 'name', null
-			@subscribeToEditableEvents "edit:movie:#{@options.movie.cid}", "save:movie:#{@options.movie.cid}"
+			# @editable 'name', 'span'
+			# @subscribeToEditableEvents "edit:movie:#{@options.movie.cid}", "save:movie:#{@options.movie.cid}"

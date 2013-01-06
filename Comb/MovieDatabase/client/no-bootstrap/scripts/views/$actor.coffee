@@ -10,15 +10,16 @@ define [
 		template: template
 		template = null
 		
-		tagName: "span"
+		tagName: "td"
+		className: "actor"
 		
 		initialize: ->
 			super
 			unless @model?
 				@model = new Actor
 				if @options.el?
-					@model.set 'id', (@$el.attr 'id').substring 6
-					@model.set 'name', @$el.text()
+					@model.set 'id', (@$('span').attr 'id').substring 6
+					@model.set 'name', @$('span').text()
 			
-			@editable 'name', null
+			@editable 'name', 'span'
 			@subscribeToEditableEvents "edit:movie:#{@options.movie.cid}", "save:movie:#{@options.movie.cid}"

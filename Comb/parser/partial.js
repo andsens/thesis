@@ -20,27 +20,37 @@
       };
 
       Partial.prototype.parse = function() {
+        var _ref;
         Partial.__super__.parse.apply(this, arguments);
-        if (!((this.partials != null) && (this.partials[this.name] != null))) {
-          throw new Error("Partial specification for " + this.name + " not found");
+        if (((_ref = this.partials) != null ? _ref[this.name] : void 0) != null) {
+          this.partials[this.name].verbose = this.spec.verbose;
+          return this.root = new Section.Section(0, this.partials[this.name], this.partials, this.parent);
         }
-        this.partials[this.name].verbose = this.spec.verbose;
-        return this.root = new Section.Section(0, this.partials[this.name], this.partials, this.parent);
       };
 
       Partial.prototype.getRoot = function() {
-        return {
-          type: 'partial',
-          iterations: this.root.getObject().iterations[0]
-        };
+        var _ref;
+        if (((_ref = this.partials) != null ? _ref[this.name] : void 0) != null) {
+          return {
+            type: 'partial',
+            iterations: this.root.getObject().iterations[0]
+          };
+        } else {
+          return {
+            type: 'partial',
+            iterations: {}
+          };
+        }
       };
 
       Partial.prototype.getValues = function(merge) {
-        var name, value, values;
-        values = this.root.getValues([])[0];
-        for (name in values) {
-          value = values[name];
-          merge[name] = value;
+        var name, value, values, _ref;
+        if (((_ref = this.partials) != null ? _ref[this.name] : void 0) != null) {
+          values = this.root.getValues([])[0];
+          for (name in values) {
+            value = values[name];
+            merge[name] = value;
+          }
         }
         return merge;
       };

@@ -11,9 +11,10 @@ define [
 			super
 			@data = {}
 			if @spec? and @options.el?
-				@data = new Comb @spec, @el, @partials
+				@data = (new Comb @spec, @el, @partials).getValues()
+			console.log @data
 		
 		afterRender: ->
 			if @spec?
-				@data = new Comb @spec, @el, @partials
+				@data = (new Comb @spec, @el, @partials).getValues()
 		
