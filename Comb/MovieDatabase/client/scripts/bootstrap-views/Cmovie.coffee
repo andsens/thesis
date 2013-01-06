@@ -37,6 +37,8 @@ define [
 					movie: @model
 					data: @data.cast
 			
+			
+			
 			@editable 'title'
 			@editable 'year'
 			@editable 'synopsis'

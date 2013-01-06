@@ -9,8 +9,7 @@ define [
 	
 	MovieView = switch window.localStorage.getItem('type')
 		when '$' then $MovieView
-		when 'C' then CMovieView
-		else throw new Error 'Set a data retrieval type with "window.localStorage.setItem(\'type\', \'$|C\')"'
+		else CMovieView
 	
 	class MoviesView extends CollectionView
 		
@@ -29,3 +28,14 @@ define [
 			
 			@delegate 'click', '#add-movie', =>
 				@collection.push new Movie()
+			
+			@delegate 'click', 'button.comb', =>
+				switch window.localStorage.getItem('type')
+					when 'C' then window.localStorage.setItem('type', '$')
+					else window.localStorage.setItem('type', 'C')
+				window.location.reload()
+			
+			switch window.localStorage.getItem('type')
+				when 'C' then @$('button.comb').text('Off')
+				else @$('button.comb').text('On')
+				

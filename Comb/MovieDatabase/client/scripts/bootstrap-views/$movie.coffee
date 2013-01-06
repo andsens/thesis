@@ -17,7 +17,6 @@ define [
 		
 		initialize: ->
 			super
-			
 			unless @model?
 				@model = new Movie
 			
@@ -32,6 +31,9 @@ define [
 					el: @$('table.cast')[0]
 					collection: new Cast()
 					movie: @model
+			
+			
+			
 			
 			@editable 'title', 'h1'
 			@editable 'year', 'h3'

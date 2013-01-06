@@ -37,6 +37,8 @@ define [
 					movie: @model
 					data: @data.cast
 			
+			
+			
 			@editable 'title'
 			@editable 'year'
 			@editable 'synopsis'
@@ -44,14 +46,14 @@ define [
 			
 			@subscribeToEditableEvents "edit:movie:#{@model.cid}", "save:movie:#{@model.cid}"
 			Chaplin.mediator.subscribe "save:movie:#{@model.cid}", =>
-				@$('.edit.command').text 'Edit'
+				@$('.edit-movie').text 'Edit'
 			
 			Chaplin.mediator.subscribe "edit:movie:#{@model.cid}", =>
-				@$('.edit.command').text 'Save'
+				@$('.edit-movie').text 'Save'
 			
 			
 			editing = false
-			@delegate 'click', '.edit.command', =>
+			@delegate 'click', '.edit-movie', =>
 				editing = !editing
 				if editing
 					Chaplin.mediator.publish "edit:movie:#{@model.cid}"

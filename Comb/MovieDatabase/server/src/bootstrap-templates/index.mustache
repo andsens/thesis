@@ -22,14 +22,14 @@
 						<li class="nav-header"><a href="#" id="add-movie"><i class="icon-plus"></i></a></li>
 					</ul>
 				</div>
-				<div class="span10">
+				<div class="span9">
 					<div class="tab-content movie-list">
 						{{#movies}}<div class="tab-pane" id="movietab-{{id}}">{{>movie}}</div>{{/movies}}
 					</div>
 				</div>
+				<div class="span1"><label>Comb <button class="comb btn btn-primary">On</button></label></div>
 			</div>
 		</div>
-		<footer></footer>
 	<script data-main="scripts/main" src="scripts/vendor/require.js"></script>
 </body>
 </html>
