@@ -154,6 +154,9 @@ define [
 							values = item.getValues values
 						else
 							values[name] = item.getValues values[name]
+			if @iterations.length is 1
+				for id, val of merge[0]
+					merge[id] = val
 			return merge
 	
 	exports.Section = Section

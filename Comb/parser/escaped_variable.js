@@ -97,11 +97,23 @@
       };
 
       EscapedVariable.prototype.getValues = function(merge) {
+        var _this = this;
         if (merge != null) {
           if (!(merge instanceof Array)) {
             merge = [merge];
           }
           merge.push(this.getRoot());
+          merge.type = 'escaped';
+          merge.value = this.string;
+          merge.update = function(text) {
+            var obj, _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = merge.length; _i < _len; _i++) {
+              obj = merge[_i];
+              _results.push(obj.update(text));
+            }
+            return _results;
+          };
         } else {
           merge = this.getRoot();
         }

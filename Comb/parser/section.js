@@ -203,7 +203,7 @@
       };
 
       Section.prototype.getValues = function(merge) {
-        var i, id, item, iteration, name, values, _i, _len, _ref, _ref1;
+        var i, id, item, iteration, name, val, values, _i, _len, _ref, _ref1, _ref2;
         if (merge == null) {
           merge = [];
         }
@@ -230,6 +230,13 @@
               default:
                 values[name] = item.getValues(values[name]);
             }
+          }
+        }
+        if (this.iterations.length === 1) {
+          _ref2 = merge[0];
+          for (id in _ref2) {
+            val = _ref2[id];
+            merge[id] = val;
           }
         }
         return merge;

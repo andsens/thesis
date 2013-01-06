@@ -71,6 +71,11 @@ define [
 				unless merge instanceof Array
 					merge = [merge]
 				merge.push @getRoot()
+				merge.type = 'escaped'
+				merge.value = @string
+				merge.update = (text) =>
+					for obj in merge
+						obj.update text
 			else
 				merge = @getRoot()
 			return merge
