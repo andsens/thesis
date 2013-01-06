@@ -21,9 +21,9 @@ define [
 			super
 			unless @model?
 				@model = new Actor
-				if @options.el?
-					@model.set 'id', (@$('span').attr 'id').substring 6
-					@model.set 'name', @$('span').text()
+				if @data?
+					@model.set 'id', @data.id.value
+					@model.set 'name', @data.name.value
 			
-			# @editable 'name', 'span'
-			# @subscribeToEditableEvents "edit:movie:#{@options.movie.cid}", "save:movie:#{@options.movie.cid}"
+			@editable 'name'
+			@subscribeToEditableEvents "edit:movie:#{@options.movie.cid}", "save:movie:#{@options.movie.cid}"

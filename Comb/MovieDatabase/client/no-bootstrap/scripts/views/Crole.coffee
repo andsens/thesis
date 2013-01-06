@@ -24,9 +24,9 @@ define [
 			unless @model?
 				@model = new Role
 			
-			if @options.el?
-				@model.set 'id', (@$el.attr 'id').substring 5
-				@model.set 'character', @$('td.character').text()
+			if @data?
+				@model.set 'id', @options.id
+				@model.set 'character', @data.character.value
 				
 				@subview 'actor', new ActorView {movie, el: @$ 'td.actor'}
 				
@@ -35,10 +35,10 @@ define [
 			else
 				@subview 'actor', new ActorView {movie}
 			
-			# @editable 'character', 'td.character'
+			@editable 'character'
 			
-			# Chaplin.mediator.subscribe "edit:movie:#{movie.cid}", =>
-			# 	@setEditable true
+			Chaplin.mediator.subscribe "edit:movie:#{movie.cid}", =>
+				@setEditable true
 			
 			save = =>
 				if movie.isNew()
@@ -52,11 +52,12 @@ define [
 				@model.set 'actor_id', actor.id
 				@model.save()
 			
-			# Chaplin.mediator.subscribe "save:movie:#{movie.cid}", =>
-			# 	@setEditable false
-			# 	if @saveRequired
-			# 		save()
-			# 		@saveRequired = false
+			Chaplin.mediator.subscribe "save:movie:#{movie.cid}", =>
+				@setEditable false
+				if @saveRequired
+					save()
+					@saveRequired = false
 		
 		afterRender: ->
+			super
 			@$el.prepend (@subview 'actor').render().el

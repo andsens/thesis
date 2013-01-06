@@ -1,6 +1,6 @@
 define [], ->
 	[
 			name: "profile"
-			template: "scripts/templates/profile.mustache"
-			comb: "scripts/templates/profile.mustache-comb"
+			template: "templates/profile.mustache"
+			comb: "templates/profile.mustache-comb"
 	]

@@ -14,9 +14,9 @@ define [
 		
 		initialize: ->
 			super
-			if @options.el?
-				for el in @$('tbody tr')
-					view = new RoleView {el, movie: @options.movie}
+			if @options.data?
+				for role in @options.data
+					view = new RoleView {el: role.id.parentNode, id: role.id.value, movie: @options.movie}
 					@subview "itemView:#{view.model.cid}", view
 					@collection.push view.model, silent: true
 				@$list = @$ @listSelector
