@@ -1,5 +1,5 @@
 <details id="movie-{{id}}">
-	<summary class="title">{{title}}</summary>
+	<summary class="title">{{title}}{{^title}}Untitled{{/title}}</summary>
 	<header>
 		<section class="operations">
 			<span class="edit command">Edit</span>
@@ -7,28 +7,27 @@
 		</section>
 	</header>
 	<div class="main">
-		<h1>{{title}}</h1>
-		(<span class="year">{{year}}</span>)
+		<h1>{{title}}{{^title}}Untitled{{/title}}</h1>
+		(<span class="year">{{year}}{{^year}}0000{{/year}}</span>)
 		<div class="poster">
 			{{poster}}
 		</div>
 		<details class="plot">
 			<summary class="synopsis">
-					Synopsis: <span>{{synopsis}}</span>
+					Synopsis: <span>{{synopsis}}{{^synopsis}}No synopsis{{/synopsis}}</span>
 				</summary>
-			<p>{{plot}}</p>
+			<p>{{plot}}{{^plot}}Nothing happens in this movie{{/plot}}</p>
 		</details>
 		<table class="cast">
 			<thead>
 				<tr>
 					<td>Actor</td>
-					<td>Character</td>
+					<td>Character <span id="add_role_button" class="command">add</span></td>
 				</tr>
 			</thead>
 			<tbody>
-				{{#cast}}<tr>{{>role}}</tr>{{/cast}}
+				{{#cast}}<tr id="role-{{id}}">{{>role}}</tr>{{/cast}}
 			</tbody>
 		</table>
-		<span id="add_actor_button" class="command">add</span>
 	</div>
 </details>

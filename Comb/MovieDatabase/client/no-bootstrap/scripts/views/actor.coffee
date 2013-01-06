@@ -1,15 +1,16 @@
 define [
 	'cs!views/base/view'
+	'text!/templates/actor.mustache'
 	'cs!models/actor'
-], (View, Actor) ->
+], (View, template, Actor) ->
 	'use strict'
 	
 	class ActorView extends View
 		
-		# template: template
-		# template = null
+		template: template
+		template = null
 		
-		tagName: "tr"
+		tagName: "span"
 		
 		initialize: ->
 			super
@@ -20,4 +21,4 @@ define [
 					@model.set 'name', @$el.text()
 			
 			@editable 'name', null
-			@subscribeToEditableEvents "edit:movie:#{@options.movie_id}", "save:movie:#{@options.movie_id}"
+			@subscribeToEditableEvents "edit:movie:#{@options.movie.cid}", "save:movie:#{@options.movie.cid}"

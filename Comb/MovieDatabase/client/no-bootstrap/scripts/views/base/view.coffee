@@ -29,7 +29,7 @@ define [
 		
 		setEditable: (editable) ->
 			for selector in @editableSelectors
-				if selector
+				if selector?
 					@$(selector).prop 'contenteditable', editable
 				else
 					@$el.prop 'contenteditable', editable

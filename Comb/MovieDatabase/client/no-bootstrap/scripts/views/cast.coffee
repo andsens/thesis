@@ -9,11 +9,20 @@ define [
 		
 		tagName: 'table'
 		className: 'cast'
+		listSelector: 'tbody'
 		itemView: RoleView
 		
 		initialize: ->
 			super
-			for el in @$('tbody tr')
-				view = new RoleView {el, movie_id: @options.movie_id}
-				@subview "itemView:#{view.model.cid}", view
-				@collection.push view.model, silent: true
+			if @options.el
+				for el in @$('tbody tr')
+					view = new RoleView {el, movie: @options.movie}
+					@subview "itemView:#{view.model.cid}", view
+					@collection.push view.model, silent: true
+				@$list = @$ @listSelector
+			
+			@delegate 'click', '#add_role_button', =>
+				@collection.push new Role()
+		
+		getView: (model) ->
+			new RoleView {model, movie: @options.movie}
