@@ -10,4 +10,4 @@ define [
 		initialize: ->
 			view = new MoviesView
 				collection: new Movies()
-				el: $('#movies ol')
+				el: $('#movies')

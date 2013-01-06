@@ -7,17 +7,24 @@ define [
 	
 	class MoviesView extends CollectionView
 		
-		tagName: 'ol'
+		tagName: 'section'
+		listSelector: 'ol'
 		itemView: MovieView
 		
 		initialize: ->
 			super
-			@delegate 'click', 'li>details', (e) =>
-				$(_.without(@$('li>details'), e.currentTarget)).prop 'open', false
 			
-			for el in @$('li>details')
-				view = new MovieView {el}
-				@subview "itemView:#{view.model.cid}", view
-				@collection.push view.model, silent: true
+			if @options.el
+				for el in @$('ol>li')
+					view = new MovieView {el}
+					@subview "itemView:#{view.model.cid}", view
+					@collection.push view.model, silent: true
+				@$list = @$ @listSelector
+				@$('ol>li>details')[0].open = true
 			
-			@$('li>details')[0].open = true
+			
+			@delegate 'click', 'ol>li>details', (e) =>
+				$(_.without(@$('ol>li>details'), e.currentTarget)).prop 'open', false
+			
+			@delegate 'click', '#add_movie_button', =>
+				@collection.push new Movie()

@@ -7,12 +7,13 @@ define [
 	
 	class CastView extends CollectionView
 		
-		tagName: 'tbody'
+		tagName: 'table'
+		className: 'cast'
 		itemView: RoleView
 		
 		initialize: ->
 			super
-			for el in @$('tr')
-				view = new RoleView {el}
+			for el in @$('tbody tr')
+				view = new RoleView {el, movie_id: @options.movie_id}
 				@subview "itemView:#{view.model.cid}", view
 				@collection.push view.model, silent: true

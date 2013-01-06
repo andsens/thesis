@@ -17,5 +17,7 @@ define [
 				@model = new Actor
 				if @options.el?
 					@model.set 'id', (@$el.attr 'id').substring 6
-					@model.set 'character', @$el.text()
-					
+					@model.set 'name', @$el.text()
+			
+			@editable 'name', null
+			@subscribeToEditableEvents "edit:movie:#{@options.movie_id}", "save:movie:#{@options.movie_id}"

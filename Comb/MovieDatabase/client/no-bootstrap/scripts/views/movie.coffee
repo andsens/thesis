@@ -1,8 +1,10 @@
 define [
 	'cs!views/base/view'
+	'cs!views/cast'
 	'cs!models/movie'
-	'watch'
-], (View, Movie, unbound) ->
+	'cs!collections/cast'
+	'chaplin'
+], (View, CastView, Movie, Cast, Chaplin) ->
 	'use strict'
 	
 	class MovieView extends View
@@ -10,7 +12,7 @@ define [
 		# template: template
 		# template = null
 		
-		tagName: "details"
+		tagName: "li"
 		
 		initialize: ->
 			super
@@ -18,33 +20,35 @@ define [
 			unless @model?
 				@model = new Movie
 				if @options.el?
-					@model.set 'id', (@$el.attr 'id').substring 6
+					@model.set 'id', (@$('>details').attr 'id').substring 6
 					@model.set 'title', @$('summary.title').text()
 					@model.set 'year', @$('span.year').text()
 					@model.set 'synopsis', @$('summary.synopsis span').text()
 					@model.set 'plot', @$('details.plot p').text()
+					
+					@subview 'roles', new CastView
+						el: @$('table.cast')[0]
+						collection: new Cast()
+						movie_id: @model.id
 			
-			onKeyUp = (prop, sel) =>
-				@delegate 'keyup', sel, =>
-					@model.set prop, @$(sel).text(), silent: true
+			@editable 'title', 'summary.title'
+			@editable 'year', 'span.year'
+			@editable 'synopsis', 'summary.synopsis span'
+			@editable 'plot', 'details.plot p'
 			
-			onKeyUp 'title', 'summary.title'
-			onKeyUp 'year', 'span.year'
-			onKeyUp 'synopsis', 'summary.synopsis span'
-			onKeyUp 'plot', 'details.plot p'
+			@subscribeToEditableEvents "edit:movie:#{@options.movie_id}", "save:movie:#{@options.movie_id}"
+			Chaplin.mediator.subscribe "save:movie:#{@model.id}", =>
+				@$('.edit.command').text 'Edit'
+			
+			Chaplin.mediator.subscribe "edit:movie:#{@model.id}", =>
+				@$('.edit.command').text 'Save'
+			
 			
 			editing = false
-			
 			@delegate 'click', '.edit.command', =>
 				editing = !editing
-				
 				if editing
-					text = 'Save'
+					Chaplin.mediator.publish "edit:movie:#{@model.id}"
 				else
-					text = 'Edit'
-				for sel in ['summary.title', 'span.year', 'summary.synopsis span', 'details.plot p']
-					@$(sel).prop 'contenteditable', editing
-				@$('.edit.command').text text
-				unless editing
-					@model.save()
-				
+					Chaplin.mediator.publish "save:movie:#{@model.id}"
+			
