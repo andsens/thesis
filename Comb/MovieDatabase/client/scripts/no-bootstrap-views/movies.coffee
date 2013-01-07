@@ -20,11 +20,12 @@ define [
 			super
 			
 			if @options.el
-				for el in @$('ol>li')
+				@$list = @$ @listSelector
+				for el in @$list.children()
 					view = new MovieView {el}
 					@subview "itemView:#{view.model.cid}", view
+					# Silent push, we do not want chaplin to create a new view
 					@collection.push view.model, silent: true
-				@$list = @$ @listSelector
 			
 			
 			@delegate 'click', 'ol>li>details', (e) =>

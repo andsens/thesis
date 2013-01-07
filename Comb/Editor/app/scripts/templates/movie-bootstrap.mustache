@@ -1,0 +1,52 @@
+<div class="row-fluid" id="movie-{{id}}">
+	<div class="row-fluid">
+		<div class="span12">
+			<h1>{{^title}}Untitled{{/title}} {{title}}</h1>
+			<h3><span class="year">{{year}} {{^year}}0000{{/year}}</span></h3>
+			<a href="#" class="edit-movie"><i class="icon-edit"></i></a>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span12">
+			<div class="accordion">
+			  <div class="accordion-group" id="text-{{id}}">
+			    <div class="accordion-heading">
+			      <a class="accordion-toggle" data-toggle="collapse" data-parent="#text-{{id}}" href="#synopsis-{{id}}">
+			      	Synopsis
+			      </a>
+			    </div>
+			    <div id="synopsis-{{id}}" class="accordion-body collapse in">
+			      <div class="accordion-inner">{{synopsis}}</div>
+			    </div>
+			  </div>
+			  <div class="accordion-group">
+			    <div class="accordion-heading">
+			      <a class="accordion-toggle" data-toggle="collapse" data-parent="#text-{{id}}" href="#plot-{{id}}">
+			        Plot
+			      </a>
+			    </div>
+			    <div id="plot-{{id}}" class="accordion-body collapse">
+			      <div class="accordion-inner">
+			        {{plot}}
+			      </div>
+			    </div>
+			  </div>
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span4">
+			<table class="cast table">
+				<thead>
+					<tr>
+						<td>Actor</td>
+						<td>Character <a href="#" class="add-role"><i class="icon-plus"></i></a></td>
+					</tr>
+				</thead>
+				<tbody>
+					{{#cast}}<tr id="role-{{id}}">{{>role}}</tr>{{/cast}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

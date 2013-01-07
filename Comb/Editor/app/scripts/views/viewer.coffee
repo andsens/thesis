@@ -22,10 +22,11 @@ define [
 			Chaplin.mediator.subscribe 'valuesChanged', @valuesChanged
 		
 		renderTemplate: (template) =>
-			@$el.empty().append (Mustache.render template, {})
-			Chaplin.mediator.publish 'templateRendered', @$el[0]
+			@$('#rendered').empty().append (Mustache.render template, {})
+			@$('#template').empty().text template.replace(/\t/g, "  ")
+			Chaplin.mediator.publish 'templateRendered', @$('#rendered')[0]
 		
 		valuesChanged: (info) =>
-			@$el.empty().append (Mustache.render info.template, info.data)
-			Chaplin.mediator.publish 'templateRendered', @$el[0]
+			@$('#rendered').empty().append (Mustache.render info.template, info.data)
+			Chaplin.mediator.publish 'templateRendered', @$('#rendered')[0]
 			
