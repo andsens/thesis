@@ -1,14 +1,26 @@
 % !TEX root = ../thesis.tex
-\begin{tikzpicture}[level distance=1.5cm,
-  level 1/.style={sibling distance=3cm},
-  level 2/.style={sibling distance=1.5cm}]
-  \node {root}
-    child {node {left}
-      child {node {lleft}}
-      child {node {rleft}}
-    }
-    child {node {right}
-    child {node {lright}}
-      child {node {rright}}
-    };
+\begin{tikzpicture}
+\tikzset{level distance=40pt,sibling distance=10pt}
+%<div>
+%	Hello {{#user}}<a href="/user/{{id}}">{{name}}</a>{{/user}}
+%	<img src="about:blank" />
+%</div>
+%
+\Tree [.{<div>}
+	{"\textbackslash n\textbackslash tHello "}
+	[.{\{\{\#user\}\}}
+		[.{<a>}
+			[.href
+				{"/user/"}
+				{\{\{id\}\}}
+			]
+		]
+		{\{\{name\}\}}
+	]
+	{"\textbackslash n\textbackslash t"}
+	[.{<img/>}
+		[.src {about:blank} ]
+	]
+	{"\textbackslash n\textbackslash t"}
+]
 \end{tikzpicture}

@@ -172,8 +172,10 @@
 
 % Use TikZ to create diagrams
 \usepackage{tikz}
-\usetikzlibrary{fit,positioning,calc,shadows,backgrounds,external,tree}
-\tikzexternalize % Don't recompile tikz pictures every time
+\usetikzlibrary{fit,positioning,calc,shadows,backgrounds,external}
+%\tikzexternalize % Don't recompile tikz pictures every time
+
+\usepackage{tikz-qtree}
 
 \usepackage{tikz-er2}
 \tikzset{>=latex}

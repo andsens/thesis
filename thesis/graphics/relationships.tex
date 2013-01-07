@@ -1,0 +1,27 @@
+% !TEX root = ../thesis.tex
+\begin{tikzpicture}
+\tikzset{level distance=70pt,sibling distance=10pt}
+%<div>
+%	Meet and greet:{{#user}} Hello {{name}}<br/>{{/user}}
+%	<img src="about:blank" />
+%</div>
+%
+\Tree [.{<div>}
+	\node(prev){"\textbackslash n\textbackslash tMeet and greet:"};
+	[.\node(section){\{\{\#user\}\}};
+		\node(first){" Hello "};
+		{\{\{name\}\}}
+		\node(last){<br/>};
+	]
+	\node(next){"\textbackslash n\textbackslash t"};
+	[.{<img/>}
+		{...}
+	]
+	{"\textbackslash n\textbackslash t"}
+]
+\draw[dashed,->] (section)--(prev) node [midway,above] {previous};
+\draw[dashed,->] (section)--(next) node [midway,above] {next};
+\draw[dashed,->] (section)..controls +(south west:2) and +(north:2)..(first) node [midway,left,above] {first};
+\draw[dashed,->] (section)..controls +(south east:2) and +(north:2)..(last) node [midway,right,above] {last};
+
+\end{tikzpicture}

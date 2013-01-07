@@ -1,0 +1,20 @@
+% !TEX root = ../thesis.tex
+\begin{tikzpicture}
+\tikzset{level distance=70pt,sibling distance=10pt}
+%<div>
+%	Meet and greet: Hello user1<br/> Hello user2<br/>
+%	<img src="about:blank" />
+%</div>
+%
+\Tree [.{<div>}
+	{"\textbackslash n\textbackslash tMeet and greet: Hello user1"}
+	{<br/>}
+	{" Hello user2"}
+	{<br/>}
+	{"\textbackslash n\textbackslash t"}
+	[.{<img/>}
+		{...}
+	]
+	{"\textbackslash n\textbackslash t"}
+]
+\end{tikzpicture}

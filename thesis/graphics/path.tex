@@ -1,0 +1,31 @@
+% !TEX root = ../thesis.tex
+\begin{tikzpicture}
+\tikzset{level distance=60pt,sibling distance=5pt}
+% <ul>
+% 	{{#messages}}
+% 	<li>{{subject}} from {{nickname}}</li>
+% 	{{/messages}}
+% 	<li>That's all {{realname}}</li>
+% </ul>
+\Tree [.{<ul>}
+	{"\textbackslash n\textbackslash t"}
+	[.\node(msg){\{\{\#messages\}\}};
+		{"\textbackslash n\textbackslash t\textbackslash t"}
+		[.{<li>}
+			{\{\{subject\}\}}
+			{" from "}
+			{\{\{nickname\}\}}
+		]
+		{"\textbackslash n\textbackslash t\textbackslash t"}
+	]
+	\node(txt){"\textbackslash n\textbackslash t\textbackslash t"};
+	[.\node(li){<li>};
+		{"Thats all "}
+		\node(realname){\{\{realname\}\}};
+	]
+	{"\textbackslash n\textbackslash t"}
+]
+\draw[dashed,->] (msg)--(txt);
+\draw[dashed,->] (txt)--(li);
+\draw[dashed,->] (li)..controls +(east:2) and +(east:2)..(realname);
+\end{tikzpicture}
