@@ -19,4 +19,46 @@ Existing frameworks supply much of the functionality we require.
 \item Parsec to combine HaXML and a custom parser for mustache templates
 \end{itemize}
 
+
+
+
+\section{chaplin}
+
+\todo{Figure out if we want to fight the fight and call the view viewmodel}\
+\todo{Move this section or delete it}
+
+Chaplin is a new client side framework, which was created in February 2012.
+The motivation behind it was to create a framework that allows developers to
+follow a set of conventions more easily. Backbone.js has both views and models
+(and routes, for controllers), but does not force any specific way of
+structuring code. In this respect Backbone.js can be seen more as a tool than a
+framework.
+Chaplin extends the models and views from Backbone.js and adds more features.
+It introduces concepts such as ``subviews'' - views that aggregate other views.
+This allows the developer among other things to better mirror the structure of
+the DOM.
+
+The framework also allows the developer to use any template engine he desires.
+The engine simply needs to return an object, which jQuery can append to the
+wrapping DOM element of the view.
+
+A very useful feature of Chaplin is the automatic memory management.
+When creating single page web-applications, the developer has to dispose each
+view manually. This challenge is best illustrated with regard to eventhandlers.
+Eventhandlers are functions, that are called when an event on a DOM node or
+an other object is trigger. Often this function manipulates and accesses
+properties stored on a view. To allow for this access, the function stores a
+pointer to the view via a closure. Since the function is stored with the
+DOM node or object on which it is listening for events, any view the developer
+wants to dispose needs to stop listening on those events as well.
+Chaplin unbinds these eventhandlers for the developer when the view is disposed,
+allowing the browser to free up memory.
+
+\section{Movie Database \#2}
+
+\subsection{Tools and frameworks}
+\label{sec:mdb2-tools}
+require.js, chaplin, mustache, jquery
+composer, php-activerecord, mustache, rest framework
+
 \end{document}

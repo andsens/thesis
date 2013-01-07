@@ -4,28 +4,194 @@
 
 \chapter{Demo application}
 \label{chap:demo}
-This chapter describes the workings of an application utilizing Comb.
-It demonstrates the results of parsing a rendered template.
+This chapter describes the workings of two applications utilizing Comb.
+The first application shows an actual use case of Comb and highlights its
+strengths by comparison.
+The second application demonstrates the internal workings of Comb.
 
-\todo{Show what the actual dataset looks like!}
+\section{Movie Database \#2}
+In the exploratory prototype (chapter \ref{chap:prototype}) we created a
+Movie Database to organize information about the cast, year of release as well
+as the plot and synopsis of a movie. We will implemented the same application
+once again in much the same way\footnote{
+	Although we will use a few more sophisticated tools,
+	see section \ref{sec:mdb2-tools}
+}.
 
-\section{Goal}
-The goal of our application is to showcase the return values of a
-rendered template that has been parsed.
-Additionally we also display how Comb can be utilized to implement an
-application.
+We use chaplin\footnote{Section \ref{sec:chaplin}} to structure our application
+on the client side, while a PHP REST framework together with
+php-activerecord\footnote{Section \ref{sec:php-activerecord}} function
+as a communication layer to the MySQL database for the client.
+The client code is written in CoffeeScript\footnote{Section
+\ref{sec:coffeescript}}.
 
-\section{The application}
-To load a template we click the ``Template'' drop-down in the top menu.
-Here we can select any of the templates we utilized in the first iteration.
-We have converted them into mustache templates.
+The document root of the web application presents the user with two links to
+the same Movie Database implemented in two slightly different ways.
+The first link leads to an implementation using the CSS and HTML structure from
+our exploratory prototype.
+The second link leads to a different version of the application where we use the
+Twitter Bootstrap\footnote{Section \ref{sec:bootstrap}} library to style the
+interface, instead of the original CSS and HTML.
 
-\subsection{Rendering a template}
-Once a template is selected, we load it and the corresponding comb file via
-\emph{require-js} (\todo{explain}). The template is then rendered with
-\emph{mustache-js} (\todo{explain}) and an empty dataset in the right part of the view port.
+In both implementations, Movies can be browsed, created and edited.
+
+\subsection{Architecture}
+The HTML page is built with server side mustache templates. Interactivity is
+then added once the client application has started.
+We use chaplin views to split sections of the web application into the following
+manageable parts:
+
+\begin{itemize}
+\item \emph{Movies}: A ViewCollection representing the list of movies available
+                     in the database
+\item \emph{Movie}: A View managing the DOM subtree of a single movie.
+\item \emph{Cast}: A ViewCollection containing all roles in a movie.
+\item \emph{Role}: A single Role in the Cast, this is the relationship
+                   connecting a movie and an actor.
+\item \emph{Actor}: An actor playing a role
+\end{itemize}
+
+When initializing the client application, we bind DOM subtrees from the HTML
+created by the server to the corresponding Views. Each view is responsible for
+retrieving values from the DOM to populate the Model it is holding, while also
+also initializing subviews that belong to it.
+In the case of the Movies CollectionView, we iterate over the list of movies and
+instantiate a new Movie View for each list element we encounter.
+Once a Movie View has been created we access the Model the View has populated
+and push it onto our collection of movies. The corresponding code can be seen in
+figure \ref{fig:movies-iter}.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@$list = @$ @listSelector
+for el in @$list.children()
+	view = new MovieView {el}
+	@subview "itemView:#{view.model.cid}", view
+	# Silent push, we do not want chaplin to create a new view
+	@collection.push view.model, silent: true
+	\end{lstlisting}
+	\caption{Initializing Movie Views}
+	\label{fig:movies-iter}
+\end{figure}
+
+Once a View has populated its Model, it binds event handlers to any buttons
+it should manager in the interface.
+
+\subsection{Retrieving DOM values}
+The original version of the Movie Database from our exploratory prototype comes
+in two flavors: jQuery and Comb.
+These flavors refer to the strategy we use in a View to retrieve values from the
+DOM and populate our Models with.
+
+In the jQuery strategy we use CSS selectors and jQuery accessors\footnote{
+	\inline{.attr('name') or .text()}
+} to pinpoint values in the DOM. Once a value is retrieved, we may also need to
+strip some of the parts that do not belong to the actual value present in the
+database. In figure \ref{fig:movie-jquery-no-bootstrap} we retrieve all the
+values of a Movie and add them to the Movie Model.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@model.set 'id', (@$('>details').attr 'id').substring 6
+@model.set 'title', @$('summary.title').text()
+@model.set 'year', @$('span.year').text()
+@model.set 'synopsis', @$('summary.synopsis span').text()
+@model.set 'plot', @$('details.plot p').text()
+	\end{lstlisting}
+	\caption{Populating a Movie Model with values retrieved with jQuery}
+	\label{fig:movie-jquery-no-bootstrap}
+\end{figure}
+
+Figure \ref{fig:movie-comb-no-bootstrap} shows the same procedure, only here we
+use Comb to retrieve those values. We can clearly see that there are no
+references to the structure of the template used.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@model.set 'id', @data.id.value
+@model.set 'title', @data.title.value
+@model.set 'year', @data.year.value
+@model.set 'synopsis', @data.synopsis.value
+@model.set 'plot', @data.plot.value
+	\end{lstlisting}
+	\caption{Populating a Movie Model with values retrieved with Comb}
+	\label{fig:movie-comb-no-bootstrap}
+\end{figure}
+
+\subsection{Changing templates}
+The independence from the template structure in our Comb strategy is exemplified
+by our second implementation using the Bootstrap library. This version also
+exists in both a jQuery and Comb flavor.
+
+The structure of the HTML is quite different from our original implementation,
+because Bootstrap requires the user to set up his layout in a grid
+system\footnote{\url{http://twitter.github.com/bootstrap/scaffolding.html\#gridSystem}}.
+To expand the synopsis and plot of a movie we use the ``accordion''
+widget\footnote{\url{http://twitter.github.com/bootstrap/javascript.html\#collapse}},
+this is a departure from our original layout where the native HTML5 elements
+\inline{details} and \inline{summary} were used.
+
+In figure \ref{fig:movie-jquery-bootstrap} we can see how the selectors when
+using the jQuery strategy for retrieving DOM values have changed.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@model.set 'id', (@$('>div').attr 'id').substring 6
+@model.set 'title', @$('h1').text()
+@model.set 'year', @$('h3').text()
+@model.set 'synopsis', @$("#plot-#{@model.id} div").text()
+@model.set 'plot', @$("#synopsis-#{@model.id} div").text()
+	\end{lstlisting}
+	\caption{Populating a Movie Model with values retrieved with jQuery}
+	\label{fig:movie-jquery-bootstrap}
+\end{figure}
+
+Contrasting this with the Comb strategy shown in figure \ref{fig:movie-comb-bootstrap}
+leaves us with a clear picture of the robustness Comb has with respect to
+retrieving values from the DOM. The code in figure \ref{fig:movie-comb-no-bootstrap}
+and \ref{fig:movie-comb-bootstrap} is exactly the same.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@model.set 'id', @data.id.value
+@model.set 'title', @data.title.value
+@model.set 'year', @data.year.value
+@model.set 'synopsis', @data.synopsis.value
+@model.set 'plot', @data.plot.value
+	\end{lstlisting}
+	\caption{Populating a Movie Model with values retrieved with jQuery}
+	\label{fig:movie-comb-bootstrap}
+\end{figure}
+
+
+\section{Template Editor}
+The Template Editor is an application with which we can explore how Comb
+functions.
+It also serves as a tool for testing the tool itself.
+We present the user with an interface where templates can be loaded from the
+navigation bar at the top of the page. The templates all originate from our
+Movie Database application.
+Upon selecting a template, the application loads the template and the Comb file.
+The template is then rendered\footnote{
+	We use mustache.js to render the template directly in the browser.
+}
+with no initial dataset and the results are
+displayed in the right view port. Beneath it the template source code is also
+shown verbatim.
+
+In the left view port a form with various buttons and input fields appears once
+the template has been rendered. This form can be used to control all aspects of
+the dataset that is fed into the template rendering engine.
+
+As such, the application is rather uninteresting. The more interesting part is
+the underlying architecture.
+
+\subsection{}
+
 
 \subsection{Displaying template information}
+
+
 The rendered template is parsed with Comb and its values are retrieved.
 At this point we hold a JavaScript object with many keys but few values,
 because the rendered template contained no section iterations or variable values
@@ -38,7 +204,7 @@ allowing nested sections to be rendered.
 
 \begin{figure}
 	\centering
-	\lstinputlisting[language=HTML]{../Comb/Demo/app/scripts/templates/mustache.mustache}
+	\lstinputlisting[language=HTML]{../Comb/Editor/app/scripts/templates/mustache.mustache}
 	\caption{The file \inline{mustache.mustache}. A mustache template intended for viewing values retrieved by comb.}
 	\label{fig:mustache.mustache}
 \end{figure}
@@ -80,4 +246,6 @@ template\footnote{
 	\ref{sec:update-dom} explains this necessity in more detail.
 }.
 
+
+\todo{Show what the actual dataset looks like!}
 \end{document}
