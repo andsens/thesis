@@ -2,18 +2,25 @@
 \documentclass[thesis.tex]{subfiles} 
 \begin{document}
 
-\chapter{Demo application}
+\chapter{Demo applications}
 \label{chap:demo}
-This chapter describes the workings of two applications utilizing Comb.
+This chapter describes two applications utilizing Comb to make a case for
+its relevance in the web development area and to illustrate the internal
+workings of Comb.
 The first application shows an actual use case of Comb and highlights its
-strengths by comparison.
-The second application demonstrates the internal workings of Comb.
+strengths by comparison with jQuery. To that end the applications has been
+developed in four different versions.
+
+The second application demonstrates the internal workings of Comb by using Combs
+ability to analyze templates and extract the original dataset fed into the
+template engine. The structure of the dataset will then be used to build a form
+to allow changing its values.
 
 \section{Movie Database \#2}
 In the exploratory prototype (chapter \ref{chap:prototype}) we created a
 Movie Database to organize information about the cast, year of release as well
-as the plot and synopsis of a movie. We will implemented the same application
-once again in much the same way\footnote{
+as the plot and synopsis of a movie. We reimplemented the same application
+in much the same way\footnote{
 	Although we will use a few more sophisticated tools,
 	see section \ref{sec:mdb2-tools}
 }.
@@ -33,10 +40,26 @@ The second link leads to a different version of the application where we use the
 Twitter Bootstrap\footnote{Section \ref{sec:bootstrap}} library to style the
 interface, instead of the original CSS and HTML.
 
-In both implementations, Movies can be browsed, created and edited.
+In both implementations, Movies can be browsed, created and edited. Examples of
+both versions can be seen in figures \ref{fig:moviedb-prototype} and
+\ref{fig:moviedb-bootstrap}
+
+\begin{figure}
+	\centering
+	\resizebox{\linewidth}{!}{\includegraphics{graphics/moviedb-prototype}}
+	\caption{Original prototype implementation of the Movie Database application}
+	\label{fig:moviedb-prototype}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\resizebox{\linewidth}{!}{\includegraphics{graphics/moviedb-bootstrap}}
+	\caption{Bootstrap implementation of the Movie Database application}
+	\label{fig:moviedb-bootstrap}
+\end{figure}
 
 \subsection{Architecture}
-The HTML page is built with server side mustache templates. Interactivity is
+The HTML page is built with server-side mustache templates. Interactivity is
 then added once the client application has started.
 We use chaplin views to split sections of the web application into the following
 manageable parts:
@@ -54,7 +77,7 @@ manageable parts:
 When initializing the client application, we bind DOM subtrees from the HTML
 created by the server to the corresponding Views. Each view is responsible for
 retrieving values from the DOM to populate the Model it is holding, while also
-also initializing subviews that belong to it.
+initializing subviews that belong to it.
 In the case of the Movies CollectionView, we iterate over the list of movies and
 instantiate a new Movie View for each list element we encounter.
 Once a Movie View has been created we access the Model the View has populated
@@ -75,19 +98,20 @@ for el in @$list.children()
 \end{figure}
 
 Once a View has populated its Model, it binds event handlers to any buttons
-it should manager in the interface.
+in the interface it should respond to when clicked.
 
 \subsection{Retrieving DOM values}
 The original version of the Movie Database from our exploratory prototype comes
 in two flavors: jQuery and Comb.
 These flavors refer to the strategy we use in a View to retrieve values from the
-DOM and populate our Models with.
+DOM and populate our Models with. We can switch between the strategies by
+clicking on the button On/Off below the list of Movies.
 
 In the jQuery strategy we use CSS selectors and jQuery accessors\footnote{
 	\inline{.attr('name') or .text()}
 } to pinpoint values in the DOM. Once a value is retrieved, we may also need to
 strip some of the parts that do not belong to the actual value present in the
-database. In figure \ref{fig:movie-jquery-no-bootstrap} we retrieve all the
+database. In figure \ref{fig:movie-jquery-prototype} we retrieve all the
 values of a Movie and add them to the Movie Model.
 \begin{figure}
 	\centering
@@ -98,13 +122,19 @@ values of a Movie and add them to the Movie Model.
 @model.set 'synopsis', @$('summary.synopsis span').text()
 @model.set 'plot', @$('details.plot p').text()
 	\end{lstlisting}
-	\caption{Populating a Movie Model with values retrieved with jQuery}
-	\label{fig:movie-jquery-no-bootstrap}
+	\caption{Using jQuery, we populate a Model by using selectors matching the
+	template of the exploratory prototype}
+	\label{fig:movie-jquery-prototype}
 \end{figure}
 
-Figure \ref{fig:movie-comb-no-bootstrap} shows the same procedure, only here we
+Figure \ref{fig:movie-comb-prototype} shows the same procedure, only here we
 use Comb to retrieve those values. We can clearly see that there are no
-references to the structure of the template used.
+references to the structure of the template used, instead we use the exact same
+names the to set model properties and access values in the dataset.
+This is no coincidence, the properties of our client-side Movie Model and
+those of the server-side Movie Model are the same. Therefore we must also use
+them when creating our templates, which leaves us with a dataset, that mirrors
+its server-side counterpart.
 \begin{figure}
 	\centering
 	\begin{lstlisting}
@@ -114,8 +144,9 @@ references to the structure of the template used.
 @model.set 'synopsis', @data.synopsis.value
 @model.set 'plot', @data.plot.value
 	\end{lstlisting}
-	\caption{Populating a Movie Model with values retrieved with Comb}
-	\label{fig:movie-comb-no-bootstrap}
+	\caption{To populate a Model with Comb, we access the values in the dataset,
+	by the names the matching Model properties has on the server.}
+	\label{fig:movie-comb-prototype}
 \end{figure}
 
 \subsection{Changing templates}
@@ -127,8 +158,8 @@ The structure of the HTML is quite different from our original implementation,
 because Bootstrap requires the user to set up his layout in a grid
 system\footnote{\url{http://twitter.github.com/bootstrap/scaffolding.html\#gridSystem}}.
 To expand the synopsis and plot of a movie we use the ``accordion''
-widget\footnote{\url{http://twitter.github.com/bootstrap/javascript.html\#collapse}},
-this is a departure from our original layout where the native HTML5 elements
+widget\footnote{\url{http://twitter.github.com/bootstrap/javascript.html\#collapse}}.
+This is a departure from our original layout where the native HTML5 elements
 \inline{details} and \inline{summary} were used.
 
 In figure \ref{fig:movie-jquery-bootstrap} we can see how the selectors when
@@ -142,14 +173,16 @@ using the jQuery strategy for retrieving DOM values have changed.
 @model.set 'synopsis', @$("#plot-#{@model.id} div").text()
 @model.set 'plot', @$("#synopsis-#{@model.id} div").text()
 	\end{lstlisting}
-	\caption{Populating a Movie Model with values retrieved with jQuery}
+	\caption{The jQuery selectors used to extract values from the rendered
+	template have all changed when compared with the previous selectors in
+	figure \ref{fig:movie-jquery-prototype}}
 	\label{fig:movie-jquery-bootstrap}
 \end{figure}
-
 Contrasting this with the Comb strategy shown in figure \ref{fig:movie-comb-bootstrap}
-leaves us with a clear picture of the robustness Comb has with respect to
-retrieving values from the DOM. The code in figure \ref{fig:movie-comb-no-bootstrap}
-and \ref{fig:movie-comb-bootstrap} is exactly the same.
+leaves us with a clear picture of the robustness\todo{Ref to Rule of robustness}
+Comb has with respect to retrieving values from the DOM.
+The code in figure \ref{fig:movie-comb-prototype} and
+\ref{fig:movie-comb-bootstrap} is exactly the same.
 \begin{figure}
 	\centering
 	\begin{lstlisting}
@@ -159,7 +192,7 @@ and \ref{fig:movie-comb-bootstrap} is exactly the same.
 @model.set 'synopsis', @data.synopsis.value
 @model.set 'plot', @data.plot.value
 	\end{lstlisting}
-	\caption{Populating a Movie Model with values retrieved with jQuery}
+	\caption{The data extraction code utilizing Comb needed no modifications}
 	\label{fig:movie-comb-bootstrap}
 \end{figure}
 
@@ -167,41 +200,45 @@ and \ref{fig:movie-comb-bootstrap} is exactly the same.
 \section{Template Editor}
 The Template Editor is an application with which we can explore how Comb
 functions.
-It also serves as a tool for testing the tool itself.
+It also serves as a tool for testing Comb itself.
 We present the user with an interface where templates can be loaded from the
 navigation bar at the top of the page. The templates all originate from our
-Movie Database application.
+Movie Database application. Figure \ref{fig:template-selection} shows the
+navigation bar with the template selection menu open.
+\begin{figure}
+	\centering
+	\resizebox{\linewidth}{!}{\includegraphics{graphics/template-selection}}
+	\caption{The template selection menu from the editor application}
+	\label{fig:template-selection}
+\end{figure}
 Upon selecting a template, the application loads the template and the Comb file.
 The template is then rendered\footnote{
-	We use mustache.js to render the template directly in the browser.
+	We use the client-side mustache.js template engine to render templates
+	directly in the browser.
 }
 with no initial dataset and the results are
 displayed in the right view port. Beneath it the template source code is also
 shown verbatim.
 
 In the left view port a form with various buttons and input fields appears once
-the template has been rendered. This form can be used to control all aspects of
-the dataset that is fed into the template rendering engine.
+the template has been rendered. In figure \ref{fig:editor-form} we can see how
+this form can be used to control all aspects of the dataset that is fed into
+the template rendering engine.
+\begin{figure}
+	\centering
+	\resizebox{\linewidth}{!}{\includegraphics{graphics/editor-form}}
+	\caption{Editing the dataset for a template with a form}
+	\label{fig:editor-form}
+\end{figure}
 
 As such, the application is rather uninteresting. The more interesting part is
 the underlying architecture.
 
-\subsection{}
-
-
-\subsection{Displaying template information}
-
-
-The rendered template is parsed with Comb and its values are retrieved.
-At this point we hold a JavaScript object with many keys but few values,
-because the rendered template contained no section iterations or variable values
-Comb could retrieve. We transform this object into a data structure which is
-compatible with a template intended for viewing these values
-(figure \ref{fig:mustache.mustache}).
-The \inline{\{\{>mustache\}\}} tag is invoked for every section iterations we
-find in the dataset of the loaded template, it points back at our form template,
-allowing nested sections to be rendered.
-
+\subsection{Generating the form}
+To generate the form in the left view port, we transform the dataset retrieved
+from the rendered template in the left view port into a structure that fits the
+form template (figure \ref{fig:mustache.mustache}) we have written in mustache
+as well.
 \begin{figure}
 	\centering
 	\lstinputlisting[language=HTML]{../Comb/Editor/app/scripts/templates/mustache.mustache}
@@ -209,15 +246,15 @@ allowing nested sections to be rendered.
 	\label{fig:mustache.mustache}
 \end{figure}
 
-The rendered template in the left view port presents us with a form containing
-buttons and input fields fitting the nature of the mustache tag.
-An escaped variable is a simple input field,
-while an unescaped variable is a text area.
-Sections have buttons that allow you to push and pop an iteration
-(the applications does not support partials).
+This template uses sections and partials to recursively iterate over the
+transformed data structure.
+Sections from the rendered template are displayed as a headline and two adjacent
+buttons.
+Variables become input fields or text areas depending on whether they are
+escaped.
+Partials are unfortunately not supported.
 
 \subsection{Parsing the form}
-
 So far we only have a form which displays the dataset values of a template that
 was rendered with an empty dataset.
 Since this form was rendered with mustache, we can now make it interactive by
