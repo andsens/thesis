@@ -10,8 +10,6 @@ and the client library. We begin by detailing the process of parsing
 mustache templates.
 
 \section{Parsing mustache templates}
-\todo{Think of a reason for haskell other than "I wanted to try it"}
-
 Our language of choice for implementing the parser is Haskell.
 We utilize the Parsec parser combinator library to analyze our mustache
 templates. With Parsec we can convert an EBNF grammar very effortlessly
@@ -21,7 +19,7 @@ us with.
 \subsection{Mustache EBNF}
 The EBNF for mustache is fairly simple and can be seen in figure
 \ref{fig:mustache.ebnf}.
-The behavior of \inline{set\_delimiter} tag is ignored in this EBNF.
+The behavior of the \inline{set\_delimiter} tag is ignored in this EBNF.
 
 \begin{figure}
 	\centering
@@ -115,6 +113,31 @@ The mustache comment tag has been left out in this grammar, since it does not
 output any content our client library can retrieve. We did also not include the
 \inline{set\_delimiter} tag. This was mostly done to keep our first
 implementation of the tool simple.
+
+Using this grammar we can construct an abstract syntax tree
+(figure \ref{fig:ast-ast}) from the mustache template in figure \ref{ast.mustache}
+
+\begin{figure}
+	\centering
+	\begin{subfigure}{\textwidth}
+		\caption{A mustache template}
+		\label{fig:ast.mustache}
+		\begin{lstlisting}[language=JSON]
+<div>
+	<img src="about:blank" />
+	Hello {{#user}}<a href="/user/{{id}}">{{name}}</a>{{/user}}
+</div>
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\resizebox{\linewidth}{!}{\input{graphics/ast}}
+		\caption{Abstract syntax tree generate by figure \ref{fig:ast.mustache}}
+		\label{fig:ast.ast}
+	\end{subfigure}
+	\caption{Converting a mustache template to an abstract syntax tree}
+	\label{fig:ast}
+\end{figure}
 
 \subsubsection{XML Comments}
 An XML comment is recognized as simple text in the DOM of the browser. The EBNF

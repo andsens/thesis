@@ -21,11 +21,24 @@ Existing frameworks supply much of the functionality we require.
 
 
 
+\section{php-activerecord}
+\label{sec:php-activerecord}
+\todo{write}
+
+\section{CoffeeScript}
+\label{sec:coffeescript}
+\todo{write}
+
+\section{Bootstrap}
+\label{sec:bootstrap}
+\todo{write}
+
+\section{require.js}
+\label{sec:requirejs}
+\todo{write}
 
 \section{chaplin}
-
-\todo{Figure out if we want to fight the fight and call the view viewmodel}\
-\todo{Move this section or delete it}
+\label{sec:chaplin}
 
 Chaplin is a new client side framework, which was created in February 2012.
 The motivation behind it was to create a framework that allows developers to
@@ -44,20 +57,22 @@ wrapping DOM element of the view.
 
 A very useful feature of Chaplin is the automatic memory management.
 When creating single page web-applications, the developer has to dispose each
-view manually. This challenge is best illustrated with regard to eventhandlers.
-Eventhandlers are functions, that are called when an event on a DOM node or
-an other object is trigger. Often this function manipulates and accesses
+view manually. This challenge is best illustrated with regard to event handlers.
+Event handlers are functions, that are called when an event on a DOM node or
+an other object is triggered. Often this function manipulates and accesses
 properties stored on a view. To allow for this access, the function stores a
 pointer to the view via a closure. Since the function is stored with the
 DOM node or object on which it is listening for events, any view the developer
 wants to dispose needs to stop listening on those events as well.
-Chaplin unbinds these eventhandlers for the developer when the view is disposed,
-allowing the browser to free up memory.
+Chaplin unbinds these event handlers for the developer when the view is
+disposed, allowing the browser to free up memory.
 
 \section{Movie Database \#2}
 
 \subsection{Tools and frameworks}
 \label{sec:mdb2-tools}
+\todo{write}
+\todo{ref to above tools}
 require.js, chaplin, mustache, jquery
 composer, php-activerecord, mustache, rest framework
 

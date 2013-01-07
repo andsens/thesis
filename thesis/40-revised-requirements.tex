@@ -22,8 +22,9 @@ errors other seasoned related tools do not have.
 We decided to develop these tools for our prototype regardless,
 because evaluating alternatives that would fit the purpose precisely
 would have taken up more time.
-This is however not a sound strategy going forward, assuming we have the goal to
-develop a reliable tool a developer may use to build web applications.
+This is not a sound strategy going forward. To implement our goal and later on
+maintain it, we require a nucleus of code, which only incorporates the parts
+that are necessary and unique to our solution.
 Succinctly put: There is no reason to reinvent the wheel.
 Most of these parts have nothing to do directly with the concept of this thesis.
 They are rather tools that help achieve the goals of it.
@@ -36,24 +37,29 @@ it with greater precision.
 
 \section{Revised Goal}
 \label{sec:revised-goal}
-We set out with the goal to couple server-side templates with client side
-models. In reality this goal consists of two parts:\
+In chapter \ref{chap:requirements} we concluded that our goal is to retrieve
+information about the binding of model fields to placeholders in templates and
+use this information to bind client-side models to the DOM.
+
+In reality this goal consists of two parts:\
 First we need to extract the dataset passed into the template engine together
-with the template from the render template\footnote{Read: from the HTML in the browser.}.
+with the template from the rendered template\footnote{Read: from the HTML in the browser.}.
 In the prototype we did this by utilizing hard-coded XPaths. The motivation
 behind hard-coding this part was the assumption that we would generate the those
 paths dynamically in our real implementation.\
 Once the dataset is rebuilt the second part consists of mapping its values
 to models on the client side. In the prototype we realized the mapping process
-by hard-coding the types of backbone fields into the ModelView.
-Our final implementation will only feature the first of these processes.
+by hard-coding the types of backbone fields into the ModelView.\
+However, our final implementation will only feature the first of these
+processes.
+
 To state it clearly:
 \begin{quote}
 Our goal is to extract the dataset passed to the mustache template engine from
 the rendered template.
 \end{quote}
 
-This drastic change of our goal is grounded in the desire to create a tool that
+This drastic change in course is grounded in the desire to create a tool that
 is applicable in as many types of web applications as possible.
 The mustache template engine is the only precondition for using the first part
 of our mapping process. The second part however can have preconditions
@@ -130,7 +136,11 @@ Bear in mind that despite the following simplifications we may still use some
 of the libraries.
 As stated in the previous section, we intend our tool to perform in an ecosystem
 of other software, minimizing dependencies can help developers integrate it into
-their existing software without conflicts.
+their existing software without conflicts. As an example of such an ecosystem
+consider Bower\footnote{\url{http://twitter.github.com/bower/}} by Twitter.
+Bower is a package manager for client-side applications. It contains over 700
+components ranging from asynchronous module loaders\footnote{
+See \ref{sec:requirejs}} to graphing libraries such as ``d3''.
 
 \subsection{Server-side}
 We begin our simplification on the server. Here we communicated with a database

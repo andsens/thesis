@@ -3,6 +3,7 @@
 \begin{document}
 
 \chapter{Demo applications}
+\todo{Re-enable the graphics. LaTeXTools don't seem to work with it}
 \label{chap:demo}
 This chapter describes two applications utilizing Comb to make a case for
 its relevance in the web development area and to illustrate the internal
@@ -46,14 +47,14 @@ both versions can be seen in figures \ref{fig:moviedb-prototype} and
 
 \begin{figure}
 	\centering
-	\resizebox{\linewidth}{!}{\includegraphics{graphics/moviedb-prototype}}
+	% \includegraphics[max width=linewidth]{graphics/moviedb-prototype}
 	\caption{Original prototype implementation of the Movie Database application}
 	\label{fig:moviedb-prototype}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\resizebox{\linewidth}{!}{\includegraphics{graphics/moviedb-bootstrap}}
+	% \includegraphics[max width=linewidth]{graphics/moviedb-bootstrap}
 	\caption{Bootstrap implementation of the Movie Database application}
 	\label{fig:moviedb-bootstrap}
 \end{figure}
@@ -150,6 +151,7 @@ its server-side counterpart.
 \end{figure}
 
 \subsection{Changing templates}
+\label{sec:changing-templates}
 The independence from the template structure in our Comb strategy is exemplified
 by our second implementation using the Bootstrap library. This version also
 exists in both a jQuery and Comb flavor.
@@ -207,7 +209,7 @@ Movie Database application. Figure \ref{fig:template-selection} shows the
 navigation bar with the template selection menu open.
 \begin{figure}
 	\centering
-	\resizebox{\linewidth}{!}{\includegraphics{graphics/template-selection}}
+	% \includegraphics[max width=linewidth]{graphics/template-selection}
 	\caption{The template selection menu from the editor application}
 	\label{fig:template-selection}
 \end{figure}
@@ -226,13 +228,13 @@ this form can be used to control all aspects of the dataset that is fed into
 the template rendering engine.
 \begin{figure}
 	\centering
-	\resizebox{\linewidth}{!}{\includegraphics{graphics/editor-form}}
+	% \includegraphics[max width=linewidth]{graphics/editor-form}
 	\caption{Editing the dataset for a template with a form}
 	\label{fig:editor-form}
 \end{figure}
 
-As such, the application is rather uninteresting. The more interesting part is
-the underlying architecture.
+As such, the application itself is rather uninteresting. The more interesting
+part is the underlying architecture.
 
 \subsection{Generating the form}
 To generate the form in the left view port, we transform the dataset retrieved

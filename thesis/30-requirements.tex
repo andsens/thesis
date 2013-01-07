@@ -17,8 +17,29 @@ However, once a template is rendered, template engines discard that information.
 This loss of information is inconsequential to the way web applications are
 built with current frameworks. That does still not mean that it is useless.
 
-Let us consider a minimal template used for displaying profile information:
+Consider a minimal template used for editing profile information as in
+figure \ref{fig:user.mustache}
 \todo{\dots}
+\begin{figure}
+	\centering
+	\begin{lstlisting}[language=mustache]
+<form action="/save_user">
+	<label>
+		Nickname:  <input type="text" value="{{nickname}}" name="nickname" />
+	</label>
+	<label>
+		Real name: <input type="text" value="{{realname}}" name="realname" />
+	</label>
+	<label>
+		Birthday:  <input type="text" value="{{birthday}}" name="birthday" />
+	</label>
+	<input type="submit" />
+</form>
+	\end{lstlisting}
+	\caption{A template for displaying user information}
+	\label{fig:user.mustache}
+\end{figure}
+
 As you can see, the fields of the user object are printed into the HTML
 at the appropriate places, leaving us with a normal page which can be
 displayed in the browser.
@@ -28,6 +49,7 @@ requires additional work when information about where data is put in the
 template is not readily available:
 
 \begin{shaded}
+\label{sec:scenario}
 After the profile form has been styled with CSS, the developer decides that
 the submission of the form should not issue a page reload. The tool of choice
 for that is AJAX.
@@ -56,6 +78,15 @@ Every possibly modifiable DOM node would be tagged with a CSS identity,
 requiring more work in both the template writing and DOM binding of
 client-side models.
 \todo{Introduction to what I want to do about it}
+\todo{State the goal here: "Our goal then, is to retrieve this location information
+from the templates and bind the values retrieved in the HTML using that information to client-side models"}
 
+Based on findings we can formulate a goal for our project:
+
+\begin{quote}
+Our goal is to retrieve information about the binding of model fields to
+placeholders in templates and use this information to bind client-side
+models to the DOM.
+\end{quote}
 
 \end{document}

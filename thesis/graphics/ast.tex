@@ -1,0 +1,14 @@
+% !TEX root = ../thesis.tex
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=3cm},
+  level 2/.style={sibling distance=1.5cm}]
+  \node {root}
+    child {node {left}
+      child {node {lleft}}
+      child {node {rleft}}
+    }
+    child {node {right}
+    child {node {lright}}
+      child {node {rright}}
+    };
+\end{tikzpicture}
