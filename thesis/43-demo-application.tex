@@ -21,10 +21,7 @@ to allow changing its values.
 In the exploratory prototype (chapter \ref{chap:prototype}) we created a
 Movie Database to organize information about the cast, year of release as well
 as the plot and synopsis of a movie. We reimplemented the same application
-in much the same way\footnote{
-	Although we will use a few more sophisticated tools,
-	see section \ref{sec:mdb2-tools}
-}.
+in much the same way.
 
 We use chaplin\footnote{Section \ref{sec:chaplin}} to structure our application
 on the client side, while a PHP REST framework together with
@@ -181,8 +178,8 @@ using the jQuery strategy for retrieving DOM values have changed.
 	\label{fig:movie-jquery-bootstrap}
 \end{figure}
 Contrasting this with the Comb strategy shown in figure \ref{fig:movie-comb-bootstrap}
-leaves us with a clear picture of the robustness\todo{Ref to Rule of robustness}
-Comb has with respect to retrieving values from the DOM.
+leaves us with a clear picture of the robustness Comb has with respect to
+retrieving values from the DOM.
 The code in figure \ref{fig:movie-comb-prototype} and
 \ref{fig:movie-comb-bootstrap} is exactly the same.
 \begin{figure}
@@ -213,7 +210,8 @@ navigation bar with the template selection menu open.
 	\caption{The template selection menu from the editor application}
 	\label{fig:template-selection}
 \end{figure}
-Upon selecting a template, the application loads the template and the Comb file.
+Upon selecting a template, the application loads the template and the Comb file
+using require.js (\ref{sec:require.js}).
 The template is then rendered\footnote{
 	We use the client-side mustache.js template engine to render templates
 	directly in the browser.
@@ -284,7 +282,4 @@ When we modify the amount of iterations in an array, we re-render the loaded
 template\footnote{
 	\ref{sec:update-dom} explains this necessity in more detail.
 }.
-
-
-\todo{Show what the actual dataset looks like!}
 \end{document}

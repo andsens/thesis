@@ -60,8 +60,10 @@ combined mustache-HTML grammar. To simplify our approach we will only allow well
 structured XML tags, as this should ostensibly cover most of HTML.
 HTML 5 allows for self-closing tags on void elements, which with our choice is
 not something we can support. We will therefore refer to HTML tags in our
-templates as XML tags.
-\todo{Clarify that this does not mean we will cover XML with namespaces and all that jazz}
+templates as XML tags\footnote{
+	This does however not imply that we intend Comb to be able to perform data
+	extraction on the full spectrum of XML documents.
+}.
 
 We build an abstract syntax tree with Parsec, in order for our tool to be
 able to create DOM paths through this tree.
@@ -175,7 +177,7 @@ returned in their interpreted form. This forces our tool to also be able to
 understand character references. To that end we simply scan any text we have
 recognized between tags for ampersands, all characters from that point on until
 a semicolon is found are passed to the \inline{lookupEntity} function available
-in the TagSoup library (\todo{Ref to Text.HTML.TagSoup.Entity}), which converts
+in the TagSoup library (\ref{sec:tagsoup}), which converts
 XML character references to UTF-8 characters.
 
 \subsubsection{Lexeme token parsers}
@@ -370,7 +372,6 @@ In order for us to still reliably determine said length, we also include
 mustache tags in this content list. The client library may then access
 information about these tags to asses the impact they have had on the length of
 an iteration.
-\todo{Eval: this can be done a lot easier}
 
 \subsection{Lambda sections}
 Lambda sections and normal mustache sections can not be distinguished.
@@ -392,6 +393,9 @@ This behavior is also in accordance with the mustache spec:
 	containing the data, otherwise use an empty list.
 \end{citequote}
 
+
+
+
 \section{Outputting information}
 \label{sec:output}
 We transmit the information our tool retrieves from templates to the client
@@ -409,20 +413,30 @@ tags that are not located inside a section and are not offset in their location
 by other mustache tags.
 
 
-\todo{Difference between parser combinators and parser generators}
-\todo{What about cabal, cmdargs?}
 
 \section{Client library}
 
 \subsection{Technology choices}
 
 \subsubsection{CoffeeScript}
-We use CoffeeScript to program our client library. The language allows us to 
-write expressions very tersely, where plain JavaScript would have required
-verbose instructions. This helps us to overview more code at once.
+\label{sec:coffeescript}
+We use CoffeeScript to program our client library.
+The language allows us to write expressions very tersely, where plain JavaScript
+would have required verbose instructions. This helps us to overview more code at
+once.
 CoffeeScript constructs like \inline{unless exp}, which translates to
 \inline{if(!exp)}, also help highlight the control flow in a semantically
 better way.
+
+\subsubsection{require.js}
+\label{sec:require.js}
+require.js is a module loader for the browser. It allows a developer to specify
+any dependencies a piece of JavaScript code may have and rely on require.js to
+load these dependencies before evaluating that code. This dependency management
+allows developers to concentrate on writing function modules or even ``classes''
+for the client-side of a web application. We will use require.js to split our
+client library into manageable files representing the logical parts of our
+library.
 
 \subsection{Input}
 The client library expects the user to hand it both the rendered template and
@@ -634,8 +648,8 @@ through a set of filters.
 \item \emph{unescaped\_offset} Check if a any mustache tags use an unescaped
                                variable as their path base\footnote{
                                	Because of the \emph{unescaped\_pos} filter,
-                               	this filter is actually superfluous.
-                               }. \todo{Remove this filter from the code}
+                               	this filter has become superfluous.
+                               }.
 \item \emph{empty\_section} Check for empty sections. They should be removed.
 \item \emph{unescaped\_pos} An unescaped variable may only be the last child
                             of an XML tag. It may not be a child of a section

@@ -4,38 +4,15 @@
 
 \appendix
 \chapter{Technical Appendix}
-\section{Choosing the tools}
-Existing frameworks supply much of the functionality we require.
-\begin{itemize}
-\item requirejs to get the information about placeholder locations to the client.
-\item as in the prototype: backbone to represent client models,
-	collections and views
-\item chaplin to supply us with a framework. Chaplin is very lightweight and
-	utilizes backbone. It comes with controllers and extended views and adds
-	collectionviews
-\item handlebars is a port of mustache templates to the client side
-\item coffeescript to avoid all the javascript nonsense
-\item HaXML to parse html templates
-\item Parsec to combine HaXML and a custom parser for mustache templates
-\end{itemize}
-
-
-
-\section{php-activerecord}
-\label{sec:php-activerecord}
-\todo{write}
-
-\section{CoffeeScript}
-\label{sec:coffeescript}
-\todo{write}
 
 \section{Bootstrap}
 \label{sec:bootstrap}
-\todo{write}
-
-\section{require.js}
-\label{sec:requirejs}
-\todo{write}
+Bootstrap is a combination of JavaScript and CSS which supplies a developer
+with pre-styled components to build a web application. Colors and shapes
+have been tuned to increase user-friendliness.
+The website \url{http://twitter.github.com/bootstrap/} itself uses the package.
+The blue gradient buttons are easily recognizable and can be found in many
+websites across the web.
 
 \section{chaplin}
 \label{sec:chaplin}
@@ -67,13 +44,16 @@ wants to dispose needs to stop listening on those events as well.
 Chaplin unbinds these event handlers for the developer when the view is
 disposed, allowing the browser to free up memory.
 
-\section{Movie Database \#2}
+\section{TagSoup}
+\label{sec:tagsoup}
+TagSoup is a library for parsing HTML and XML. Its documentation is available at
+\url{http://hackage.haskell.org/package/tagsoup-0.12.8}
 
-\subsection{Tools and frameworks}
-\label{sec:mdb2-tools}
-\todo{write}
-\todo{ref to above tools}
-require.js, chaplin, mustache, jquery
-composer, php-activerecord, mustache, rest framework
+\section{Node.js}
+\label{sec:nodejs}
+NodeJS is built on the JavaScript runtime for the Chrome browser and allows
+execution of JavaScript outside the browser. It complements JavaScript with
+additional APIs to access resources like the file system.
+It is available at \url{http://nodejs.org/}
 
 \end{document}

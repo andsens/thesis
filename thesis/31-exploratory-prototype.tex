@@ -106,9 +106,9 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 Every Model on the server-side is linked to the database.
 One instance of a model represents one entity in the database.
 Each of these Models is also represented on the client-side using backbone.js,
-which provides us with a ``Backbone.Model'' base class that can be extended.
-\todo{Note for clarity that with ``class'' in JavaScript
-we actually mean object prototype}
+which provides us with a ``Backbone.Model'' base class\footnote{
+	By ``class'' we of course mean a JavaScript prototype.
+} that can be extended.
 
 Using the ``Backbone.View'', we can create ViewModels that bind the Model and the
 DOM together. For example, this can be used to listen to changes in
@@ -200,8 +200,9 @@ returned by the Model.
 	We the recurse by calling the parsing function again.
 	This time it is called with the aggregated Model class and
 	the ViewModel class, which is returned by the \inline{view()} function
-	we attached to the XPath.
-	\todo{This highlights that we need some way of mapping templates to viewmodels}
+	we attached to the XPath\footnote{The coupling of ViewModels and XPaths
+	via the \inline{view()} function, implies that a way to map templates to
+	ViewModels to templates will be required}.
 	\item \emph{The field is a Collection}\\
 	We query the Model for the type of Model the collection contains.
 	The XPath can return more than one DOM node.
@@ -229,7 +230,7 @@ This is necessary because XPath is not an exact query language.
 \end{itemize}
 
 \section{Results}
-\label{sec:first:results}
+\label{sec:first-results}
 In the introduction of this chapter we listed some motivations for making
 this prototype.
 
@@ -258,7 +259,7 @@ The function \inline{getComplexType()} illustrates, that we will need some form
 of mapping between ViewModels and templates.
 It will be tedious and error prone for the developer to create those mappings
 by hand. We will need a process, which automates the coupling of the ViewModels
-with server-side templates.\todo{Refer to this later on, and why the mapping is no longer tedious}
+with server-side templates.
 
 While developing this application various libraries have been examined for their
 viability. backbone.js has in this case proven itself to be a very good fit.
