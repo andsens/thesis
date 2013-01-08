@@ -559,7 +559,7 @@ Variables have similarly joined with adjacent text nodes.
 	\begin{subfigure}{\linewidth}
 		\caption{A mustache template}
 		\label{fig:relationships.mustache}
-		\begin{lstlisting}[language=JSON]
+		\begin{lstlisting}[language=mustache]
 <div>
 	Meet and greet:{{#user}} Hello {{name}}<br/>{{/user}}
 	<img src="about:blank" />
@@ -583,8 +583,19 @@ Variables have similarly joined with adjacent text nodes.
 	\end{subfigure}
 	
 	\begin{subfigure}{\linewidth}
-		\caption{Resulting DOM tree when rendering the dataset in \ref{fig:rendered.json}
+		\caption{Resulting HTML when rendering the dataset in \ref{fig:rendered.json}
 		         using the template from figure \ref{fig:relationships.mustache}}
+		\label{fig:rendered.html}
+		\begin{lstlisting}[language=HTML]
+<div>
+	Meet and greet: Hello user1<br/> Hello user2<br/>
+	<img src="about:blank" />
+</div>
+		\end{lstlisting}
+	\end{subfigure}
+	
+	\begin{subfigure}{\linewidth}
+		\caption{DOM tree for \ref{fig:rendered.html}}
 		\label{fig:rendered.ast}
 		\resizebox{\linewidth}{!}{\input{graphics/rendered}}
 	\end{subfigure}

@@ -5,33 +5,198 @@
 \chapter{Evaluation}
 \label{chap:eval}
 
-\todo{Explain how this is better than generating jQuery selectors. Namely we even retrieve \emph{implied} values.}
+In this chapter we will assess the usefulness of Comb in light of the demo
+applications from chapter \ref{chap:demo}. Following this, we will analyze
+whether we achieved the goals we set ourselves.
+We will also examine potential improvements of Comb and discuss its shortcomings
+as well.
 
-\todo{Make a checker, to figure out if the retrieved dataset structure has changed}
+\section{Assessment of Comb}
+The MovieDatabase \#2 has highlighted various advantages of using Comb over
+normal jQuery selectors to extract values from rendered templates.
+The transition between two very different templates is seamless when using Comb,
+where none of the identifiers we used to retrieve values from the dataset
+required any modification. This stands in stark contrast with the jQuery version
+of our demo, where in fact none of the selectors stayed the same.
 
-\todo{Unescaped variables starting with a close tag won't work}
+In our small example this need for adjustment may seem inconsequential.
+However, when projected onto larger projects it is easy to imagine how this
+process may become a daunting task: First the developer will need to locate all
+Views the change affects. Following that, he will in his mind have to construct
+the DOM tree of the template in question to check whether a given selector
+requires adjustment.
+If an adjustment is required, he will also need to make sure that
+it captures only the elements that he intends to capture.
+The template may even need to be changed because matching only a specific
+element is impossible or too complex.
+During all of this the developer has to switch back and forth between
+the template and the view. With Comb, this process is not necessary, the
+developer (or template designer) simply runs our pre-parser tool to refresh the
+comb file and continues with his next task.
 
+Consider also how the id of a movie was fetched in the jQuery version
+(figure \ref{fig:jquery-fetch-substring}). The id is embedded in an element
+attribute with a prefix. To arrive only at the id, we had to strip away the
+``movie-'' part of the attribute by discarding the first 6 characters of the
+``id'' attribute.
+In an era where first-person shooters can be played directly in the browser
+and processors are manufactured on the nanometer scale, counting characters
+should not be part of the daily routine of a web-developer.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@model.set 'id', (@$('>details').attr 'id').substring 6
+	\end{lstlisting}
+	\caption{Retrieving the id of a movie with jQuery}
+	\label{fig:jquery-fetch-substring}
+\end{figure}
+Looking at the Comb alternative in figure \ref{fig:comb-fetch-substring}, we can
+see that Comb already extracted the id from the attribute and discarded the
+``movie-'' prefix.
+We did not even have to look up where the value was placed in the template.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@model.set 'id', @data.id.value
+	\end{lstlisting}
+	\caption{Retrieving the id of a movie with Comb}
+	\label{fig:comb-fetch-substring}
+\end{figure}
+
+This kind of dataset extraction is also visible when we examine the list of
+movies in the bootstrap version of our application in figure
+\ref{fig:movielist.mustache}.
+\begin{figure}
+	\centering
+	\begin{lstlisting}[language=mustache]
+<ul class="nav nav-list">
+	<li class="nav-header">Movies</li>
+	{{#movies}}<li><a data-toggle="tab" href="#movietab-{{id}}">{{title}}</a></li>{{/movies}}
+	<li class="nav-header"><a href="#" id="add-movie"><i class="icon-plus"></i></a></li>
+</ul>
+	\end{lstlisting}
+	\caption{Tab buttons for the list of movies in the bootstrap version of the Movie Database}
+	\label{fig:movielist.mustache}
+\end{figure}
+In our application we did not need to extract data
+from this specific part of the template, since the subsequent HTML for the
+actual tab-panes contained the same and additional data.
+If we were to determine the number of movies using this list with jQuery,
+we would count the number of list items it contains. Subsequently we will need
+to subtract 2 from this number to account for the additional list headers.
+Alternatively we could add a class name to the list item in the
+\inline{\{\{\#movies\}\}} loop, making it distinguishable from the header list
+items.
+Figure \ref{fig:movielist-jquery.js} illustrates these possible selectors.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@$('ul>li').length-2
+
+// requires adding a "movie" class to the list items
+@$('ul>li.movie').length
+
+// Additional possibility
+@$('ul>li[class!="nav-header"]').length
+	\end{lstlisting}
+	\caption{Three selectors to count the number of movies in \ref{fig:movielist.mustache}}
+	\label{fig:movielist-jquery.js}
+\end{figure}
+With Comb it is possible to retrieve such \emph{implicit} values quite easily:
+We simply access the \inline{movies} array in the extracted dataset.
+In addition to this strategy being simpler we also conserve the meaning behind
+our code. Any developer looking at the code will immediately understand what
+the number from the \inline{length} property represents without having to
+examine the associated template. This holds true especially for the first
+selector of figure \ref{fig:movielist-jquery.js} where the magic number "2"
+seems to appear out of nowhere.
+\begin{figure}
+	\centering
+	\begin{lstlisting}
+@data.movies.length
+	\end{lstlisting}
+	\caption{Counting the number of movies with Comb}
+	\label{fig:movielist-comb.js}
+\end{figure}
+
+Adding classes to the template for the sole purpose of being able to extract
+data from the rendered template like we do in the second selector of figure
+\ref{fig:movielist-jquery.js} is not a sound strategy. We pollute the CSS
+selector namespace with classes that have nothing to do with the layout and
+design of the web application.
+
+Some scenarios may however require us to do exactly that, because there is no
+section surrounding a group of tags. We can however extend Comb to also
+recognize mustache comments, they do not change a rendered template in any way,
+but give the developer a possibility to annotate parts of a template. In section
+\ref{sec:comment-selectors} we examine this extension in more detail.
+
+Annotations like these could also be used to take advantage of the
+\inline{parentNode} property we return for all variables. In the Comb version
+of our Movie Database we still used jQuery selectors to access parts of the HTML
+where we wanted to listen for click events from the user. Specifically we wanted
+to take action, when the plus-signs for adding a movie or a new role in a movie
+were clicked.
+Instead of relying on those selectors we could have added a variable to an
+attribute of the button and accessed the \inline{parentNode} property.
+The identifier of that variable should of course not reference any identifier we
+might expect in the dataset, since we only intend to use it to access its parent
+node and not its value.
+In light of this use-case a more sound approach would indeed be to use mustache
+comments instead.
+
+The \inline{parentNode} property is used in our Movie Database for another
+purpose: We update the properties of a movie Model while the user is editing it.
+To bind event listeners to the nodes containing the editable text we wrap the
+node referenced from the dataset in a jQuery object and leverage its event
+abstraction layer to update the corresponding property on the model on ``keyup''
+events. We abstracted this process and added it to the abstract View object
+all our Views extend, the task to make an element editable then becomes very
+simple: \inline{@editable('title')} is all it takes. Since the identifier in the
+dataset is identical to the property name on the Model, \inline{editable()}
+requires only one parameter to listen to changes on the parent node, extract the
+new value from it and update the corresponding model property.
+
+The instances in which we use jQuery are not grounded in a lack of functionality
+in Comb; Our goal has never been to replace jQuery.
+In \ref{sec:simplifying} we did however mention the desire to fit Comb into an
+ecosystem of existing software. Being able to wrap properties of our dataset
+with a jQuery object to empower it with additional features is a step in exactly
+that direction.
+
+However, Comb does in no way require the developer to use jQuery for such tasks.
+Tools such as prototype.js\footnote{\url{http://prototypejs.org/}} and
+zepto.js\footnote{\url{http://zeptojs.com/}} may of course be used instead.
+By allowing diversity like this we follow another rule set out in
+``The Art of Unix Programming'':
+\begin{citequote}{\cite[Chapter 1]{UXART}}
+Rule of Diversity: Distrust all claims for ``one true way''.
+\end{citequote}
+
+
+Ref to scenario in requirements
 \todo{iterations with CSS ids suck, mustache comments solve that problem (instead of relying on weird css classes)}
 
-\todo{with jQuery we may need to use substring to get a value}
+\todo{Potential application: screen scrapers. Allow people to get data from a website without having to create a rest api}
 
+
+Binding to models
 \todo{Talk about parentNode and how we don't use it very much, we need a proper layer to utilize the strengths}
+\todo{Link sec:scenario and sec:changing-templates}
+This quality of Comb combined with the parentNode
 
-\todo{Rule of Optimization: we did that}
 
-\todo{Rule of Diversity: intermingle jQuery and Comb}
 
-\todo{Rule of Robustness: When templates change}
+EVAL:
+\todo{Unescaped variables starting with a close tag won't work}
+
+If previous comb file exists, tell user if dataset structure has changed
+\todo{Make a checker, to figure out if the retrieved dataset structure has changed}
+
+\todo{Rule of Robustness: When templates change, transparency}
 
 \todo{Rule of Representation: Trying to but hard}
 
-\todo{Rule of Extensibility: we are doing exactl that by cutting stuff away}
-
-\todo{Link sec:scenario and sec:changing-templates}
-
-In this chapter we will analyze whether we achieved the goals we set ourselves.
-We will also examine Comb in more detail to find potential for improvement and
-uncover scenarios where Comb is not up to the task.
 
 \section{Reviewing our goal}
 In the requirements for the prototype (chapter \ref{chap:requirements})
@@ -43,9 +208,14 @@ template.
 
 The architecture we set to achieve this goal aimed at a two parted process where
 we retrieve information from templates and later use that information to parse
-rendered templates. The demo application\todo{-s ?} from chapter \ref{chap:demo}
-integrates Comb to do exactly that. It renders a template with a custom dataset,
-extracts the data from the rendered template and displays that data to the user.
+rendered templates. The demo applications from chapter \ref{chap:demo}
+integrate Comb to do exactly that. They render templates with given a dataset,
+extract the data from the rendered templates and employ that data in the rest of
+the application.
+
+\todo{Rule of Extensibility: we are doing exactly that by cutting stuff away}
+
+
 
 \section{Pre-Parser tool improvements}
 As with any piece of software, there is always room for improvement.
@@ -70,19 +240,8 @@ that may be encountered is namespacing of tag names. The \inline{identLetter}
 } property of our XML token parser in our
 pre-parser tool lists the allowed letters in an identifier,
 which in our case are xml tag names and attribute names. Among those letters is
-the colon. This does however not guarantee a proper parsing of rendered
-templates when querying the DOM with our client library.
-\todo{Figure out if this works or not}
-
-\subsubsection{Character references}
-Character references are converted into characters by our parser and the
-TagSoup library ostensibly contains a full lookup table of these references.
-The recognition method of character references is unfortunately not very robust:
-The user will be presented with a rather unhelpful error message if an ampersand
-is not followed by a semicolon\footnote{
-	i.e. the parser reaches at some point the end of the string and crashes
-}. This issue can fortunately be corrected with some minor effort.
-\todo{Fix comment recognition to at least not crash the parse ffs!}
+the colon. Comb should therefore be able to recognize namespaced tag names
+since the DOM API returns their name with the namespace included.
 
 \subsubsection{Standalone mustache tag lines}
 As describe in \ref{sec:standalone-lines} mustache removes
@@ -95,19 +254,25 @@ is removed\footnote{
 our client library to expect a whitespace line where there is none.
 
 \subsubsection{Mustache comments}
-In \ref{sec:mustache-xml-ebnf} we deemed comments ``since it does not
-output any content our client library can retrieve''. In \ref{sec:parent-nodes}
-we introduced parent nodes into the dataset we return for variables.
+\label{sec:comment-selectors}
+In \ref{sec:mustache-xml-ebnf} we deemed a mustache comment not relevant
+``since it does not output any content our client library can retrieve''.
+In \ref{sec:parent-nodes} we introduced parent nodes into the dataset we return
+for variables.
 This addition makes comments useful even though it does not output any data.
 By placing comments in key locations in a template, the developer can access
 nodes in a rendered template by referencing those comments and accessing their
-parent node. Comments do however not contain identifiers but free form strings.
+parent node. Because comments do not affect the rendered template we can even
+adjust our EBNF to accommodate comments in all parts of a template.
+This includes the space between XML attributes.
+
+Comments do however not contain identifiers but free form strings.
 To simplify referencing we could consider anything up to a set of
 separators as the identifier. The alternative would be to simply require the
 developer to specify the entire string.
 
 Although this feature addition can be considered a significant improvement to
-the possibilities of our tool, it can not be considered a shortcoming.
+the possibilities of our tool, it can not be deemed a shortcoming.
 Our goal was to retrieve the original dataset from a rendered template.
 Comments do not receive any dataset value and do not output any value, as such
 they were out of scope.
@@ -151,7 +316,7 @@ client library. From the pre-parser tool we only need to remove the
 To create a simplistic form of lookahead we can catch errors thrown by
 mustache tag objects when they are unable to verify their siblings and try
 alternative possibilities until we succeed. This is however not only resource
-intensive but may result a faulty dataset extraction, because more than one
+intensive but may result in a faulty dataset extraction, because more than one
 combination of possibilities can be applied to a DOM tree.
 
 A more sound approach requires extending our pre-parser tool as well. It can
@@ -164,8 +329,8 @@ branch and continue the tree generation. This tree generation can continue until
 we encounter the end of a DOM tree. We can also set a limit on the depth of the
 tree, thereby limiting the amount of possibilities our client library has to
 try. Once the tree is generated the filter may analyze it and print errors if
-two paths are indistinguishable. The tree can then be cut until the smallest
-size without ambiguous paths is reached.
+two paths are indistinguishable. The tree can then be reduced in size without
+reaching ambiguous paths.
 
 The client library can for example use this tree to determine whether a
 section containing a variable as its first child and a variable as its
@@ -179,7 +344,7 @@ first child and next node of a section can be confused
 \subsubsection{Variable boundary ambiguity}
 \label{sec:var-boundary-ambiguity}
 Our lookahead improvement can not help alleviate a similar problems a developer
-may encounter with two ore more variables in one text node as shown in figure 
+may encounter with two or more variables in one text node as shown in figure 
 \ref{fig:twovars-no-sep}.
 \begin{figure}
 	\centering
@@ -187,7 +352,7 @@ may encounter with two ore more variables in one text node as shown in figure
 		\caption{Template}
 		\label{fig:twovars-no-sep.mustache}
 		\begin{lstlisting}[language=mustache]
-<span>{{var_one}}{{var_two}</span>
+<span>{{var_one}}{{var_two}}</span>
 		\end{lstlisting}
 	\end{subfigure}
 	
@@ -316,7 +481,8 @@ property of the first entry in the array. Whichever version the developer
 expected, he will now be able to access it that way. This approach will however
 not work when there are no iterations since we cannot let a key in our dataset
 be both an empty list and the value false\footnote{
-	\inline{\!\![]} returns true instead of false unfortunately (in our use-case)
+	Double negating an array in JavaScript (\inline{\!\![]}) returns true instead
+	of false unfortunately (for our use-case)
 }. This means the user will not be able to check for the existence of an object.
 
 \todo{Highlight the idiocy of actually deleting a variable mapping after converting it to an array}
