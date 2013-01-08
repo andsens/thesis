@@ -5,6 +5,7 @@
 *.dvi
 *.log
 *.toc
+*.lof
 *.ps
 *.fdb_latexmk
 *.fls

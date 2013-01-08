@@ -8,6 +8,7 @@
 				"*.auxlock",
 				"*.fdb_latexmk",
 				"*.fls",
+				"*.lof",
 				"*.log",
 				"*.pdf",
 				"*.synctex.gz",
