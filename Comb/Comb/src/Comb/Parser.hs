@@ -61,17 +61,6 @@ mustache_lexer  = T.makeTokenParser (
 m_identifier = T.identifier mustache_lexer
 m_reservedOp = T.reservedOp mustache_lexer
 
-{--
-content ::= {{  id  }}
-					| {{{ id }}}
-					| {{# id  }} content {{/ id }}
-					| {{^ id  }} content {{/ id }}
-					| <id [id = attribute_content]* />
-					| <id [id = attribute_content]* > content </id>
-					| <!-- comment_content -->
-					| string
---}
-
 template = many any_content
 
 any_content =
