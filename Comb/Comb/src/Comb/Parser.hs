@@ -233,9 +233,11 @@ text_data disallowed_operators decoder = do
 	return $ Text string begin end
 
 entity_decoder ('&':string) = 
-	case lookupEntity (takeWhile (';' /=) string) of
+	case lookupEntity reference of
 		Just char -> char:rest
-		Nothing -> rest
-	where rest = drop 1 $ dropWhile (';' /=) string
+		Nothing -> error ("Unable to find character reference for '" ++ reference ++ "'")
+	where
+		reference = takeWhile (';' /=) string
+		rest = drop 1 $ dropWhile (';' /=) string
 entity_decoder (char:string) = char:(entity_decoder string)
 entity_decoder [] = []
