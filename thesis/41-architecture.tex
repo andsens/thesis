@@ -140,12 +140,11 @@ This would make the client side code a very lightweight value retriever
 thereby obsoleting the pre-parser.
 
 Apart from simply shifting the workload of locating template variables
-from the viewmodel maintainer to the template maintainer\footnote{The scenario
+from the ViewModel maintainer to the template maintainer\footnote{The scenario
 in chapter \ref{chap:requirements} illustrates this point},
 the task of retrofitting existing web applications becomes much greater.
 
 \subsection{Rule of Parsimony}
-\ref{sec:revised-goal}
 
 The Rule of Parsimony states
 \begin{citequote}{\cite[Chapter 1]{UXART}}
@@ -154,9 +153,10 @@ that nothing else will do.
 \end{citequote}
 
 By examining the output of the \inline{innerHTML} property in different browsers
-and hypothesizing\footnote{though not really``demonstrating''} how our goal
-could be solved by decorating templates, we have shown ``that nothing else will
-do''. The approach to parse rendered templates after analyzing them may be are
+and hypothesizing\footnote{though not really``demonstrating'' in terms of
+implementation} how our goal could be solved by decorating templates,
+we have shown ``that nothing else will do''.
+The approach to parse rendered templates after analyzing them may be are
 more complex operation than other solutions, but it is the only one
 ``that will do'' to achieve our goal. We have also shown that integrating
 directly with the template engine would in fact result in a bigger program.
