@@ -2,34 +2,7 @@
 \documentclass[thesis.tex]{subfiles} 
 \begin{document}
 
-\chapter{Tools of the Trade}
-\label{chap:tools}
-In order to achieve a separation of responsibility various frameworks and tools
-are at a developers disposal. In this thesis we will focus on two of them
-specifically.
-\section{Client frameworks}
-\subsection{Backbone.js}
-\todo{REWRITE}
-\subsubsection{underscore.js}
-prototype.js is a library developed by Sam Stephenson to improve upon the
-DOM API itself.
-It brought with it various improvements to native JavaScript prototype objects.
-underscore.js carries these improvements into the world of jQuery.
-It includes a small templating engine which will allow us to generate
-DOM elements and insert them into the page.
-\subsection{XPath}
-XPath is a language that allows us to define a path from a root node to another
-node. Although limited, the language is fairly concise and directly built into
-JavaScript. We will only be dealing with XPath 1.0, because version 2.0 is, with
-the exception of Microsoft Internet Explorer, not implemented in any browsers
-yet and likely will not ever be (the final specification was released 2006).
-\section{Templating languages}
-A templating language allows the developer to create HTML documents containing
-placeholders, which later can be filled by a Model and its attributes.
-Templating is part of the "View" component in the Model-View-Controller
-pattern. In the following we will have a look at one such templating language.
-
-\subsection{Mustache}
+\chapter{Mustache}
 Mustache is a so called "logic-less" template engine.
 This subtitle derives from the fact that there are no advanced control flow
 statements. Instead there are only tags.
@@ -43,7 +16,7 @@ To render a mustache template, the template in conjunction with an
 identifier mapping (i.e. the dataset) is passed to the engine, which returns the
 rendered template.
 
-\subsubsection{Variables}
+\section{Variables}
 \label{sect:mustache-vars}
 Variables in mustache are string placeholders. We can recognize them by their
 two curly braces before and after an identifier (\inline{\{\{identifier\}\}}).
@@ -56,12 +29,13 @@ key is not specified in the dataset.
 An identifier may also point at properties on objects in the dataset. Like many
 other languages the '.' character is used to access those properties (e.g. \inline{\{\{object.field\}\}}).
 
-\subsubsection{Unescaped variables}
+\section{Unescaped variables}
 To output strings as unescaped HTML, triple curly braces are used:
 \inline{\{\{\{identifier\}\}\}}. Alternatively an ampersand may be used as well:
 \inline{\{\{\&identifier\}\}}.
 
-\subsubsection{Sections}
+\section{Sections}
+\label{sec:mustache-explain-section}
 Sections in mustache can be considered equivalent to foreach loops in other
 languages. We write them with an open and close tag:
 \inline{\{\{\#identifier\}\}CONTENT\{\{/identifier\}\}}.
@@ -180,7 +154,7 @@ operator, as can be seen in figure \ref{fig:dot-oper-example}.
 	\label{fig:dot-oper-example}
 \end{figure}
 
-\subsubsection{Inverted sections}
+\section{Inverted sections}
 In case a value in the dataset is an empty list or false, we use an inverted
 section to output fallback content. We simply replace the hash-mark in the
 opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
@@ -253,7 +227,7 @@ it. The effect of outputting it regardless of its content is the same.
 	\label{fig:emptystr.mustache}
 \end{figure}
 
-\subsubsection{Lambdas}
+\section{Lambdas}
 Mustache tags identified by the hash mark may also represent another form of
 placeholder namely the lambda sections. These sections are not iterations, but
 calls to functions that have been bound to keys in the dataset.
@@ -310,12 +284,12 @@ to the key ``reldate''.
 	\label{fig:lambda-example}
 \end{figure}
 
-\subsubsection{Comments}
+\section{Comments}
 A comment in mustache is identified by an exclamation mark:
 \inline{\{\{! This is a comment \}\}}
 The comment tag creates no output.
 
-\subsubsection{Partials}
+\section{Partials}
 Partials allow templates to be split up into smaller parts. Their tags are
 replaced with the contents of other templates. They behave as if the referenced
 template was inlined directly at the location of the partial tag.
@@ -398,7 +372,7 @@ render recursive data-structures. For example the template in figure
 	\caption{Mustache templates can be recursive by utilizing partial tags}
 \end{figure}
 
-\subsubsection{Set delimiter}
+\section{Set delimiter}
 Mustache curly braces may clash with delmiters used in other languages,
 such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
 something else. The equals sign is used to signify a change in delimiters.
@@ -421,7 +395,7 @@ PHP tags: PHP begins with "<?" and ends with "?>"
 	\label{fig:set-delim.mustache}
 \end{figure}
 
-\subsubsection{Removal of standalone lines}
+\section{Removal of standalone lines}
 \label{sec:standalone-lines}
 Mustache removes lines which beyond a section beginning or end contains
 only white space (i.e. standalone lines).
@@ -432,23 +406,10 @@ The behavior is however not defined clearly:
 	appropriate. 
 \end{citequote}
 
-\subsubsection{Mustache specification}
+\section{Mustache specification}
 Documents specifying the exact behavior of mustache can be viewed at
 \url{https://github.com/mustache/spec}. The specification is written in YAML to
 allow automated tests of rendering engines.
-
-\subsection{Limitations}
-\todo{fix entire paragraph}
-These templating languages are very different in their design.
-All aim to improve one or more aspects of the templating task.
-Of those Mustache seems to be specifically tailored for web applications
-with interactive JavaScript parts.
-They all have a common trait which in some cases can be an advantage
-but given any specific implementation of a web application is a drawback:
-They are completely oblivious of their surroundings. They draw the line
-at the "View" part in order to encourage a separation from the other
-parts. This comes at the cost of lost information when sending a
-rendered view to the client.
 
 
 \end{document}

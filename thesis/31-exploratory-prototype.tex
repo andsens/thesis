@@ -43,20 +43,36 @@ used. Excluding basic core technologies like JavaScript, MySQL and PHP, the
 application stack consists of the following:
 \begin{itemize}
 	\item \emph{less}\\
-	A superset of CSS providing variables, calculations and nested selectors. It
-	is a JavaScript library which compiles included less files into CSS.
+		A superset of CSS providing variables, calculations and nested selectors. It
+		is a JavaScript library which compiles included less files into CSS.
 	\item \emph{jQuery}\\
-	The de facto standard when creating web applications. Among other things it
-	simplifies the interaction with the DOM.
-	\item \emph{backbone.js}\\
-	Backbone.js is a JavaScript Model/View framework. It provides the developer
-	with View, Model and Collection prototypes. The View prototype can be
-	considered analogous to the aforementioned ViewModel, while the Model and
-	Collection part make up the Model component and collections thereof,
-	respectively.
+		The de facto standard when creating web applications. Among other things it
+		simplifies the interaction with the DOM.
+	\item \emph{backbone.js}\label{sec:backbonejs}\\
+		Backbone.js is a JavaScript Model/View framework. It provides the developer
+		with View, Model and Collection prototypes. The View prototype can be
+		considered analogous to the aforementioned ViewModel, while the Model and
+		Collection part make up the Model component and collections thereof,
+		respectively.
+	\item \emph{underscore.js}\\
+		prototype.js is a library developed by Sam Stephenson to improve upon the
+		DOM API itself.
+		It brought with it various improvements to native JavaScript prototype
+		objects.
+		underscore.js carries these improvements into the world of jQuery.
+		It includes a small templating engine which will allow us to generate
+		DOM elements and insert them into the page.
 	\item \emph{php-activerecord}\\
-	PHP ActiveRecord is the server-side library utilized to communicate with the
-	database.
+		PHP ActiveRecord is the server-side library utilized to communicate with the
+		database.
+	\item \emph{XPath}\\
+		XPath is a language that allows us to define a path from a root node to
+		another node.
+		Although limited, the language is fairly concise and directly built into
+		JavaScript. We will only be dealing with XPath 1.0, because version 2.0 is,
+		with the exception of Microsoft Internet Explorer, not implemented in any
+		browsers yet and likely will not ever be (the final specification was
+		released 2006).
 \end{itemize}
 
 \subsection{Templating}
