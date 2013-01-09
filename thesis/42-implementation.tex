@@ -63,7 +63,7 @@ not something we can support. We will therefore refer to HTML tags in our
 templates as XML tags\footnote{
 	This does however not imply that we intend Comb to be able to perform data
 	extraction on the full spectrum of XML documents.
-}.
+}.\todo{We also don't support singleton attributes}
 
 We build an abstract syntax tree with Parsec, in order for our tool to be
 able to create DOM paths through this tree.
@@ -271,7 +271,7 @@ the value of a previous tag.
 When parsing a rendered template in the client library, we will want to parse
 all children first and continue with offsets that depend on those children.
 
-Figure \ref{fig:section-example.mustache} from chapter \ref{chap:tools}
+Figure \ref{fig:section-example.mustache} from \ref{sec:mustache-explain-section}
 illustrates the difference very well, once we add a last list element as
 shown in figure \ref{fig:offsets.mustache}.
 \begin{figure}

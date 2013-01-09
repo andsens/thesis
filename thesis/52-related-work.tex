@@ -2,13 +2,65 @@
 \documentclass[thesis.tex]{subfiles} 
 \begin{document}
 
-\todo{http://rivetsjs.com/}
-
-\todo{Discuss we accomplished what at first seemed to require a framework
-but managed to convert it into a tool that has a much greater applicability}
-
 \chapter{Related Work}
-\section{MAWL}
+
+
+\section{Similar goals}
+In this section we will discuss a tool and a framework which in their goals
+can be viewed as similar to Comb.
+
+\subsection{Template::Extract}
+Template::Extract\cite{TPLEXTRACT} is a tool written in perl module with a
+functionality much like Comb. It is written for the ``Template Toolkit''
+templating language and allows the developer to extract values from a rendered
+template when given the template.
+This extraction is accomplished by compiling a regular expression based on the
+template and applying it to the rendered template.
+
+\begin{citequote}{\cite{TPLEXTRACT}}
+Extraction is done by transforming the result from Template::Parser to a highly
+esoteric regular expression, which utilizes the (?\{...\}) construct to insert
+matched parameters into the hash reference.
+\end{citequote}
+
+Our revised goal exactly matches Template::Extract, Comb however operates on the
+Document Object Model while Template::Extract operates on a single string.
+In \ref{chap:arch} we evaluated that strategy but discovered that the strings
+returned by the \inline{innerHTML} property of DOM elements differ between
+browsers and do not reflect the original rendered template.
+By choosing to extracting values from the DOM we also gain the added advantage
+of retaining references to the nodes the strings were extracted from\footnote{
+	as detailed in \ref{sec:parent-nodes}
+}.
+This additional piece of information allows Comb to become more than a simple
+value extraction library. The emergent properties discussed in
+\ref{sec:emergent} and the potential additional layers Comb supports
+differentiate Comb from the sole purpose of extracting data from templates.
+
+\subsection{Rivet.js}
+On the other side of the spectrum we have Rivet.js\footnote{
+\url{http://rivetsjs.com/usage-notes}}, which is a framework that
+can bind templates written in plain HTML to Model frameworks like
+backbone.js\footnote{\ref{sec:backbonejs}}. Changes in the Model will be
+mirrored in the rendered template and vice-versa.
+As such this framework is in its features very similar to the original goal we
+formulated in chapter \ref{chap:requirements}.
+
+However, rivet.js uses its own templating language to achieve this goal.
+The rendering takes place when the models are bound to the template.
+This precludes any form of server-side rendering without node.js\footnote{
+\ref{sec:nodejs}}. In fact, rendering a template on the server-side and transmitting
+it to the client is not possible without losing the bond between DOM and Model.
+
+Rivet.js is however an example of how a two-way binding layer\footnote{
+As discussed in \ref{sec:two-way-binding}} for Comb may function.
+
+
+
+\section{Similar domain}
+In this section we will discuss papers which touch upon the same domain as Comb.
+
+\subsection{MAWL}
 Mawl\cite{MAWL} is a framework and domain-specific language developed in 1999
 to aid the handling of HTML forms as well as telephone forms.
 It does this by supplying the developer with a framework which compiles
@@ -38,36 +90,12 @@ For the sessions, this means standard type checking and semantics checking.
 For MHTML templates, this means verifying that a template is legal MHTML.
 \end{citequote}
 
-
-\section{Template::Extract}
-Template::Extract\cite{TPLEXTRACT} is a perl module with a functionality much
-like Comb. It is written for the ``Template Toolkit'' templating language and
-allows the developer to extract values from a rendered template when given the
-template. This extraction is accomplished by compiling a regular expression
-based on the template and applying it to the rendered template.
-
-\begin{citequote}{\cite{TPLEXTRACT}}
-Extraction is done by transforming the result from Template::Parser to a highly
-esoteric regular expression, which utilizes the (?\{...\}) construct to insert
-matched parameters into the hash reference.
-\end{citequote}
-
-Our revised goal exactly matches Template::Extract, Comb however operates on the
-Document Object Model while Template::Extract operates on a single string.
-In \ref{chap:arch} we evaluated that possibility but discovered that the strings
-returned by the \inline{innerHTML} property of DOM elements differs between
-browsers and does not reflect the original rendered template.
-By extracting values from the DOM we also retrieve references to the nodes they
-were extracted from\footnote{
-	as detailed in \ref{sec:parent-nodes}
-}. This additional piece of information allows Comb to become more than a simple
-value extraction library.
+\subsection{}
+\cite{ML}
 
 \section{}
-\cite{DYNDOC}
 
-\cite{HASKELL}
-\cite{WASH}
-\cite{ML}
+\todo{Discuss we accomplished what at first seemed to require a framework
+but managed to convert it into a tool that has a much greater applicability}
 
 \end{document}
