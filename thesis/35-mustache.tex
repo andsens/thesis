@@ -3,15 +3,24 @@
 \begin{document}
 
 \chapter{Mustache}
-Mustache is a so called "logic-less" template engine.
-This subtitle derives from the fact that there are no advanced control flow
-statements. Instead there are only tags.
-Tags in this context can be understood as an advanced form of placeholders.
-Some tags are replaced with a string, some are replaced with HTML tags,
-yet others repeat their content multiple times.
-Tags are easily recognizable by their delimiters which always start and end with
-two curly braces (e.g. \inline{\{\{identifier\}\}}).
+Mustache\footnote{\url{http://mustache.github.com/}} is a template engine for
+"logic-less" templates.
+According to the author this subtitle derives from the fact that there are no
+control-flow statements:
+\begin{citequote}{\cite{MUSTACHE5}}
+We call it ``logic-less'' because there are no if statements, else clauses, or for
+loops. Instead there are only tags. Some tags are replaced with a value, some
+nothing, and others a series of values. This document explains the different
+types of Mustache tags.
+\end{citequote}
+This statement is debatable, in \ref{sec:mustache-explain-section} we will see
+how sections can act as if statements and loops, recursion using is also
+possible using partials \ref{sec:mustache-explain-partial}.
+The language is however very restrictive and does for example not support
+embedded calculations, removing some of the ``logic''. 
 
+In mustache, tags are easily recognizable by their delimiters which always start
+and end with two curly braces (e.g. \inline{\{\{identifier\}\}}).
 To render a mustache template, the template in conjunction with an
 identifier mapping (i.e. the dataset) is passed to the engine, which returns the
 rendered template.
@@ -27,7 +36,8 @@ Normal variables are HTML escaped. The engine outputs an empty string if the
 key is not specified in the dataset.
 
 An identifier may also point at properties on objects in the dataset. Like many
-other languages the '.' character is used to access those properties (e.g. \inline{\{\{object.field\}\}}).
+other languages the '.' character is used to access those properties (e.g.
+\inline{\{\{object.field\}\}}).
 
 \section{Unescaped variables}
 To output strings as unescaped HTML, triple curly braces are used:
@@ -290,6 +300,7 @@ A comment in mustache is identified by an exclamation mark:
 The comment tag creates no output.
 
 \section{Partials}
+\label{sec:mustache-explain-partial}
 Partials allow templates to be split up into smaller parts. Their tags are
 replaced with the contents of other templates. They behave as if the referenced
 template was inlined directly at the location of the partial tag.
