@@ -156,7 +156,17 @@ m_partial = do
 	end <- getPosition
 	return $ Partial name begin end
 
-m_unescaped = do
+m_unescaped = m_triple <|> m_ampersand
+
+m_triple = do
+	begin <- getPosition
+	m_reservedOp "{{&" <?> "mustache variable (unescaped)"
+	name <- m_identifier
+	C.string "}}"
+	end <- getPosition
+	return $ Variable name False begin end
+
+m_ampersand = do
 	begin <- getPosition
 	m_reservedOp "{{{" <?> "mustache variable (unescaped)"
 	name <- m_identifier
