@@ -24,27 +24,24 @@ less fragile in regard to template changes.
 By basing our tool on an existing templating language and not introducing
 extraneous requirements we distinguish it from existing solutions,
 which require the use of their own templating language or only solve the problem
-in a specific web server programming language.
+in a specific web server programming language.\todo{More about frameworks}
 
 
-Background: We can actually use the discarded information for cool things.
+This thesis is divided into three parts. First we delve into the structure
+and development of web applications (\ref{chap:webapps}). Based on what we have
+uncovered we then go on to create requirements (\ref{chap:requirements}) for our
+exploratory prototype (\ref{chap:prototype}).
+Once we have analyzed the results and revised our requirements
+(\ref{chap:revised}) we proceed to the second part of the thesis in which we
+devise an architecture (\ref{chap:architecture}) for the subsequent
+implementation (\ref{chap:implementation}) of our tool. We also build two
+demonstration applications (\ref{chap:demo}) that employ our creation in very
+different ways.
+In the third part we evaluate our tool (\ref{chap:evaluation}) and
+compare it to related works (\ref{chap:related}), on these notes we will then
+conclude the thesis (\ref{chap:conclusion}).
 
-frameworks go the easy way and solve it by conquering both sides
-
-templatestuff fragile to changes
-
-Albeit the field of web application development is young and the first web
-application (Viaweb\footnote{ostensibly this was the
-first \emph{prominent} web application \todo{citation needed?}}) was conceived of in 1995,
-it has over the years received a potent influx of novel ideas and solutions
-to deal with the challenges of client-server architectures.
-
-\todo{Talk about frameworks}
-
-In this thesis we will develop a tool to increase the cohesion of the client and
-the server by enabling the client to extract values from server-side rendered
-HTML-templates. We will accomplish this feat this by analyzing templates and
-parse rendered templates based on this analysis.
+\todo{Is it necessary to write about each chapter in detail?}
 
 In chapter \ref{chap:webapps} we will examine either side of the client-server
 paradigm and see how both can work in concert to exceed the sum of their parts.

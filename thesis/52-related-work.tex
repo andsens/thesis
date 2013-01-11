@@ -3,7 +3,7 @@
 \begin{document}
 
 \chapter{Related Work}
-
+\label{chap:related}
 
 \section{Similar goals}
 In this section we will discuss a tool and a framework which in their goals
@@ -25,9 +25,9 @@ matched parameters into the hash reference.
 
 Our revised goal exactly matches Template::Extract, Comb however operates on the
 Document Object Model while Template::Extract operates on a single string.
-In \ref{chap:arch} we evaluated that strategy but discovered that the strings
-returned by the \inline{innerHTML} property of DOM elements differ between
-browsers and do not reflect the original rendered template.
+In \ref{chap:architecture} we evaluated that strategy but discovered that the
+strings returned by the \inline{innerHTML} property of DOM elements differ
+between browsers and do not reflect the original rendered template.
 By choosing to extracting values from the DOM we also gain the added advantage
 of retaining references to the nodes the strings were extracted from\footnote{
 	as detailed in \ref{sec:parent-nodes}
