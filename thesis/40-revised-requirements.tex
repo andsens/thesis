@@ -156,18 +156,19 @@ persist data on the server. Our concept should work with even ephemeral data.
 
 Our server-side language of choice - PHP -, also belongs to this category.
 The server could have been written in any other server-side language.
-As a consequence, the template engine (mustache), will of course need to be
+As a consequence, the template engine, will of course need to be
 able to interface with that language. For the prototype we omitted these
 templates and wrote them directly in PHP instead.
 
-Our plan however is to write the server-side templates in mustache.
-Locating placeholders in these templates and outputting their location
-is the solution we proposed in the beginning of this thesis to the problem
-we identified with server side templates.
-By extension parsing server side templates pertains to the core of our concept.
+Our plan however is to write the server-side templates in mustache
+(\ref{chap:mustache}).
+Locating placeholders in templates and outputting their location is the solution
+we proposed in the beginning of this thesis to the problem we identified with
+server side templates.
+By extension, parsing server-side templates pertains to the core of our concept.
 Since parsing arbitrary template syntaxes, would go out of the scope of this
 thesis we must conclude that mustache belongs to the category of tools that
-cannot be removed.
+are essential.
 
 \subsection{Client-side}
 The client-side tools we have used in our prototype interact with the data we

@@ -79,8 +79,8 @@ application stack consists of the following:
 The application features rudimentary HTML templates, which are not backed by
 any engine. Instead PHP is embedded directly into the HTML files.
 Although PHP allows for more complex templates, we keep them simple in order to
-place the same constraints on the templates as we would have when using
-Mustache.
+decrease the probability of encountering compatibility problems with any
+template language we wish to employ later on.
 We convert data from the database into HTML by fetching it from the database and
 by forwarding that data to the embedded PHP.
 As an example, figure \ref{fig:movie.view.tpl} illustrates what the template
