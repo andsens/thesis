@@ -21,12 +21,17 @@
 
 \begin{document}
 
+\pagenumbering{roman}
+
 \subfile{00-cover}
 \subfile{01-abstract}
 \subfile{02-resume}
 \subfile{03-acknowledgements}
+
+\pagenumbering{arabic}
+
 \subfile{04-table-of-contents}
-% \subfile{05-layout}
+
 \subfile{10-introduction}
 \subfile{20-developing-web-applications}
 \subfile{30-requirements}
@@ -38,6 +43,9 @@
 \subfile{50-evaluation}
 \subfile{52-related-work}
 \subfile{70-conclusion}
+
+\appendix
+
 \subfile{80-technical-appendix}
 \subfile{81-mustache}
 \subfile{85-list-of-figures}
