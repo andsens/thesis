@@ -76,7 +76,7 @@ This means that the rendered templates cannot be parsed reliably by using the
 However, no matter which way the browser decides to represent an HTML tag,
 we can still rely on the ordering of tags and on the names of tags to be the same
 (case sensitivity can be avoided with a simple
-\inline{element.tagName.toLowerCase()} when comparing tag names client side).
+\inline{element.tagName.toLowerCase()} when comparing tag names client-side).
 We therefore opt to relate the information about mustache tags to the DOM instead.
 
 This choice requires our pre-parsing tool to be able to understand
@@ -136,7 +136,7 @@ This fact makes the goal of such an approach very hard to achieve.
 
 The developer could decorate mustache template tags with specific HTML tags that
 have no effect on the visual layout but can be retrieved by the library.
-This would make the client side code a very lightweight value retriever
+This would make the client-side code a very lightweight value retriever
 thereby obsoleting the pre-parser.
 
 Apart from simply shifting the workload of locating template variables

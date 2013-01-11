@@ -13,7 +13,7 @@ of this chapter.
 The prototype featured a large amount of moving parts that were constructed for
 the occasion. Among others this includes our templates, that were not mustache
 templates but simple repeatable patterns in PHP. The recursive tree parser,
-building a set of models and views for us to use on the client side is another
+building a set of models and views for us to use on the client-side is another
 example of an ad-hoc constructed tool.
 
 These parts bring with them their own set of problems and bugs.
@@ -49,7 +49,7 @@ In the prototype we did this by utilizing hard-coded XPaths. The motivation
 behind hard-coding this part was the assumption that we would generate the those
 paths dynamically in our real implementation.\
 Once the dataset is rebuilt the second part consists of mapping its values
-to models on the client side. In the prototype we realized the mapping process
+to models on the client-side. In the prototype we realized the mapping process
 by hard-coding the types of backbone fields into the ModelView.\
 However, our final implementation will only feature the first of these
 processes.
@@ -125,7 +125,7 @@ The binding of models is a feature which would add to the complexity of our
 tool. The tool still has a purpose and relevance without this feature\footnote{
 	This also means that we will no longer focus on the task from
 	\ref{sec:first-results} to couple server-side templates to ViewModels on the
-	client side.
+	client-side.
 }.
 We simplify our approach and thereby follow the Rule of Simplicity.
 
@@ -164,7 +164,7 @@ Our plan however is to write the server-side templates in mustache
 (\ref{chap:mustache}).
 Locating placeholders in templates and outputting their location is the solution
 we proposed in the beginning of this thesis to the problem we identified with
-server side templates.
+server-side templates.
 By extension, parsing server-side templates pertains to the core of our concept.
 Since parsing arbitrary template syntaxes, would go out of the scope of this
 thesis we must conclude that mustache belongs to the category of tools that
@@ -186,7 +186,7 @@ leverage the additional information.
 \item Beginning with the periphery, we can easily see how a framework to ease
 the development of CSS is not part of our tool.
 \item The JavaScript language is required on the basis that we need some form of
-client side programming. We have discussed its alternatives in
+client-side programming. We have discussed its alternatives in
 \ref{sec:javascript-alts}, depending on the challenges we face in the
 implementation, we may choose a language which compiles to JavaScript instead.
 \item underscore.js helps us to iterate through arrays and manage other
