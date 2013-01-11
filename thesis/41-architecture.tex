@@ -5,9 +5,9 @@
 \chapter{Architecture}
 \label{chap:architecture}
 
-Our goal is to create a tool that allows the user to pass a rendered template
-(DOM) to it and receive a data structure that equates
-the original dataset passed to the template engine.
+Our goal is to create a tool that allows the developer to pass a rendered
+template (DOM) to it and receive a data structure that equates the original
+dataset passed to the template engine.
 Parsing can be a process that requires a lot of processing power. We do not want
 our tool to slow down the web application every time a new template is rendered
 and the values are retrieved on the client. To minimize the effort required to
@@ -86,12 +86,12 @@ mustache tags can be located and their location converted into a DOM path.
 \section{Communicating with the client}
 
 The information gathered by the pre-parser is saved in files next to the
-original templates. The user may choose whatever technology fits best to
+original templates. The developer may choose whatever technology fits best to
 transfer this information to the client library. All the library should expect
 is a DOM node with the rendered template as its children and the information
 created by our pre-parser.
 
-By choosing this approach we leave the user with many optimization
+By choosing this approach we leave the developer with many optimization
 possibilities.
 \begin{itemize}
 \item Gzip templates and template information statically to optimize
@@ -134,7 +134,7 @@ This fact makes the goal of such an approach very hard to achieve.
 
 \subsection{Decorating templates}
 
-The user could decorate mustache template tags with specific HTML tags that
+The developer could decorate mustache template tags with specific HTML tags that
 have no effect on the visual layout but can be retrieved by the library.
 This would make the client side code a very lightweight value retriever
 thereby obsoleting the pre-parser.

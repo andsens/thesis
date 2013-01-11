@@ -144,13 +144,13 @@ Using this grammar we can construct an abstract syntax tree
 
 \subsubsection{XML Comments}
 An XML comment is recognized as simple text in the DOM of the browser. The EBNF
-still allows for mustache tag structures. This allows the user to communicate
-additional information to the client, without showing it in the browser.
+still allows for mustache tag structures. This allows the developer to
+communicate additional information to the client, without showing it in the
+browser.
 
 \subsubsection{Template constraints}
 \label{sec:template-constraints}
-Note that the EBNF restricts the types of
-templates our tool can parse.
+Note that the EBNF restricts the types of templates our tool can parse.
 
 \begin{itemize}
 \item XML tags must be closed in the same template and section as they are opened.
@@ -161,10 +161,10 @@ templates our tool can parse.
       or attribute.
 \end{itemize}
 
-A user may not run into these structural restrictions very often. Regardless,
-they give our client library very useful guarantees about the rendered templates
-it parses. They also allow us to create proper abstract syntax trees for any
-template.
+A developer may not run into these structural restrictions very often.
+Regardless, they give our client library very useful guarantees about the
+rendered templates it parses. They also allow us to create proper abstract
+syntax trees for any template.
 If XML tags were to be opened outside the scope of a template
 and closed in the template we are parsing, there would be no way to determine
 the location of mustache tags in the DOM without performing complicated
@@ -377,8 +377,8 @@ an iteration.
 Lambda sections and normal mustache sections can not be distinguished.
 We also have no way of determining the input to a function by looking at its
 output. For that reason we will simply treat them as sections when parsing
-templates and assume the user is aware when a function is bound to a dataset
-instead of any type of value.
+templates and assume the developer is aware when a function is bound to a
+dataset instead of any type of value.
 
 \subsection{If-else constructs}
 \label{sec:if-else}
@@ -439,8 +439,8 @@ client library into manageable files representing the logical parts of our
 library.
 
 \subsection{Input}
-The client library expects the user to hand it both the rendered template and
-the template information our pre-parser tool outputs.
+The client library expects the developer to hand it both the rendered template
+and the template information our pre-parser tool outputs.
 How this data is retrieved is not the concern of the library.
 The rendered template is expected to already be in the DOM format.
 Additionally it needs to be wrapped in a container node,
@@ -698,8 +698,8 @@ Previous and next nodes will be included if they are text nodes.
 \subsubsection{Parent nodes}
 \label{sec:parent-nodes}
 We add a second useful value to the return value of variables. Often times a
-user may want to listen to changes concerning the nodes in which mustache tags
-are placed. Variables may be values in attributes on key XML tags
+developer may want to listen to changes concerning the nodes in which mustache
+tags are placed. Variables may be values in attributes on key XML tags
 (e.g. value attributes in form input fields) in which case event listeners can
 be added to those attributes and useful actions performed when they are
 triggered.
