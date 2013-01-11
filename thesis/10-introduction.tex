@@ -4,6 +4,69 @@
 
 \chapter{Introduction}
 \label{chap:intro}
+Web applications use templates to abstract data from the presentation layer.
+Most template engines work by replacing placeholders with corresponding values
+in a dataset.
+Once a template has been rendered the information about the location of these
+placeholders is discarded and the HTML is sent to the client.
+On the client, the information required to bootstrap an application structure
+with data may be embedded in the HTML. Currently the developer accesses such
+information by leveraging the structure of the template to create selectors
+pinpointing its location. Actionable parts of the HTML are designated the same
+way.
+
+We propose a tool that utilizes this otherwise discarded information to parse
+the HTML on the client-side and extract the original dataset, while preserving
+the locations whence any value was extracted. The dataset allows the developer
+to interact more naturally with the HTML and makes the client-side application
+less fragile in regard to template changes.
+
+By basing our tool on an existing templating language and not introducing
+extraneous requirements we distinguish it from existing solutions,
+which require the use of their own templating language or only solve the problem
+in a specific web server programming language.
+
+
+Background: We can actually use the discarded information for cool things.
+
+frameworks go the easy way and solve it by conquering both sides
+
+templatestuff fragile to changes
+
+Albeit the field of web application development is young and the first web
+application (Viaweb\footnote{ostensibly this was the
+first \emph{prominent} web application \todo{citation needed?}}) was conceived of in 1995,
+it has over the years received a potent influx of novel ideas and solutions
+to deal with the challenges of client-server architectures.
+
+\todo{Talk about frameworks}
+
+In this thesis we will develop a tool to increase the cohesion of the client and
+the server by enabling the client to extract values from server-side rendered
+HTML-templates. We will accomplish this feat this by analyzing templates and
+parse rendered templates based on this analysis.
+
+In chapter \ref{chap:webapps} we will examine either side of the client-server
+paradigm and see how both can work in concert to exceed the sum of their parts.
+
+Chapter \ref{chap:requirements} explains why extracting values from rendered
+templates is a worthwhile endeavor and couples this task to the process of
+binding these values directly to a data representation available on the
+client-side.
+
+We will develop an exploratory prototype in chapter \ref{chap:prototype} to
+discover additional requirements, highlight any conceptual errors about our
+goal and explore the entire set of challenges this goal encompasses.
+
+In chapter \ref{chap:mustache} we introduce Mustache;
+The templating language we will base our solution on. We will explain in detail
+its syntax and capabilities.
+
+
+Chapter \ref{chap:revised}
+
+
+
 
 \todo{write}
 
