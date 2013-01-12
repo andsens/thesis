@@ -507,14 +507,18 @@ The Rule of Least Surprise states:
 Rule of Least Surprise: In interface design, always do the least surprising thing.
 \end{citequote}
 We strive to recreate the original dataset passed into the template engine as
-closely as possible. This is motivated by the above rule.
-The developer may be more familiar with the structure of the dataset
-passed to the template engine than the structure of the template.
-The structure of template is however all our tool knows.
+closely as possible.
+This is in part motivated by the above rule and grounded in the fact that
+the developer may be more familiar with the structure of the dataset
+passed to the template engine than the structure of the
+template\footnote{Also, we want to ease integration for additional layers.
+The common denominator in that case will ostensibly be the structure of
+the data/entity relationships and not the structure of the templates.}
+The structure of a template is however all our tool knows.
 This structure therefore dictates the structure of the dataset retrieved from
 the rendered template.
 In the following sections we will propose improvements that can counteract this
-effect.
+effect and bring the retrieved dataset closer to its origins.
 
 \subsubsection{Properties of values}
 \label{sec:flatten-section}
