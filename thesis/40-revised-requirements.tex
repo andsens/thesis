@@ -147,6 +147,7 @@ loaders\footnote{See section \ref{sec:requirejs}} to graphing libraries such
 as ``d3''.
 
 \subsection{Server-side}
+\label{sec:simple-server}
 We begin our simplification on the server. Here we communicated with a database
 to persist our movies, actors etc. in the MySQL database. The database and the
 object relational mapper (ORM) php-activerecord are not at all necessary for our
@@ -160,7 +161,7 @@ able to interface with that language. For the prototype we omitted these
 templates and wrote them directly in PHP instead.
 
 Our plan however is to write the server-side templates in mustache
-(\ref{app:mustache}). Mustache is a templating language that is very
+(\ref{app:mustache}). Mustache is a template language that is very
 predictable in its output, given that it cannot perform any computations on the
 dataset or modify its input. This will be an advantage when we want to extract
 values from rendered templates. Mustache also follows many of the rules set by

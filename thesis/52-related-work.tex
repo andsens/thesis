@@ -14,7 +14,7 @@ First we will discuss a tool and a framework which have a goal similar to Comb.
 \subsection{Template::Extract}
 Template::Extract\cite{TPLEXTRACT} is a tool written as aperl module with a
 functionality much like Comb. It is written for the ``Template Toolkit''
-templating language and allows the developer to extract values from a rendered
+template language and allows the developer to extract values from a rendered
 template when given the template.
 This extraction is accomplished by compiling a regular expression based on the
 template and applying it to the rendered template.
@@ -47,7 +47,7 @@ Changes in the Model will be mirrored in the rendered template and vice-versa.
 As such this framework is in its features very similar to the original goal we
 formulated in chapter \ref{chap:requirements}.
 
-However, rivet.js uses its own templating language to achieve this goal.
+However, rivet.js uses its own template language to achieve this goal.
 The rendering takes place when the models are bound to the template.
 This precludes any form of server-side rendering without
 node.js\footnote{See appendix \ref{app:nodejs}}.
@@ -63,7 +63,7 @@ for Comb may function.
 \section{Similar domain}
 In this section we will discuss academic projects which touch upon the same
 domain as Comb.
-Although they employ their own templating language, their strength draws from
+Although they employ their own template language, their strength draws from
 the ability to use meta-information about the HTML they generate.
 
 \subsection{MAWL}
@@ -106,7 +106,22 @@ with the data submitted by forms generated using the library.
 It ensures consistency between the form generation and its retrieval much like
 Comb aids in the retrieval of datasets from templates.
 
-\subsection{Dynamic Documents}
+\subsection{Typed Dynamic Documents}
+The paper ``A Type System for Dynamic Web Documents'' by Anders Sandholm and
+Michael I. Schwartzbach proposes like MAWL a type template language where
+\emph{gaps} in a template can be filled with HTML fragments. The type of
+fragments these gaps can be filled with is inferred by their placement in a
+template. This allows the resulting content of a rendered template to fall
+within a predictable range. This quality is recognizable in mustache when we
+compare escaped variables and unescaped variables. Together with the large list
+of mustache engine implementations we chose mustache primarily for its
+predictability\footnote{See section \ref{sec:simple-server}}.
+
+Since typed dynamic documents go beyond the guarantees mustache can deliver
+and implement an even stricter subset, a solution like Comb could also be
+implemented for this template language.
+
+
 
 \subsection{Frameworks vs. Tools}
 A framework can be defined as an underlying structure, on which software can be
