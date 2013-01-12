@@ -90,7 +90,6 @@ original templates. The developer may choose whatever technology fits best to
 transfer this information to the client library. All the library should expect
 is a DOM node with the rendered template as its children and the information
 created by our pre-parser.
-
 By choosing this approach we leave the developer with many optimization
 possibilities.
 \begin{itemize}
@@ -105,8 +104,16 @@ possibilities.
 \end{itemize}
 
 Figure \ref{fig:architecture} illustrates our resulting architecture.
-\todo{Explain the image}
-
+We use the pre-parser tool to analyze the templates and save the results in new
+files. The pre-parser can analyze the templates on any given machine before
+both the templates and the results are deployed to the server. Together they
+are part of the static content (among CSS, images etc.) of a web application.
+The data is fed into the mustache template engine on a page request to generate
+HTML that is served to the client. Once on the client, the HTML is parsed and we
+can access it via the Document Object Model. The parser in our client library
+uses the DOM in concert with the template information retrieved from the server
+to parse the rendered template and outputs the data that was originally fed into
+the template engine.
 \begin{figure}
 	\centering
 	\resizebox{\linewidth}{!}{\input{graphics/architecture}}
