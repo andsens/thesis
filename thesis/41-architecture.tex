@@ -30,10 +30,10 @@ the template is rendered.
 \begin{itemize}
 \item The location of variables in the document
 \item Whether a variable is escaped or unescaped
-      (\inline{\{\{identifier\}\}} vs. \inline{\{\{\{identifier\}\}\}})
+	(\inline{\{\{identifier\}\}} vs. \inline{\{\{\{identifier\}\}\}})
 \item The location of sections in the document
 \item Whether a section is inverted
-      (\inline{\{\{\#identifier\}\}} vs. \inline{\{\{^identifier\}\}})
+	(\inline{\{\{\#identifier\}\}} vs. \inline{\{\{^identifier\}\}})
 \item The contents of a section
 \item The location of partials in the document
 \item The location of comments in the document
@@ -46,13 +46,13 @@ following data:
 \item The contents of variables (including their type, e.g. integer, string)
 \item The number of iterations a section will run
 \item Whether a section is a loop or an if block
-      (except in the case of an inverted section)
+	(except in the case of an inverted section)
 \item Whether a section is a lambda section or an actual section.
 \item The behavior of a lambda section
 \item The template a partial points at
 \item Whether an identifier refers to a key in the current context level or
-      to a key in one of the lower context levels\footnote{
-            Except if we are located at the root level}
+	to a key in one of the lower context levels\footnote{Except if we are
+	located at the root level}
 \end{itemize}
 
 The rendered template is in the Document Object Model format, once it has
@@ -94,13 +94,13 @@ By choosing this approach we leave the developer with many optimization
 possibilities.
 \begin{itemize}
 \item Gzip templates and template information statically to optimize
-      server performance.
+	server performance.
 \item Prepend template information to the template and subsequently
-      cut it out before passing the template to the template engine.
-      This way only one file needs to be handled and transferred.
+	cut it out before passing the template to the template engine.
+	This way only one file needs to be handled and transferred.
 \item Use require-js to load templates and their information in parallel
-      while developing and subsequently inline both template and
-      template information into one big JavaScript file when deploying.
+	while developing and subsequently inline both template and
+	template information into one big JavaScript file when deploying.
 \end{itemize}
 
 Figure \ref{fig:architecture} illustrates our resulting architecture.
@@ -134,9 +134,7 @@ rendered template. We could choose to modify the template engine to output that
 exact information. This poses a rather big challenge:
 For mustache templates there exists no such thing as \emph{the} template engine.
 Currently the mustache website lists mustache engines in 29 different
-programming languages\footnote{
-      \url{https://github.com/defunkt/mustache/wiki/Other-Mustache-implementations/9ff07950f0983b58248e6a18d17cce5c47743344}
-}.
+programming languages\footnote{\url{https://github.com/defunkt/mustache/wiki/Other-Mustache-implementations/9ff07950f0983b58248e6a18d17cce5c47743344}}.
 This fact makes the goal of such an approach very hard to achieve.
 
 \subsection{Decorating templates}

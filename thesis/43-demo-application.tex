@@ -23,7 +23,7 @@ Movie Database to organize information about the cast, year of release as well
 as the plot and synopsis of a movie. We reimplemented the same application
 in much the same way.
 
-We use chaplin\footnote{See section \ref{sec:chaplin}} to structure our
+We use chaplin\footnote{See appendix \ref{app:chaplin}} to structure our
 application on the client-side, while a PHP REST framework together with
 php-activerecord function as a communication layer to the MySQL database for the
 client.
@@ -35,8 +35,8 @@ the same Movie Database implemented in two slightly different ways.
 The first link leads to an implementation using the CSS and HTML structure from
 our exploratory prototype.
 The second link leads to a different version of the application where we use the
-Twitter Bootstrap\footnote{See section \ref{sec:bootstrap}} library to style the
-interface, instead of the original CSS and HTML.
+Twitter Bootstrap\footnote{See appendix \ref{app:bootstrap}} library to style
+the interface, instead of the original CSS and HTML.
 
 In both implementations, Movies can be browsed, created and edited. Examples of
 both versions can be seen in figures \ref{fig:moviedb-prototype} and
@@ -105,11 +105,12 @@ These flavors refer to the strategy we use in a View to retrieve values from the
 DOM and populate our Models with. We can switch between the strategies by
 clicking on the button On/Off below the list of Movies.
 
-In the jQuery strategy we use CSS selectors and jQuery accessors\footnote{
-	\inline{.attr('name') or .text()}
-} to pinpoint values in the DOM. Once a value is retrieved, we may also need to
-strip some of the parts that do not belong to the actual value present in the
-database. In figure \ref{fig:movie-jquery-prototype} we retrieve all the
+In the jQuery strategy we use CSS selectors and jQuery
+accessors\footnote{\inline{.attr('name') or .text()}} to pinpoint values in the
+DOM.
+Once a value is retrieved, we may also need to strip some of the parts that do
+not belong to the actual value present in the database.
+In figure \ref{fig:movie-jquery-prototype} we retrieve all the
 values of a Movie and add them to the Movie Model.
 \begin{figure}
 	\centering
@@ -212,13 +213,10 @@ navigation bar with the template selection menu open.
 \end{figure}
 Upon selecting a template, the application loads the template and the Comb file
 using require.js (\ref{sec:requirejs}).
-The template is then rendered\footnote{
-	We use the client-side mustache.js template engine to render templates
-	directly in the browser.
-}
-with no initial dataset and the results are
-displayed in the right view port. Beneath it the template source code is also
-shown verbatim.
+The template is then rendered\footnote{We use the client-side mustache.js
+template engine to render templates directly in the browser.} with no initial
+dataset and the results are displayed in the right view port.
+Beneath it the template source code is also shown verbatim.
 
 In the left view port a form with various buttons and input fields appears once
 the template has been rendered. In figure \ref{fig:editor-form} we can see how
@@ -270,7 +268,7 @@ The fields in our form have corresponding entries in the dataset passed to
 the template we loaded in the beginning.
 Note that although we passed an empty dataset to mustache, Comb will return
 section values as empty lists (see section \ref{sec:if-else}) and
-variable values as empty strings (see section \ref{sect:mustache-vars}).
+variable values as empty strings (see appendix \ref{app:mustache-vars}).
 By binding event listeners to our fields we can update the original dataset
 correspondingly. Changes in input fields and text areas trigger a call to the
 \inline{update(text)} function on the original dataset and update the text in the
@@ -279,7 +277,6 @@ right view port.
 Pushing the ``push'' button on a section appends a new entry to the array of the
 original dataset, while the ``pop'' button removes the last entry from said array.
 When we modify the amount of iterations in an array, we re-render the loaded
-template\footnote{
-	Section \ref{sec:update-dom} explains this necessity in more detail.
-}.
+template\footnote{Section \ref{sec:update-dom} explains this necessity
+in more detail.}.
 \end{document}

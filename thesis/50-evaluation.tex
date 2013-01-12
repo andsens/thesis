@@ -255,15 +255,13 @@ pre-parser can be improved.
 Looking at the Mustache-XML EBNF\footnote{figure \ref{fig:mustache-xml.ebnf}} we
 can see how the grammar is simplistic, when compared with the
 full XML EBNF \cite[section 2/\#sec-documents]{XMLSPEC} or to
-HTML \cite{HTMLSPEC}\footnote{
-	HTML 5 has no EBNF, the reason for that is detailed at
-	\url{http://lists.w3.org/Archives/Public/www-tag/2009Sep/0013.html}
+HTML \cite{HTMLSPEC}\footnote{HTML 5 has no EBNF, the reason for that is
+detailed at \url{http://lists.w3.org/Archives/Public/www-tag/2009Sep/0013.html}
 }. The intention is not to build a fully capable HTML parser, but the question
 remains whether our grammar matches a superset which is generic enough to allow
 for all templates that can be converted into a DOM. Among the possible problems
 that may be encountered is namespacing of tag names. The \inline{identLetter}
-\cite{PARSECDOC}\footnote{
-	Go to: /doc/html/Text-Parsec-Token.html\#v:identLetter
+\cite{PARSECDOC}\footnote{Go to: /doc/html/Text-Parsec-Token.html\#v:identLetter
 } property of our XML token parser in our
 pre-parser tool lists the allowed letters in an identifier,
 which in our case are tag names and attribute names. Among those letters is
@@ -272,13 +270,12 @@ Comb should therefore be able to recognize namespaced tag names since the
 DOM API returns their name with the namespace included.
 
 \subsubsection{Standalone mustache tag lines}
-As we describe in section \ref{sec:standalone-lines} mustache removes
+As we describe in appendix \ref{app:standalone-lines} mustache removes
 lines containing only white space and a mustache section tag.
 The demo application runs a modified version of mustache.js where this feature
-is removed\footnote{
-	Specifically we removed the highlighted line seen at
-	\url{https://github.com/janl/mustache.js/blob/master/mustache.js\#L512}
-}. Our parser does currently not account for this detail. This causes
+is removed\footnote{Specifically we removed the highlighted line seen at
+\url{https://github.com/janl/mustache.js/blob/master/mustache.js\#L512}}.
+Our parser does currently not account for this detail. This causes
 our client library to expect a whitespace line where in fact there is none.
 
 \subsubsection{Mustache comments}
@@ -313,11 +310,10 @@ determine the origin of a key in the dataset precisely, when the context
 stack is greater than one. This holds true for all cases except the inverted
 section. The inverted section does not push a new context on top of our existing
 context stack because it is only rendered when its identifier points at an empty
-list\footnote{
-	Or the data it points at is coerced into an empty list
-} in the dataset. This is guaranteed by the specification\footnote{
-	Read: ``This section MUST be rendered if and only if the data list is empty.''
-}:
+list\footnote{Or the data it points at is coerced into an empty list} in the
+dataset.
+This is guaranteed by the specification\footnote{Read: ``This section MUST be
+rendered if and only if the data list is empty.''}:
 \begin{citequote}{\cite[inverted.yml]{MSTSPEC}}
 This section MUST NOT be rendered unless the data list is empty.
 \end{citequote}
@@ -515,10 +511,9 @@ the structure of the dataset retrieved from the rendered template.
 
 When a section intended as an if block is retrieved from the rendered template
 the client library returns an array regardless of the amount of iterations the
-section has performed\footnote{
-	not accounting for effects of the modification proposed in
-	section \ref{sec:flatten-section}
-} (which in the case of if blocks should be zero or one).
+section has performed\footnote{not accounting for effects of the modification
+proposed in section \ref{sec:flatten-section}}
+(which in the case of if blocks should be zero or one).
 Since the original dataset held a single object at that position,
 the developer will not expect to find an array.
 
@@ -530,10 +525,10 @@ If a section iterated only once we can decorate the resulting array with every
 property of the first entry in the array. Whichever version the developer
 expected, he will now be able to access it that way. This approach will however
 not work when there are no iterations since we cannot let a key in our dataset
-be both an empty list and the value false\footnote{
-	Double negating an array in JavaScript (\inline{\!\![]}) returns true instead
-	of false unfortunately (for our use-case)
-}. This means the developer will not be able to check for the existence of an
+be both an empty list and the value false\footnote{Double negating an array in
+JavaScript (\inline{\!\![]}) returns true instead of false unfortunately
+(for our use-case)}.
+This means the developer will not be able to check for the existence of an
 object.
 
 
@@ -564,9 +559,9 @@ as belonging to that iteration when the rendered template was parsed.
 After implementing the extension suggested in section \ref{sec:update-dom}
 layers can be constructed as mediators between Comb and client model libraries.
 As an example of such a library we will choose backbone.
-The backbone library\footnote{See section \ref{sec:backbone}} features an event
-architecture which allows the developer to be notified when properties of
-objects change.
+The backbone library\footnote{See section \ref{sec:backbonejs}}
+features an event architecture which allows the developer to be notified when
+properties of objects change.
 Using this architecture we can create a layer that allows the
 developer to specify which identifier in the dataset returned by Comb a
 backbone model property corresponds to. Lists in the dataset may be mapped to
@@ -591,18 +586,17 @@ Eric Steven Raymonds book ``The Art of Unix Programming''.
 Although, the rules are meant for developing Unix programs,
 we chose to apply them to the development of Comb.
 Comb should not be regarded as a framework but a tool. It does not dictate what
-software the developer should use (beyond mustache)\footnote{
-	In fact, Comb is even agnostic about HTTP. How the comb file is transfered
-	is up to the developer.
-} and it does not expect a specific structural layout of a web application.
+software the developer should use (beyond mustache)\footnote{In fact,
+Comb is even agnostic about HTTP. How the comb file is transfered is up to
+the developer.} and it does not expect a specific structural layout of
+a web application.
 This fact allows developers to integrate Comb in a larger set of software
 combinations, extending its applicability.
 In fact, Comb may be used in ways we may not have outlined in this evaluation:
-Node.js\footnote{See section \ref{sec:nodejs}} allows execution of JavaScript on
-the server-side. With node.js Comb could be used in the parsing of rendered
-templates without involving any browser\footnote{
-	This could also be a way to write unit tests for Comb.
-}.
+Node.js\footnote{See appendix \ref{app:nodejs}} allows execution of JavaScript
+on the server-side. With node.js Comb could be used in the parsing of rendered
+templates without involving any browser\footnote{This could also be a way to
+write unit tests for Comb.}.
 
 By choosing to develop Comb as a tool we can also observe a set of emergent
 properties that have become apparent during the implementation, usage and

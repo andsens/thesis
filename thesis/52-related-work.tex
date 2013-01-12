@@ -31,17 +31,16 @@ In chapter \ref{chap:architecture} we evaluated that strategy but discovered
 that the strings returned by the \inline{innerHTML} property of DOM elements
 differ between browsers and do not reflect the original rendered template.
 By choosing to extract values from the DOM we also gain the added advantage
-of retaining references to the nodes the strings were extracted from\footnote{
-	as detailed in section \ref{sec:parent-nodes}
-}.
+of retaining references to the nodes the strings were extracted
+from\footnote{as detailed in section \ref{sec:parent-nodes}}.
 This additional piece of information allows Comb to become more than a simple
 value extraction library. The emergent properties discussed in
 section \ref{sec:emergent} and the potential additional layers Comb supports
 differentiate Comb from the sole purpose of extracting data from templates.
 
 \subsection{Rivet.js}
-On the other side of the spectrum we have Rivet.js\footnote{
-\url{http://rivetsjs.com/}}, which is a framework that
+On the other side of the spectrum we have
+Rivet.js\footnote{\url{http://rivetsjs.com/}}, which is a framework that
 can bind templates written in plain HTML to Model frameworks like
 backbone.js\footnote{See section \ref{sec:backbonejs}}.
 Changes in the Model will be mirrored in the rendered template and vice-versa.
@@ -51,17 +50,19 @@ formulated in chapter \ref{chap:requirements}.
 However, rivet.js uses its own templating language to achieve this goal.
 The rendering takes place when the models are bound to the template.
 This precludes any form of server-side rendering without
-node.js\footnote{See section \ref{sec:nodejs}}.
+node.js\footnote{See appendix \ref{app:nodejs}}.
 In fact, rendering a template on the server-side and transmitting it to the
 client is not possible without losing the bond between DOM and Model.
 
-Rivet.js is however an example of how a two-way binding layer\footnote{
-As discussed in section \ref{sec:two-way-binding}} for Comb may function.
+Rivet.js is however an example of how a two-way binding
+layer\footnote{As discussed in section \ref{sec:two-way-binding}}
+for Comb may function.
 
 
 
 \section{Similar domain}
-In this section we will discuss academic papers which touch upon the same domain as Comb.
+In this section we will discuss academic projects which touch upon the same
+domain as Comb.
 Although they employ their own templating language, their strength draws from
 the ability to use meta-information about the HTML they generate.
 
@@ -83,7 +84,7 @@ perl, Tcl or the Korn Shell, but can be compiled from said language.
 A secondary advantageous property of MAWL is its ability to verify the
 type signature of the form abstraction against structure of an MHTML template.
 Although the paper does not go into detail explaining how these templates are
-analyzed a parallel can be drawn to our Comb pre-parser tool which employs
+analyzed, a parallel can be drawn to our Comb pre-parser tool which employs
 Parsec to construct an abstract syntax tree. Much like MHTML is checked for
 consistency, our parser also verifies mustache templates and displays any
 possible errors\footnote{See section \ref{sec:emergent}}.

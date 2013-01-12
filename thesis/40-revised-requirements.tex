@@ -66,16 +66,15 @@ The mustache template engine is the only precondition for using the first part
 of our mapping process. The second part however can have preconditions
 other than backbone that were not explored in our prototype:\
 To generate a mapping for client-side models, our tool will require to know the
-origin of the values in the retrieved dataset\footnote{
-	The dataset itself will contain only string values retrieved from the rendered
-	template. Its structure can similarly only resemble the structure of the
-	template.
-}. These values usually originate in models on the server-side\footnote{
-	They may also come from client-side models, where the mapping would make less
+origin of the values in the retrieved dataset\footnote{The dataset itself will
+	contain only string values retrieved from the rendered template.
+	Its structure can similarly only resemble the structure of the template.}.
+These values usually originate in models on the server-side\footnote{They
+	may also come from client-side models, where the mapping would make less
 	sense, because the retrieved values originates from these models.
 	Section \ref{sec:two-way-binding} details why such a mapping would be
-	advantageous regardless of that fact.
-}, where the developer may have chosen from any number of server-side languages
+	advantageous regardless of that fact.}, where the developer may have chosen
+from any number of server-side languages
 and model frameworks. Unless we require the developer to specify the types and
 relations between models in a format our tool can understand, we will have to
 choose a language and model framework to automate this process. This choice
@@ -122,11 +121,10 @@ designing the structure of the extracted data returned by our tool we can
 provide a clean interface to layers that may be written later on.
 
 The binding of models is a feature which would add to the complexity of our
-tool. The tool still has a purpose and relevance without this feature\footnote{
-	This also means that we will no longer focus on the task from
+tool. The tool still has a purpose and relevance without this
+feature\footnote{This also means that we will no longer focus on the task from
 	section \ref{sec:first-results} to couple server-side templates to ViewModels
-	on the client-side.
-}.
+	on the client-side.}.
 We simplify our approach and thereby follow the Rule of Simplicity.
 
 By following these rules we hope to be able to develop a tool that will be able
@@ -162,7 +160,7 @@ able to interface with that language. For the prototype we omitted these
 templates and wrote them directly in PHP instead.
 
 Our plan however is to write the server-side templates in mustache
-(\ref{chap:mustache}). Mustache is a templating language that is very
+(\ref{app:mustache}). Mustache is a templating language that is very
 predictable in its output, given that it cannot perform any computations on the
 dataset or modify its input. This will be an advantage when we want to extract
 values from rendered templates. Mustache also follows many of the rules set by
@@ -192,20 +190,19 @@ leverage the additional information.
 
 \begin{itemize}
 \item Beginning with the periphery, we can easily see how a framework to ease
-the development of CSS is not part of our tool.
+	the development of CSS is not part of our tool.
 \item The JavaScript language is required on the basis that we need some form of
-client-side programming. We have discussed its alternatives in
-section \ref{sec:javascript-alts}, depending on the challenges we face in the
-implementation, we may choose a language which compiles to JavaScript instead.
+	client-side programming. We have discussed its alternatives in
+	section \ref{sec:javascript-alts}, depending on the challenges we face in the
+	implementation, we may choose a language which compiles to JavaScript instead.
 \item underscore.js helps us to iterate through arrays and manage other
-operations more easily than in pure JavaScript. We can solve the same problems
-without it\footnote{
-	although it requires more effort.
-}. This makes underscore.js a non-crucial part of our tool.
+	operations more easily than in pure JavaScript. We can solve the same problems
+	without it\footnote{although it requires more effort.}.
+	This makes underscore.js a non-crucial part of our tool.
 \item We use backbone.js to hold the values we retrieve from the DOM. The
-framework enables us to interact with these values. They can however also be
-modeled with simple JavaScript objects. Because of that backbone.js can not be
-considered a crucial part of our tool.
+	framework enables us to interact with these values. They can however also be
+	modeled with simple JavaScript objects. Because of that backbone.js can not be
+	considered a crucial part of our tool.
 \end{itemize}
 
 In essence we will not retain any client-side \emph{libraries}.

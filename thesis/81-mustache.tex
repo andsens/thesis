@@ -3,7 +3,7 @@
 \begin{document}
 
 \chapter{Mustache}
-\label{chap:mustache}
+\label{app:mustache}
 Mustache\footnote{\url{http://mustache.github.com/}} is a template engine for
 "logic-less" templates.
 According to the author this subtitle derives from the fact that there are no
@@ -14,10 +14,10 @@ loops. Instead there are only tags. Some tags are replaced with a value, some
 nothing, and others a series of values. This document explains the different
 types of Mustache tags.
 \end{citequote}
-This statement is debatable, in section \ref{sec:mustache-explain-section} we
+This statement is debatable, in section \ref{app:mustache-explain-section} we
 will see how sections can act as if statements and loops, recursion is
 also possible by using partials as describe in
-section \ref{sec:mustache-explain-partial}.
+section \ref{app:mustache-explain-partial}.
 The language is however very restrictive and does for example not support
 embedded calculations, removing some of the ``logic''. 
 
@@ -28,7 +28,7 @@ identifier mapping (i.e. the dataset) is passed to the engine, which returns the
 rendered template.
 
 \section{Variables}
-\label{sect:mustache-vars}
+\label{app:mustache-vars}
 Variables in mustache are string placeholders. We can recognize them by their
 two curly braces before and after an identifier (\inline{\{\{identifier\}\}}).
 The template engine replaces these tags with the corresponding value in the
@@ -47,7 +47,7 @@ To output strings as unescaped HTML, triple curly braces are used:
 \inline{\{\{\&identifier\}\}}.
 
 \section{Sections}
-\label{sec:mustache-explain-section}
+\label{app:mustache-explain-section}
 Sections in mustache can be considered equivalent to foreach loops in other
 languages. We write them with an open and close tag:
 \inline{\{\{\#identifier\}\}CONTENT\{\{/identifier\}\}}.
@@ -62,9 +62,8 @@ of the engine.
 \end{citequote}
 If the value is a list, the content of the section is rendered once for each
 entry in the list. Once a section is entered, the key-value pairs of the
-corresponding entry are pushed onto the stack of identifiers\footnote{
-	This is called the ``context stack''
-}.\
+corresponding entry are pushed onto the stack of identifiers\footnote{This is
+called the ``context stack''}.\
 Consider the example in figures \ref{fig:section-example}.
 
 \begin{figure}
@@ -202,10 +201,10 @@ this method.
 \end{figure}
 
 We can also access the message subject by using \inline{\{\{.\}\}},
-since values that are not lists are converted into lists by mustache\footnote{
-	The subject will be coerced into a list containing the subject string as its
-	first and only entry.
-}. Figure \ref{fig:dot-oper2.mustache} illustrates this shortcut.
+since values that are not lists are converted into lists by
+mustache\footnote{The subject will be coerced into a list containing the subject
+string as its first and only entry.}.
+Figure \ref{fig:dot-oper2.mustache} illustrates this shortcut.
 
 \begin{figure}
 	\centering
@@ -302,7 +301,7 @@ A comment in mustache is identified by an exclamation mark:
 The comment tag creates no output.
 
 \section{Partials}
-\label{sec:mustache-explain-partial}
+\label{app:mustache-explain-partial}
 Partials allow templates to be split up into smaller parts. Their tags are
 replaced with the contents of other templates. They behave as if the referenced
 template was inlined directly at the location of the partial tag.
@@ -409,7 +408,7 @@ PHP tags: PHP begins with "<?" and ends with "?>"
 \end{figure}
 
 \section{Removal of standalone lines}
-\label{sec:standalone-lines}
+\label{app:standalone-lines}
 Mustache removes lines which beyond a section beginning or end contains
 only white space (i.e. standalone lines).
 This is done to match the expectation a developer may have when writing
