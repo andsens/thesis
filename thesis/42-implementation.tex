@@ -411,7 +411,16 @@ We also prepend a ``root'' section to the array. It is referred to by mustache
 tags that are not located inside a section and are not offset in their location
 by other mustache tags.
 
-
+\subsection{Rule of Modularity}
+\label{sec:modularity}
+The Rule of Modularity states:
+\begin{citequote}{\cite[Chapter 1]{UXART}}
+Rule of Modularity: Write simple parts connected by clean interfaces.
+\end{citequote}
+The pre-parser and the client library are two distinct components with clear-cut
+responsibilities. By using a well documented data format like JSON and letting
+it be the only binding link between the pre-parser and the client library we
+are following the Rule of Modularity. 
 
 \section{Client library}
 
