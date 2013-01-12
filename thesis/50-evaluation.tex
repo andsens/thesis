@@ -500,7 +500,23 @@ of an XML tag, our client library can add all nodes it encounters to the value
 list of an unescaped variable beginnning at the location of that variable until
 it finds no more nodes.
 
-\subsection{Properties of values}
+\subsection{Improving the retrieved dataset}
+\label{sec:improve-dataset}
+The Rule of Least Surprise states:
+\begin{citequote}{\cite[Chapter 1]{UXART}}
+Rule of Least Surprise: In interface design, always do the least surprising thing.
+\end{citequote}
+We strive to recreate the original dataset passed into the template engine as
+closely as possible. This is motivated by the above rule.
+The developer may be more familiar with the structure of the dataset
+passed to the template engine than the structure of the template.
+The structure of template is however all our tool knows.
+This structure therefore dictates the structure of the dataset retrieved from
+the rendered template.
+In the following sections we will propose improvements that can counteract this
+effect.
+
+\subsubsection{Properties of values}
 \label{sec:flatten-section}
 When a property of an identifier is accessed, we know this identifier points at
 an object rather than a list. If we in the same template encounter a section
@@ -508,12 +524,9 @@ using the same identifier, we can recreate the original dataset more precisely
 by having the section return an object instead of a list with a single item
 containing that object.
 
-\subsection{Improving the retrieved dataset}
+\subsection{Decorating lists}
 A more general approach to improving the retrieved dataset is to introduce
-ambiguity. The developer may be more familiar with the structure of the dataset
-passed to the template engine than the structure of the template, which dictates
-the structure of the dataset retrieved from the rendered template.
-
+ambiguity.
 When a section intended as an if block is retrieved from the rendered template
 the client library returns an array regardless of the amount of iterations the
 section has performed\footnote{not accounting for effects of the modification
@@ -530,11 +543,11 @@ If a section iterated only once we can decorate the resulting array with every
 property of the first entry in the array. Whichever version the developer
 expected, he will now be able to access it that way. This approach will however
 not work when there are no iterations since we cannot let a key in our dataset
-be both an empty list and the value false\footnote{Double negating an array in
-JavaScript (\inline{\!\![]}) returns true instead of false unfortunately
-(for our use-case)}.
+be both an empty list and the value false or null\footnote{Double negating an
+array in JavaScript (\inline{\!\![]}) returns true instead of false
+unfortunately (for our use-case)}.
 This means the developer will not be able to check for the existence of an
-object.
+object with a simple if-block, he will have to check if a list is empty.
 
 
 
