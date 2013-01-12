@@ -161,7 +161,14 @@ able to interface with that language. For the prototype we omitted these
 templates and wrote them directly in PHP instead.
 
 Our plan however is to write the server-side templates in mustache
-(\ref{chap:mustache}).
+(\ref{chap:mustache}). Mustache is a templating language that is very
+predictable in its output, given that it cannot perform any computations on the
+dataset or modify its input. This will be an advantage when we want to extract
+values from rendered templates. Mustache also follows many of the rules set by
+Terence Parr in his paper titled ``Enforcing Strict Model-View Separation in
+Template Engines'' \cite{STRINGTPL}. \todo{OK to just cite and then leave it at
+that?}
+
 Locating placeholders in templates and outputting their location is the solution
 we proposed in the beginning of this thesis to the problem we identified with
 server-side templates.
