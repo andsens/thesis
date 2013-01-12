@@ -73,8 +73,8 @@ origin of the values in the retrieved dataset\footnote{
 }. These values usually originate in models on the server-side\footnote{
 	They may also come from client-side models, where the mapping would make less
 	sense, because the retrieved values originates from these models.
-	\ref{sec:two-way-binding} details why such a mapping would be advantageous
-	regardless of that fact.
+	Section \ref{sec:two-way-binding} details why such a mapping would be
+	advantageous regardless of that fact.
 }, where the developer may have chosen from any number of server-side languages
 and model frameworks. Unless we require the developer to specify the types and
 relations between models in a format our tool can understand, we will have to
@@ -124,8 +124,8 @@ provide a clean interface to layers that may be written later on.
 The binding of models is a feature which would add to the complexity of our
 tool. The tool still has a purpose and relevance without this feature\footnote{
 	This also means that we will no longer focus on the task from
-	\ref{sec:first-results} to couple server-side templates to ViewModels on the
-	client-side.
+	section \ref{sec:first-results} to couple server-side templates to ViewModels
+	on the client-side.
 }.
 We simplify our approach and thereby follow the Rule of Simplicity.
 
@@ -144,8 +144,9 @@ of other software, minimizing dependencies can help developers integrate it into
 their existing software without conflicts. As an example of such an ecosystem
 consider Bower\footnote{\url{http://twitter.github.com/bower/}} by Twitter.
 Bower is a package manager for client-side applications. It contains over 700
-components ranging from asynchronous module loaders\footnote{
-See \ref{sec:requirejs}} to graphing libraries such as ``d3''.
+components ranging from asynchronous module
+loaders\footnote{See section \ref{sec:requirejs}} to graphing libraries such
+as ``d3''.
 
 \subsection{Server-side}
 We begin our simplification on the server. Here we communicated with a database
@@ -194,7 +195,7 @@ leverage the additional information.
 the development of CSS is not part of our tool.
 \item The JavaScript language is required on the basis that we need some form of
 client-side programming. We have discussed its alternatives in
-\ref{sec:javascript-alts}, depending on the challenges we face in the
+section \ref{sec:javascript-alts}, depending on the challenges we face in the
 implementation, we may choose a language which compiles to JavaScript instead.
 \item underscore.js helps us to iterate through arrays and manage other
 operations more easily than in pure JavaScript. We can solve the same problems

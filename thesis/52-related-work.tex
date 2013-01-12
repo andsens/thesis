@@ -4,13 +4,15 @@
 
 \chapter{Related Work}
 \label{chap:related}
+In this chapter we will discuss various tools and frameworks that bear
+similarities to Comb through either their goals or their domain.
+
 
 \section{Similar goals}
-In this section we will discuss a tool and a framework which in their goals
-can be viewed as similar to Comb.
+First we will discuss a tool and a framework which have a goal similar to Comb.
 
 \subsection{Template::Extract}
-Template::Extract\cite{TPLEXTRACT} is a tool written in perl module with a
+Template::Extract\cite{TPLEXTRACT} is a tool written as aperl module with a
 functionality much like Comb. It is written for the ``Template Toolkit''
 templating language and allows the developer to extract values from a rendered
 template when given the template.
@@ -25,36 +27,36 @@ matched parameters into the hash reference.
 
 Our revised goal exactly matches Template::Extract, Comb however operates on the
 Document Object Model while Template::Extract operates on a single string.
-In \ref{chap:architecture} we evaluated that strategy but discovered that the
-strings returned by the \inline{innerHTML} property of DOM elements differ
-between browsers and do not reflect the original rendered template.
-By choosing to extracting values from the DOM we also gain the added advantage
+In chapter \ref{chap:architecture} we evaluated that strategy but discovered
+that the strings returned by the \inline{innerHTML} property of DOM elements
+differ between browsers and do not reflect the original rendered template.
+By choosing to extract values from the DOM we also gain the added advantage
 of retaining references to the nodes the strings were extracted from\footnote{
-	as detailed in \ref{sec:parent-nodes}
+	as detailed in section \ref{sec:parent-nodes}
 }.
 This additional piece of information allows Comb to become more than a simple
 value extraction library. The emergent properties discussed in
-\ref{sec:emergent} and the potential additional layers Comb supports
+section \ref{sec:emergent} and the potential additional layers Comb supports
 differentiate Comb from the sole purpose of extracting data from templates.
 
 \subsection{Rivet.js}
 On the other side of the spectrum we have Rivet.js\footnote{
 \url{http://rivetsjs.com/}}, which is a framework that
 can bind templates written in plain HTML to Model frameworks like
-backbone.js\footnote{\ref{sec:backbonejs}}. Changes in the Model will be
-mirrored in the rendered template and vice-versa.
+backbone.js\footnote{See section \ref{sec:backbonejs}}.
+Changes in the Model will be mirrored in the rendered template and vice-versa.
 As such this framework is in its features very similar to the original goal we
 formulated in chapter \ref{chap:requirements}.
 
 However, rivet.js uses its own templating language to achieve this goal.
 The rendering takes place when the models are bound to the template.
-This precludes any form of server-side rendering without node.js\footnote{
-\ref{sec:nodejs}}. In fact, rendering a template on the server-side and
-transmitting it to the client is not possible without losing the bond between
-DOM and Model.
+This precludes any form of server-side rendering without
+node.js\footnote{See section \ref{sec:nodejs}}.
+In fact, rendering a template on the server-side and transmitting it to the
+client is not possible without losing the bond between DOM and Model.
 
 Rivet.js is however an example of how a two-way binding layer\footnote{
-As discussed in \ref{sec:two-way-binding}} for Comb may function.
+As discussed in section \ref{sec:two-way-binding}} for Comb may function.
 
 
 
@@ -84,7 +86,7 @@ Although the paper does not go into detail explaining how these templates are
 analyzed a parallel can be drawn to our Comb pre-parser tool which employs
 Parsec to construct an abstract syntax tree. Much like MHTML is checked for
 consistency, our parser also verifies mustache templates and displays any
-possible errors\footnote{See \ref{sec:emergent}}.
+possible errors\footnote{See section \ref{sec:emergent}}.
 \begin{citequote}{\cite{MAWL}}
 First, the sessions and the MHTML can be independently analyzed to ensure that
 they are internally consistent.
@@ -92,7 +94,7 @@ For the sessions, this means standard type checking and semantics checking.
 For MHTML templates, this means verifying that a template is legal MHTML.
 \end{citequote}
 
-\subsection{Paper by Elsman and Larsen} % SMLserver based combinator library as title
+\subsection{SMLserver based combinator library}
 ``Typing XHTML Web Applications in ML''\cite{ML} is a paper by Martin Elsman and
 Ken Friis Larsen describing a system with which XHTML documents can be created,
 whose conformity is guaranteed by the type system. The library is based on the
@@ -100,7 +102,10 @@ typed combinator library from Standard ML.
 
 The second contribution in this paper is a system for interfacing scriptlets
 with the data submitted by forms generated using the library.
-It ensures consistency between the form generation and its retrieval.
+It ensures consistency between the form generation and its retrieval much like
+Comb aids in the retrieval of datasets from templates.
+
+\subsection{Dynamic Documents}
 
 \subsection{Frameworks vs. Tools}
 A framework can be defined as an underlying structure, on which software can be
@@ -126,11 +131,11 @@ the wielders capabilities rather than a recipe written by a master chef.
 
 In this light we can classify Comb as a tool. It does not require the developer
 to write in any new specially designed template language and dictates no
-structure the developer has to follow. In \ref{sec:emergent} we even speculated
-about unintended use-cases for Comb. Comb extends capabilities by supplying the
-developer\footnote{...or additional layers as described in \ref{sec:asses-mdb}}
-with information about templates and their rendered version.
-How this information is used is not the concern of the tool.
+structure the developer has to follow. In section \ref{sec:emergent} we even
+speculated about unintended use-cases for Comb. Comb extends capabilities by
+supplying the developer\footnote{...or additional layers as described in
+section \ref{sec:asses-mdb}} with information about templates and their
+rendered version. How this information is used is not the concern of the tool.
 
 \todo{Make the point that the focus should shift to tools}
 \todo{Both Comb and the other frameworks bring with them an increased robustness

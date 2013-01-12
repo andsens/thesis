@@ -169,10 +169,10 @@ new value from it and update the corresponding model property.
 
 The instances in which we use jQuery are not grounded in a lack of functionality
 in Comb; Our goal has never been to replace jQuery.
-In \ref{sec:simplifying} we did however mention the desire to fit Comb into an
-ecosystem of existing software. Being able to wrap properties of our dataset
-with a jQuery object to empower it with additional features is a step in exactly
-that direction.
+In section \ref{sec:simplifying} we did however mention the desire to fit Comb
+into an ecosystem of existing software. Being able to wrap properties of our
+dataset with a jQuery object to empower it with additional features is a step in
+exactly that direction.
 
 However, Comb does in no way require the developer to use jQuery for such tasks.
 Tools such as prototype.js\footnote{\url{http://prototypejs.org/}}, a library
@@ -215,7 +215,7 @@ which is the main reason for using Comb.}
 \section{Reviewing our goal}
 In the requirements for the prototype (chapter \ref{chap:requirements})
 we set out to couple the dataset fed into the server-side template engine with
-the models on the client-side. In \ref{sec:revised-goal} we revised this
+the models on the client-side. In section \ref{sec:revised-goal} we revised this
 requirement by splitting the task into two distinct actions and changed the goal
 to implementing the first part only: Extracting the dataset from a rendered
 template.
@@ -272,7 +272,7 @@ Comb should therefore be able to recognize namespaced tag names since the
 DOM API returns their name with the namespace included.
 
 \subsubsection{Standalone mustache tag lines}
-As we describe in \ref{sec:standalone-lines} mustache removes
+As we describe in section \ref{sec:standalone-lines} mustache removes
 lines containing only white space and a mustache section tag.
 The demo application runs a modified version of mustache.js where this feature
 is removed\footnote{
@@ -283,10 +283,10 @@ our client library to expect a whitespace line where in fact there is none.
 
 \subsubsection{Mustache comments}
 \label{sec:comment-selectors}
-In \ref{sec:mustache-xml-ebnf} we deemed a mustache comment not relevant
+In section \ref{sec:mustache-xml-ebnf} we deemed a mustache comment not relevant
 ``since it does not output any content our client library can retrieve''.
-In \ref{sec:parent-nodes} we introduced parent nodes into the dataset we return
-for variables.
+In section \ref{sec:parent-nodes} however we introduced parent nodes into
+the dataset which we return together with variable values.
 This addition makes comments useful even though they do not output any data.
 By placing comments in key locations in a template, the developer can access
 nodes in a rendered template by referencing those comments and accessing their
@@ -438,8 +438,9 @@ an error may be avoided.
 \subsection{Generator}
 
 \subsubsection{Notification of changes}
-In \ref{sec:assessment} we highlighted how the Movie Database \#2 Comb version
-needed no modifications to the identifiers used to access values in the dataset.
+In section \ref{sec:assessment} we highlighted how the Movie Database \#2 Comb
+version needed no modifications to the identifiers used to access values in the
+dataset.
 In some cases this may however be necessary, since a change may remove
 a variable or section entirely from the template. Identifiers may be renamed or
 part of the template is factored out into a partial.
@@ -515,7 +516,8 @@ the structure of the dataset retrieved from the rendered template.
 When a section intended as an if block is retrieved from the rendered template
 the client library returns an array regardless of the amount of iterations the
 section has performed\footnote{
-	not accounting for effects of the modification proposed in \ref{sec:flatten-section}
+	not accounting for effects of the modification proposed in
+	section \ref{sec:flatten-section}
 } (which in the case of if blocks should be zero or one).
 Since the original dataset held a single object at that position,
 the developer will not expect to find an array.
@@ -541,9 +543,9 @@ object.
 
 \subsection{Modifying rendered templates}
 \label{sec:update-dom}
-The \inline{update()} function\footnote{section \ref{sec:update}} returned by
-variables is helpful when the developer intends to update strings in the
-template. Similarly we demonstrated in \ref{sec:loopbacking} how our
+The \inline{update()} function\footnote{See section \ref{sec:update}} returned
+by variables is helpful when the developer intends to update strings in the
+template. Similarly we demonstrated in section \ref{sec:loopbacking} how our
 demo application could ``push'' and ``pop'' iterations onto and from lists in
 a dataset represented as sections in the template and then re-render the
 template with the new values to display the changes.
@@ -562,7 +564,7 @@ as belonging to that iteration when the rendered template was parsed.
 After implementing the extension suggested in section \ref{sec:update-dom}
 layers can be constructed as mediators between Comb and client model libraries.
 As an example of such a library we will choose backbone.
-The backbone library\footnote{Section \ref{sec:backbone}} features an event
+The backbone library\footnote{See section \ref{sec:backbone}} features an event
 architecture which allows the developer to be notified when properties of
 objects change.
 Using this architecture we can create a layer that allows the
@@ -584,9 +586,10 @@ a secondary objective.
 
 \section{Emergent Properties}
 \label{sec:emergent}
-In \ref{sec:revised-goal} we outlined the rules from Eric Steven Raymonds book
-``The Art of Unix Programming''. Although, the rules are meant for developing
-Unix programs, we chose to apply them to the development of Comb.
+In section \ref{sec:revised-goal} we outlined the rules from
+Eric Steven Raymonds book ``The Art of Unix Programming''.
+Although, the rules are meant for developing Unix programs,
+we chose to apply them to the development of Comb.
 Comb should not be regarded as a framework but a tool. It does not dictate what
 software the developer should use (beyond mustache)\footnote{
 	In fact, Comb is even agnostic about HTTP. How the comb file is transfered
@@ -595,8 +598,8 @@ software the developer should use (beyond mustache)\footnote{
 This fact allows developers to integrate Comb in a larger set of software
 combinations, extending its applicability.
 In fact, Comb may be used in ways we may not have outlined in this evaluation:
-Node.js\footnote{See \ref{sec:nodejs}} allows execution of JavaScript on the
-server-side. With node.js Comb could be used in the parsing of rendered
+Node.js\footnote{See section \ref{sec:nodejs}} allows execution of JavaScript on
+the server-side. With node.js Comb could be used in the parsing of rendered
 templates without involving any browser\footnote{
 	This could also be a way to write unit tests for Comb.
 }.
