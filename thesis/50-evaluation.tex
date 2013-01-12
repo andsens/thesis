@@ -10,8 +10,8 @@
 In this chapter we will assess the usefulness of Comb in light of the
 demo applications from chapter \ref{chap:demo}.
 Following this, we will analyze whether we achieved the goals we set ourselves.
-We will also examine potential improvements of Comb and discuss its shortcomings
-as well.
+We will also examine potential improvements of Comb and discuss its
+shortcomings.
 
 
 
@@ -133,14 +133,13 @@ data from the rendered template like we do in the second selector of figure
 \ref{fig:movielist-jquery.js} is not a sound strategy. We pollute the CSS
 selector namespace with classes that have nothing to do with the layout and
 design of the web application.
-
 Some scenarios may however require us to do exactly that, because there is no
 section surrounding a group of tags. We can however extend Comb to also
 recognize mustache comments, they do not change a rendered template in any way,
 but give the developer a possibility to annotate parts of a template. In section
 \ref{sec:comment-selectors} we examine this extension in more detail.
 
-Annotations like these could also be used to take advantage of the
+Mustach comment annotations could be used to take advantage of the
 \inline{parentNode} property we return for all variables. In the Comb version
 of our Movie Database we still used jQuery selectors to access parts of the HTML
 where we wanted to listen for click events from the user. Specifically we wanted
@@ -156,10 +155,12 @@ comments instead.
 
 The \inline{parentNode} property is used in our Movie Database for another
 purpose: We update the properties of a movie Model while the user is editing it.
-To bind event listeners to the nodes containing the editable text we wrap the
+To bind event listeners to the nodes containing the editable text, we wrap the
 node referenced from the dataset in a jQuery object and leverage its event
-abstraction layer to update the corresponding property on the model on ``keyup''
-events. We abstracted this process and added it to the abstract View object
+abstraction layer to update the corresponding property on the model by listening
+to ``keyup'' events. This way any changes to text nodes by the user will effect
+a corresponding change in the Model attributes as well.
+We abstracted this process and added it to the abstract View object
 all our Views extend, the task to make an element editable then becomes very
 simple: \inline{@editable('title')} is all it takes. Since the identifier in the
 dataset is identical to the property name on the Model, \inline{editable()}
@@ -174,8 +175,10 @@ with a jQuery object to empower it with additional features is a step in exactly
 that direction.
 
 However, Comb does in no way require the developer to use jQuery for such tasks.
-Tools such as prototype.js\footnote{\url{http://prototypejs.org/}} and
-zepto.js\footnote{\url{http://zeptojs.com/}} may of course be used instead.
+Tools such as prototype.js\footnote{\url{http://prototypejs.org/}}, a library
+that extends native JavaScript object prototypes such as \inline{Array} with
+additional methods, and zepto.js\footnote{\url{http://zeptojs.com/}}, a
+light-weight version of jQuery, may be used instead.
 By allowing diversity like this we follow another rule set out in
 ``The Art of Unix Programming'':
 \begin{citequote}{\cite[Chapter 1]{UXART}}
@@ -217,10 +220,10 @@ requirement by splitting the task into two distinct actions and changed the goal
 to implementing the first part only: Extracting the dataset from a rendered
 template.
 
-The architecture we set to achieve this goal aimed at a two parted process where
-we retrieve information from templates and later use that information to parse
-rendered templates. The demo applications from chapter \ref{chap:demo}
-integrate Comb to do exactly that. They render templates with given a dataset,
+The architecture we set to achieve this goal aimed at a two-staged process where
+we first retrieve information from templates and later use that information to
+parse rendered templates. The demo applications from chapter \ref{chap:demo}
+integrate Comb to do exactly that. They render templates with a given dataset,
 extract the data from the rendered templates and employ that data in the rest of
 the application.
 
@@ -236,7 +239,7 @@ To extract data, the Comb client does not depend on any client libraries, which
 may need upgrades or become superseded by better projects.
 We achieved this not by incorporating functionality from other libraries
 directly into the code of the client, but by restricting the feature-set of Comb
-to the core functionality a ``nucleus of code''.
+to the core functionality --- a ``nucleus of code''.
 
 
 
@@ -251,7 +254,7 @@ pre-parser can be improved.
 \subsubsection{Extending the template grammar}
 Looking at the Mustache-XML EBNF\footnote{figure \ref{fig:mustache-xml.ebnf}} we
 can see how the grammar is simplistic, when compared with the
-full XML \cite[section 2/\#sec-documents]{XMLSPEC} EBNF or to
+full XML EBNF \cite[section 2/\#sec-documents]{XMLSPEC} or to
 HTML \cite{HTMLSPEC}\footnote{
 	HTML 5 has no EBNF, the reason for that is detailed at
 	\url{http://lists.w3.org/Archives/Public/www-tag/2009Sep/0013.html}
@@ -263,9 +266,10 @@ that may be encountered is namespacing of tag names. The \inline{identLetter}
 	Go to: /doc/html/Text-Parsec-Token.html\#v:identLetter
 } property of our XML token parser in our
 pre-parser tool lists the allowed letters in an identifier,
-which in our case are xml tag names and attribute names. Among those letters is
-the colon. Comb should therefore be able to recognize namespaced tag names
-since the DOM API returns their name with the namespace included.
+which in our case are tag names and attribute names. Among those letters is
+the colon, which separates tag names from their namespace.
+Comb should therefore be able to recognize namespaced tag names since the
+DOM API returns their name with the namespace included.
 
 \subsubsection{Standalone mustache tag lines}
 As we describe in \ref{sec:standalone-lines} mustache removes
@@ -283,7 +287,7 @@ In \ref{sec:mustache-xml-ebnf} we deemed a mustache comment not relevant
 ``since it does not output any content our client library can retrieve''.
 In \ref{sec:parent-nodes} we introduced parent nodes into the dataset we return
 for variables.
-This addition makes comments useful even though it does not output any data.
+This addition makes comments useful even though they do not output any data.
 By placing comments in key locations in a template, the developer can access
 nodes in a rendered template by referencing those comments and accessing their
 parent node. Because comments do not affect the rendered template we can even
@@ -296,10 +300,10 @@ separators as the identifier. The alternative would be to simply require the
 developer to specify the entire string.
 
 Although this feature addition can be considered a significant improvement to
-the possibilities of our tool, it can not be deemed a shortcoming.
+the possibilities of our tool, it cannot be deemed a shortcoming.
 Our goal was to retrieve the original dataset from a rendered template.
-Comments do not receive any dataset value and do not output any value, as such
-they were out of scope.
+Comments do not receive any dataset value and do not output any value and as
+such they were out of scope.
 
 \subsection{Resolver}
 
@@ -319,7 +323,8 @@ This section MUST NOT be rendered unless the data list is empty.
 \end{citequote}
 We can be certain that all identifiers referenced in an inverted section do not
 belong to the identifier of the section. This fact allows us to lift the parsed
-values into the parent context.
+values into the parent context and shall be implemented in a future version of
+Comb.
 
 \subsubsection{Lookahead}
 \label{sec:lookahead}
@@ -331,21 +336,20 @@ when it checks whether an iteration is followed by another iteration. Variables
 consider stop parsing as soon as they encounter the first occurrence of their
 next sibling. This is a rather limiting restriction which can hinder developers
 in writing templates.
-
 We can overcome this restriction by enhancing the parsing capabilities of our
 client library. From the pre-parser tool we only need to remove the
 \emph{no\_lookahead} function located in the list of filters.
 
 To create a simplistic form of lookahead we can catch errors thrown by
-mustache tag objects when they are unable to verify their siblings and try
-alternative possibilities until we succeed. This is however not only resource
-intensive but may result in a faulty dataset extraction, because more than one
-combination of possibilities can be applied to a DOM tree.
+mustache tag objects when they are unable to verify their siblings and instead
+try alternative possibilities until we succeed. This is however not only
+resource intensive but may result in a faulty dataset extraction, because more
+than one combination of possibilities can be applied to a DOM tree.
 
 A more sound approach requires extending our pre-parser tool as well. It can
-combine the same aforementioned possibilities of parsing a template and replace
-any unknowns (i.e. variables) with wildcard characters our client library can
-recognize. Whether a section is entered is also not knowable when
+combine the same aforementioned possibilities of parsing a template and
+replacing any unknowns (i.e. variables) with wildcard characters our client
+library can recognize. Whether a section is entered is also not knowable when
 analyzing a template, but we can create a binary tree of possibilities,
 where each node represents a list of XML tags. Upon encountering a section we
 branch and continue the tree generation. This tree generation can continue until
@@ -354,19 +358,17 @@ tree, thereby limiting the amount of possibilities our client library has to
 try. Once the tree is generated the filter may analyze it and print errors if
 two paths are indistinguishable. The tree can then be reduced in size without
 reaching ambiguous paths.
-
 The client library can for example use this tree to determine whether a
 section containing a variable as its first child and a variable as its
 next sibling has another iteration by analyzing the content that follows this
 ambiguity.
-
 Such an improvement would also obsolete our filter that checks whether the
 first child and next node of a section can be confused
 (\emph{ambiguous\_boundaries}, section \ref{sec:filter}).
 
 \subsubsection{Variable boundary ambiguity}
 \label{sec:var-boundary-ambiguity}
-Our lookahead improvement can not help alleviate a similar problems a developer
+Our lookahead improvement cannot help alleviate a similar problem a developer
 may encounter with two or more variables in one text node as shown in figure 
 \ref{fig:twovars-no-sep}.
 \begin{figure}
@@ -449,8 +451,8 @@ generated content. Armed with this information, the pre-parser tool can alert
 the developer to any changes between two versions of a template that require the
 code accessing the extracted dataset to be changed.
 
-More importantly, the developer will also be aware when this is \emph{not}
-necessary. If a regenerating a comb file produces no alerts the developer can
+More importantly, the developer should also be aware when this is \emph{not}
+necessary. If regenerating a comb file produces no alerts the developer can
 be \emph{certain} that no client-side code needs adjustment.
 
 
@@ -459,11 +461,12 @@ be \emph{certain} that no client-side code needs adjustment.
 \section{Client library improvements}
 
 \subsection{Mustache tags as tag and attribute names}
-In \ref{sec:template-constraints} listed the inability to specify mustache
-tags in XML tag names and attribute names as a restriction on the templates our
-tool can parse. We may however be able to allow this by changing our grammar and
-modify our resolution phase to link mustache tags in a more generic way.
-Our client library addresses DOM elements by child node indexes instead of tag
+In section \ref{sec:template-constraints} we listed the inability to specify
+mustache tags in XML tag names and attribute names as a restriction on the
+templates our tool can parse. We may however be able to allow this by changing
+our grammar and by modifying our resolution phase to link mustache tags in a
+more generic way.
+Our client library addresses DOM elements by child node indices instead of tag
 names and can therefore find these tags with no modifications. Tag names are
 however used to determine various aspects of mustache tag boundaries. These
 checks will have to be rewritten to allow for variable tag names.
@@ -487,7 +490,7 @@ a template.
 
 \subsection{Unescaped variables as last children}
 \label{sec:unescaped-variable-filter}
-Much like lambda section the content of unescaped variables is hard to predict
+Much like lambda sections the content of unescaped variables is hard to predict
 and can be confused with the next sibling of the variable. We added the filter
 \emph{unescaped\_pos} in the filter component of our pre-parser tool for that
 reason. With the guarantee that an unescaped variable is always the last child
@@ -540,9 +543,10 @@ object.
 \label{sec:update-dom}
 The \inline{update()} function\footnote{section \ref{sec:update}} returned by
 variables is helpful when the developer intends to update strings in the
-template. In \ref{sec:loopbacking} we demonstrated how our demo application
-could ``push'' and ``pop'' iterations onto and from a dataset and then re-render
-the template with the new values to display the changes.
+template. Similarly we demonstrated in \ref{sec:loopbacking} how our
+demo application could ``push'' and ``pop'' iterations onto and from lists in
+a dataset represented as sections in the template and then re-render the
+template with the new values to display the changes.
 This re-rendering performs a lot of unnecessary work considering it is only
 the rendered template content of one section that needs to be appended or
 removed.
@@ -555,11 +559,13 @@ as belonging to that iteration when the rendered template was parsed.
 
 \subsection{Two-way binding of models}
 \label{sec:two-way-binding}
-After implementing \ref{sec:update-dom} layers can be constructed as
-mediators between Comb and client model libraries. As an example of such a
-library we will choose backbone. The backbone library features an event
+After implementing the extension suggested in section \ref{sec:update-dom}
+layers can be constructed as mediators between Comb and client model libraries.
+As an example of such a library we will choose backbone.
+The backbone library\footnote{Section \ref{sec:backbone}} features an event
 architecture which allows the developer to be notified when properties of
-objects change. Using this architecture we can create a layer that allows the
+objects change.
+Using this architecture we can create a layer that allows the
 developer to specify which identifier in the dataset returned by Comb a
 backbone model property corresponds to. Lists in the dataset may be mapped to
 collections.
@@ -568,11 +574,8 @@ Once such a mapping is established, our layer can propagate changes in the
 models to the DOM. Reversing this effect is also possible by listening for
 changes in the DOM (e.g. a change of an input field value) and updating the
 mapped model instead.
-
-Such a layer implements the feature we originally set out with implementing as
-well, but chose to forgo when we in chapter \ref{chap:revised} revised the
-requirements of our tool.
-
+Such a layer would implement the feature we originally set out to implement,
+but chose to forgo in the revised requirements of chapter \ref{chap:revised}.
 A feature like this will surely also encourage the use of Comb even if the
 template was rendered on the client, making the retrieval of values from the DOM
 a secondary objective.
@@ -584,7 +587,7 @@ a secondary objective.
 In \ref{sec:revised-goal} we outlined the rules from Eric Steven Raymonds book
 ``The Art of Unix Programming''. Although, the rules are meant for developing
 Unix programs, we chose to apply them to the development of Comb.
-Comb can not be regarded as a framework but a tool. It does not dictate what
+Comb should not be regarded as a framework but a tool. It does not dictate what
 software the developer should use (beyond mustache)\footnote{
 	In fact, Comb is even agnostic about HTTP. How the comb file is transfered
 	is up to the developer.
@@ -595,7 +598,7 @@ In fact, Comb may be used in ways we may not have outlined in this evaluation:
 Node.js\footnote{See \ref{sec:nodejs}} allows execution of JavaScript on the
 server-side. With node.js Comb could be used in the parsing of rendered
 templates without involving any browser\footnote{
-	This could also be a great way to write unit tests for Comb.
+	This could also be a way to write unit tests for Comb.
 }.
 
 By choosing to develop Comb as a tool we can also observe a set of emergent
@@ -603,12 +606,13 @@ properties that have become apparent during the implementation, usage and
 evaluation of it.
 
 \begin{itemize}
-\item Templates a verified for proper HTML syntax through the pre-parser tool.
+\item Templates are verified for proper HTML syntax through the pre-parser tool.
 \item Data extraction implies a one-way communication, but using
       \inline{parentNode} allows Comb to supply the developer with additional
       information, that can be used for various kinds of extensions.
 \item The \inline{update()} function allows for some limited DOM manipulation.
-      In \ref{sec:update-dom} we describe how this can be extended sections.
+      In section \ref{sec:update-dom} we described how this could be extended to
+      sections.
 \end{itemize}
 
 \end{document}
