@@ -58,12 +58,13 @@ HTML as well.
 There are many flavors of HTML we may choose from to allow in our
 combined mustache-HTML grammar. To simplify our approach we will only allow well
 structured XML tags, as this should ostensibly cover most of HTML.
-HTML 5 allows for self-closing tags on void elements, which with our choice is
-not something we can support. We will therefore refer to HTML tags in our
+HTML 5 allows for self-closing tags on void elements (such as ``img'') and
+boolean attributes (such as ``checked'' on a checkbox), which with our grammar
+is not something we can support. We will therefore refer to HTML tags in our
 templates as XML tags\footnote{
 	This does however not imply that we intend Comb to be able to perform data
 	extraction on the full spectrum of XML documents.
-}.\todo{We also don't support singleton attributes}
+}.
 
 We build an abstract syntax tree with Parsec, in order for our tool to be
 able to create DOM paths through this tree.
