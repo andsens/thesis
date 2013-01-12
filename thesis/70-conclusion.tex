@@ -5,27 +5,37 @@
 \chapter{Conclusion}
 \label{chap:conclusion}
 Comb is a tool to extract the original dataset fed into the Mustache template
-engine from the rendered template. We have over the course of this thesis made a
-case for why we expect Comb to fit into the existing ecosystem of tools for web
-application development. We began with a prototype that incorporated not only
-the dataset extraction but also the coupling of said dataset to a client-side
-Model.
+engine from the rendered template.
+Over the course of this thesis we have made a case for why Comb fits into the
+existing ecosystem of tools for web application development.
+We began with a prototype that incorporated not only the dataset extraction but
+also the coupling of said dataset to a client-side Model.
 This coupling led to the realization that the applicability of Comb can be
 greatly increased by focusing on the data extraction and leaving the utilization
 of that data up to the developer, who uses our tool.
 
 Comb was split into two parts: the pre-parser tool and the parser running on
 the client-side. This split freed us to implement the pre-parser in Haskell
-and keep the client library dependency free.
+and keep the client library free of dependencies.
+
 
 We contrasted Comb with existing solutions and found that most of these require
 the developer to switch to new template languages explicitly made for the
 problem they are trying to solve. We identified this strategy as a framework
 approach, which is a sound approach to the problem, but brings with it a reduced
-applicability. The framework approach is a general tendency we have discovered
-in academic papers regarding web applications and template languages. With
-Comb we have shown an alternate path to a solution, which can be of use in
-future works regarding the field of template languages.
+applicability.
+The framework approach is a general tendency we have discovered in
+academic papers regarding web applications and template languages.
+With Comb we have shown an alternate path to a solution.
+We believe the results of this thesis warrant a reevaluation of the
+current method of approach to the field of template languages for
+web applications.
+This belief is grounded in the lack of dependency requirements to the developer
+for using Comb and amalgamated with our choice of mustache as the template
+language, which because of its plentiful implementations in different languages
+can almost be described as ``language agnostic''.
+
+
 
 Our contribution, Comb, is a \emph{tool} that enables developers to
 build web applications with a more robust access to data embedded in rendered

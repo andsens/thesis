@@ -71,7 +71,6 @@ We did not even have to look up where the value was placed in the template.
 	\caption{Retrieving the id of a movie with Comb}
 	\label{fig:comb-fetch-substring}
 \end{figure}
-\todo{Talk about how we offload getAttrType from the prototype to the ModelView implementation}
 This kind of dataset extraction is also visible when we examine the list of
 movies in the bootstrap version of our application in figure
 \ref{fig:movielist.mustache}.
@@ -207,9 +206,14 @@ URL would suffice.
 
 
 \subsection{Template Editor}
-\todo{Write about how Comb can bring something to the mix even without a server
-Hook onto the previous chapter and introduce stuff by refering to parentNode,
-which is the main reason for using Comb.}
+\label{sec:asses-tpl-edit}
+The Template Editor shows another side of Comb where the templates do not need
+to be rendered on the server for our tool to be useful. In the template editor
+we render a recursive template on the client to generate a form.
+The form is made interactive by binding event listeners to the element
+referenced in the \inline{parentNode} property of variables.
+In fact we also make client-side rendered templates interactive in the
+Movie Database when a new movie or role is created.
 
 
 \section{Reviewing our goal}
@@ -601,7 +605,6 @@ write unit tests for Comb.}.
 By choosing to develop Comb as a tool we can also observe a set of emergent
 properties that have become apparent during the implementation, usage and
 evaluation of it.
-
 \begin{itemize}
 \item Templates are verified for proper HTML syntax through the pre-parser tool.
 \item Data extraction implies a one-way communication, but using
@@ -610,6 +613,10 @@ evaluation of it.
 \item The \inline{update()} function allows for some limited DOM manipulation.
       In section \ref{sec:update-dom} we described how this could be extended to
       sections.
+\item Although we focused on retrieving values from templates that were rendered
+      on the server, we have seen how the demo applications were able to take
+      advantage of Comb even when the templates were rendered on the
+      client\footnote{See section \ref{sec:asses-tpl-edit}}.
 \end{itemize}
 
 \end{document}
