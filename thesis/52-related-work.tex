@@ -124,8 +124,9 @@ that construct and combine HTML elements.
 \subsection{SMLserver based combinator library}
 ``Typing XHTML Web Applications in ML''\cite{ML} is a paper by Martin Elsman and
 Ken Friis Larsen describing a system with which XHTML documents can be created,
-whose conformity is guaranteed by the type system. The library is based on the
-typed combinator library from Standard ML.
+whose conformity is guaranteed by the type system. In contrast to Haskell where
+there is support for type classes, this library solely uses phantom types to
+ensure XHTML validity.
 
 The second contribution in this paper is a framework for interfacing scriptlets
 with the data submitted by forms generated using the library.
