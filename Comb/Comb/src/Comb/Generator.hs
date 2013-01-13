@@ -13,9 +13,11 @@ jstring = JSString . toJSString
 jobj = JSObject . toJSObject
 jint = (JSRational True) . toRational
 
+generate :: R.Resolutions -> [JSValue]
 generate resolutions =
 	root_selector:(map (make_selector resolutions) resolutions)
 
+root_selector :: JSValue
 root_selector =
 	jobj [
 		("name", jstring "root"),
@@ -30,6 +32,7 @@ root_selector =
 		("last", JSNull),
 		("contents", JSArray $ [])]
 
+make_selector :: R.Resolutions -> R.Resolution -> JSValue
 make_selector resolutions r@(R.SectionSelector{..}) =
 	jobj [
 		("name", jstring $ P.name node),
@@ -62,18 +65,21 @@ make_selector resolutions r@(R.VariableSelector{..}) =
 		("prev", make_node resolutions prev),
 		("next", make_node resolutions next)]
 
+is_offset :: R.Path -> JSValue
 is_offset (R.Index _ parent) = is_offset parent
 is_offset (R.Attribute _ parent) = is_offset parent
 is_offset R.Offset{} = JSBool True
 is_offset R.Child{} = JSBool False
 is_offset R.Root{} = JSBool False
 
+make_path :: R.Resolutions -> R.Path -> [JSValue]
 make_path resolutions (R.Index i parent) = (jint i):(make_path resolutions parent)
 make_path resolutions (R.Attribute name parent) = (jstring name):(make_path resolutions parent)
 make_path resolutions (R.Offset o) = [index o resolutions]
 make_path resolutions (R.Child o) = [index o resolutions]
 make_path resolutions (R.Root) = [jint 0]
 
+make_node :: R.Resolutions -> Maybe P.Content -> JSValue
 make_node resolutions (Just s@P.Section{})   = jobj [("type", jstring "section"), ("id", node_index s resolutions)]
 make_node resolutions (Just p@P.Partial{..}) = jobj [("type", jstring "partial"), ("id", node_index p resolutions)]
 make_node resolutions (Just v@P.Variable{escaped=True,..})  = jobj [("type", jstring "escaped"), ("id", node_index v resolutions)]
@@ -84,6 +90,7 @@ make_node _ (Just P.XMLComment{..})  = jobj [("type", jstring "comment")]
 make_node _ (Just P.Text{..})        = jobj [("type", jstring "text"), ("value", jstring text)]
 make_node _ Nothing                  = jobj [("type", jstring "null")]
 
+make_content :: R.Resolutions -> P.Content -> JSValue
 make_content resolutions s@P.Section{}  = (node_index s resolutions)
 make_content resolutions v@P.Partial{}  = (node_index v resolutions)
 make_content resolutions v@P.Variable{} = (node_index v resolutions)

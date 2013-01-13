@@ -130,10 +130,12 @@ data Path =
 	deriving (Eq, Show)
 
 
+backtrack :: Resolutions -> (Crumb, [Crumb]) -> Path
 backtrack res (Crumb (y:l) x r, trail) = backtrack_left res (Crumb l y (x:r), trail) 0
 backtrack res (Crumb [] _ _, p:trail) = Index 0 (backtrack_parent res (p, trail))
 backtrack res (Crumb [] _ _, []) = Index 0 Root
 
+backtrack_left :: Resolutions -> (Crumb, [Crumb]) -> Int -> Path
 backtrack_left res (Crumb _ s@(P.Section{}) _, _) i = Index i (Offset (find_res res s))
 backtrack_left res (Crumb _ p@(P.Partial{}) _, _) i = Index i (Offset (find_res res p))
 backtrack_left res (Crumb _ v@(P.Variable{}) _, _) i = Index i (Offset (find_res res v))
@@ -141,6 +143,7 @@ backtrack_left res (Crumb (y:l) x r, trail) i = backtrack_left res (Crumb l y (x
 backtrack_left res (Crumb [] x r, p:trail) i = Index (i+1) (backtrack_parent res (p, trail))
 backtrack_left res (Crumb [] x r, []) i = Index (i+1) Root
 
+backtrack_parent :: Resolutions -> (Crumb, [Crumb]) -> Path
 backtrack_parent res (Crumb _ s@(P.Section{}) _, _) = Child (find_res res s)
 backtrack_parent res (Crumb _ P.XMLAttribute{..} _, p:trail) = Attribute name (backtrack_parent res (p, trail))
 backtrack_parent res (Crumb (y:l) x r, trail) = backtrack_left res (Crumb l y (x:r), trail) 0

@@ -35,6 +35,7 @@ instance Show Error where
 instance Ord Error where
 	compare x y = compare (resolution x) (resolution y)
 
+location :: R.Resolution -> String
 location res =
 	name ++ " '" ++ (P.name node) ++ "' in " ++ filename ++ ":" ++ line
 	where
@@ -49,6 +50,7 @@ short_location res =
 		line = show $ (sourceLine . P.begin) node
 		name = typeof res
 
+typeof :: R.Resolution -> String
 typeof R.SectionSelector{..}  = if (P.inverted node) then "inverted section" else "section"
 typeof R.PartialSelector{}    = "partial"
 typeof R.VariableSelector{..} = if (P.escaped node) then "escaped variable" else "unescaped variable"
@@ -58,9 +60,11 @@ filter_resolutions resolutions =
 	let errors = run_checks resolutions [] checks
 	in (filter (not . has_error errors) resolutions, sort errors)
 
+--run_checks :: t -> t -> [t -> t -> t] -> t
 run_checks resolutions errs (check:checks) = run_checks resolutions (check resolutions errs) checks
 run_checks resolutions errs [] = errs
 
+checks :: [R.Resolutions -> Errors -> Errors]
 checks = [
 	  run_check unescaped_offset
 	, run_check empty_section
@@ -73,10 +77,12 @@ checks = [
 	, path_with_errors []
 	]
 
+run_check :: (R.Resolution -> Errors -> Errors) -> R.Resolutions -> Errors -> Errors
 run_check check (r:rs) errs = run_check check rs (check r errs)
 run_check check [] errs = errs
 
 -- Unescaped offsets
+unescaped_offset :: R.Resolution -> Errors -> Errors
 unescaped_offset resolution errs =
 	case get_path_top (R.path resolution) of
 		R.Offset (root@R.VariableSelector{node=P.Variable{escaped=False}}) ->
@@ -84,11 +90,13 @@ unescaped_offset resolution errs =
 		_ -> errs
 
 -- Warns if there were found empty sections
+empty_section :: R.Resolution -> Errors -> Errors
 empty_section r@R.SectionSelector{node=P.Section{contents=[]}} errs =
 	(Warning "The section is empty" r):errs
 empty_section _ errs = errs
 
 -- Unescaped variable is always the last child of a proper XMLTag, Comment or Root
+unescaped_pos :: R.Resolution -> Errors -> Errors
 unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},next=(Just something)} errs =
 	(Error "An unescaped variable must be the last child of a node" r):errs
 unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},..} errs
@@ -97,6 +105,7 @@ unescaped_pos r@R.VariableSelector{node=P.Variable{escaped=False},..} errs
 unescaped_pos _ errs = errs
 
 -- Partials must be the single child of an XMLTag
+partial_only_child :: R.Resolution -> Errors -> Errors
 partial_only_child r@R.PartialSelector{next=(Just something)} errs =
 	(Error "A partial must be the only child of a node" r):errs
 partial_only_child r@R.PartialSelector{prev=(Just something)} errs =
@@ -111,6 +120,7 @@ parent_is_section (_, (R.Crumb _ P.Section{} _):_) = True
 parent_is_section _ = False
 
 -- Lookahead is not supported yet
+no_lookahead :: R.Resolution -> Errors -> Errors
 no_lookahead resolution@R.SectionSelector{..} errs
 	| is_mustache prev = (Error "The previous node is mustache, lookahead is not supported yet" resolution):errs
 	| is_mustache next = (Error "The next node is mustache, lookahead is not supported yet" resolution):errs
@@ -129,6 +139,7 @@ is_mustache (Just P.Variable{}) = True
 is_mustache _ = False
 
 -- Ambiguous boundaries
+ambiguous_boundaries :: R.Resolution -> Errors -> Errors
 ambiguous_boundaries resolution@R.SectionSelector{..} errs
 	| ambiguous first_c next = (Error "The first child and next node are indistinguishable" resolution):errs
 	| otherwise = errs
@@ -150,12 +161,14 @@ is_ambiguous text1@P.Text{} text2@P.Text{} = t1 == (take (length t1) (P.text tex
 is_ambiguous _ _ = False
 
 -- Path with errors
+path_with_errors :: R.Resolutions -> R.Resolutions -> Errors -> Errors
 path_with_errors valid_rs resolutions@(r:rs) errs =
 	case find_path_error errs r of
 		Just err -> path_with_errors [] (valid_rs ++ rs) (err:errs)
 		Nothing  -> path_with_errors (r:valid_rs) rs errs
 path_with_errors valid_rs [] errs = errs
 
+find_path_error :: Errors -> R.Resolution -> Maybe Error
 find_path_error errs r =
 	case get_path_top (R.path r) of
 		top@R.Offset{..} ->
