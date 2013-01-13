@@ -2,6 +2,7 @@ Comb
 ====
 Use cabal to build Comb:
 * cd to Comb directory
+* `cabal configure`
 * `cabal build`
 
 The executable will be placed in `./dist/build/Comb/Comb`
