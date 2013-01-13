@@ -110,6 +110,17 @@ Since typed dynamic documents go beyond the guarantees mustache can deliver
 and implement an even stricter subset, a solution like Comb could also be
 implemented for this template language.
 
+\subsection{WASH/CGI}
+WASH/CGI \cite{WASH} is a CGI library written in Haskell to ease integration
+with web servers over the Common Gateway Interface. This is done by supplying
+the developer with various type classes and other interfaces that allow him to
+write server-side web applications in a more abstract manner than directly
+interfacing with the CGI protocol. Like modern web application frameworks
+WASH/CGI provides a handler for session data, which is persisted with the help
+of the file system.
+The library generates HTML with the help of abstract data types and functions
+that construct and combine HTML elements.
+
 \subsection{SMLserver based combinator library}
 ``Typing XHTML Web Applications in ML''\cite{ML} is a paper by Martin Elsman and
 Ken Friis Larsen describing a system with which XHTML documents can be created,
@@ -177,14 +188,15 @@ Rivet.js          & Internal          & No    & \emph{Any}      & Tool         \
 MAWL              & Internal          & Yes   & mawl            & Framework    \\ \hline
 DynDoc            & Internal          & Yes   & Java            & Framework    \\ \hline
 SMLserver library & Internal          & Yes   & ML              & Framework    \\ \hline
+SMLserver library & Internal          & Yes   & Haskell         & Framework    \\ \hline
 	\end{tabular}
 	\caption{A comparison of related works}
 	\label{fig:related-works-table}
 \end{figure}
 
 \subsection{All or nothing}
-Frameworks such as MAWL, the typed templates in ML or Dynamic Web Documents
-use an all-or-nothing approach when it comes to typing templates and
+Frameworks such as MAWL, Dynamic Web Documents, the SMLserver library or
+WASH/CGI use an all-or-nothing approach when it comes to typing templates and
 extracting additional information from them.
 Comb does not operate in the exact same domain as those frameworks, but it
 stands to reason that the applicability of our tool is greater because of its
