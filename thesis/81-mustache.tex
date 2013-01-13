@@ -14,10 +14,10 @@ loops. Instead there are only tags. Some tags are replaced with a value, some
 nothing, and others a series of values. This document explains the different
 types of Mustache tags.
 \end{citequote}
-This statement is debatable, in section \ref{app:mustache-explain-section} we
+This statement is debatable, in section \ref{app:mustache-section} we
 will see how sections can act as if statements and loops, recursion is
 also possible by using partials as describe in
-section \ref{app:mustache-explain-partial}.
+section \ref{app:mustache-partial}.
 The language is however very restrictive and does for example not support
 embedded calculations, removing some of the ``logic''. 
 
@@ -42,12 +42,13 @@ other languages the '.' character is used to access those properties (e.g.
 \inline{\{\{object.field\}\}}).
 
 \section{Unescaped variables}
+\label{app:mustache-unescaped}
 To output strings as unescaped HTML, triple curly braces are used:
 \inline{\{\{\{identifier\}\}\}}. Alternatively an ampersand may be used as well:
 \inline{\{\{\&identifier\}\}}.
 
 \section{Sections}
-\label{app:mustache-explain-section}
+\label{app:mustache-section}
 Sections in mustache can be considered equivalent to foreach loops in other
 languages. We write them with an open and close tag:
 \inline{\{\{\#identifier\}\}CONTENT\{\{/identifier\}\}}.
@@ -166,6 +167,7 @@ operator, as can be seen in figure \ref{fig:dot-oper-example}.
 \end{figure}
 
 \section{Inverted sections}
+\label{app:mustache-inverted}
 In case a value in the dataset is an empty list or false, we use an inverted
 section to output fallback content. We simply replace the hash-mark in the
 opening tag of a section with a caret (see figure \ref{fig:inverted.mustache}).
@@ -239,6 +241,7 @@ it. The effect of outputting it regardless of its content is the same.
 \end{figure}
 
 \section{Lambdas}
+\label{app:mustache-lambda}
 Mustache tags identified by the hash mark may also represent another form of
 placeholder namely the lambda sections. These sections are not iterations, but
 calls to functions that have been bound to keys in the dataset.
@@ -296,12 +299,13 @@ to the key ``reldate''.
 \end{figure}
 
 \section{Comments}
+\label{app:mustache-comment}
 A comment in mustache is identified by an exclamation mark:
 \inline{\{\{! This is a comment \}\}}
 The comment tag creates no output.
 
 \section{Partials}
-\label{app:mustache-explain-partial}
+\label{app:mustache-partial}
 Partials allow templates to be split up into smaller parts. Their tags are
 replaced with the contents of other templates. They behave as if the referenced
 template was inlined directly at the location of the partial tag.
@@ -385,6 +389,7 @@ render recursive data-structures. For example the template in figure
 \end{figure}
 
 \section{Set delimiter}
+\label{app:mustache-set-delimiter}
 Mustache curly braces may clash with delmiters used in other languages,
 such as LaTeX. Using the "set delimiter" tag, the delimiter can be changed to
 something else. The equals sign is used to signify a change in delimiters.
@@ -408,7 +413,7 @@ PHP tags: PHP begins with "<?" and ends with "?>"
 \end{figure}
 
 \section{Removal of standalone lines}
-\label{app:standalone-lines}
+\label{app:mustache-standalone-lines}
 Mustache removes lines which beyond a section beginning or end contains
 only white space (i.e. standalone lines).
 This is done to match the expectation a developer may have when writing
@@ -420,6 +425,7 @@ The behavior is however not defined clearly:
 \end{citequote}
 
 \section{Mustache specification}
+\label{app:mustache-specification}
 Documents specifying the exact behavior of mustache can be viewed at
 \url{https://github.com/mustache/spec}. The specification is written in YAML to
 allow automated tests of rendering engines.

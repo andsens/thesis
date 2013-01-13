@@ -161,10 +161,33 @@ Our plan however is to write the server-side templates in mustache
 (\ref{app:mustache}). Mustache is a template language that is very
 predictable in its output, given that it cannot perform any computations on the
 dataset or modify its input. This will be an advantage when we want to extract
-values from rendered templates. Mustache also follows many of the rules set by
+values from rendered templates. Mustache also follows some of the rules set by
 Terence Parr in his paper titled ``Enforcing Strict Model-View Separation in
-Template Engines'' \cite{STRINGTPL}. \todo{OK to just cite and then leave it at
-that?}
+Template Engines'' \cite{STRINGTPL}, which details how separating the
+business-logic of a web application from the presentation layer is both
+desirable and possible. One such rule states:
+\begin{citequote}{\cite[Chapter 7]{STRINGTPL}}
+	2. \textbf{the view cannot perform computations upon dependent data values}
+	because the computations may change in the future and
+	they should be neatly encapsulated in the model in any case.
+	[...] the view cannot make assumptions about the meaning of data.
+\end{citequote}
+As noted above Mustache does not support computations on data, which makes it
+compatible with this rule\footnote{Although lambda sections
+(\ref{app:mustache-lambda}) allow computations on data,
+they cannot be considered \emph{embedded} computations,
+since their functions are part of the dataset.
+The authors sentiment (``they should be neatly encapsulated in the model'')
+is therefore honored.}.
+
+Another rule concerns the comparison of data:
+\begin{citequote}{\cite[Chapter 7]{STRINGTPL}}
+	3. \textbf{the view cannot compare dependent data values},
+	but can test the properties of data such as presence/absence
+	or length of a multi-valued data value.
+\end{citequote}
+Sections in mustache\footnote{See appendix \ref{app:mustache-section}} support
+this exact behavior, save the of length comparison.
 
 Locating placeholders in templates and outputting their location is the solution
 we proposed in the beginning of this thesis to the problem we identified with
@@ -195,7 +218,7 @@ leverage the additional information.
 	implementation, we may choose a language which compiles to JavaScript instead.
 \item underscore.js helps us to iterate through arrays and manage other
 	operations more easily than in pure JavaScript. We can solve the same problems
-	without it\footnote{although it requires more effort.}.
+	without it\footnote{although it may require more effort.}.
 	This makes underscore.js a non-crucial part of our tool.
 \item We use backbone.js to hold the values we retrieve from the DOM. The
 	framework enables us to interact with these values. They can however also be

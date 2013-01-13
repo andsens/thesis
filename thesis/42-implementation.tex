@@ -110,10 +110,12 @@ parser understands.
 	\label{fig:mustache-xml.ebnf}
 \end{figure}
 
-The mustache comment tag has been left out in this grammar, since it does not
-output any content our client library can retrieve. We did also not include the
-\inline{set\_delimiter} tag. This was mostly done to keep our first
-implementation of the tool simple.
+The mustache comment tag\footnote{See appendix \ref{app:mustache-comment}}
+has been left out in this grammar, since it does not output any content our
+client library can retrieve.
+We did also not include the \inline{set\_delimiter}
+tag\footnote{See appendix \ref{app:mustache-set-delimiter}}.
+This was mostly done to keep our first implementation of the tool simple.
 
 Using this grammar we can construct an abstract syntax tree
 (figure \ref{fig:ast.ast}) from the mustache template in figure
@@ -156,7 +158,7 @@ Note that the EBNF restricts the types of templates our tool can parse.
 \item Sections must adhere to the same structure as XML tags\footnote{This also
 	means that sections may not interleave, something mustache does not support in
 	any case}.
-\item Variables and section may not exist in the identifier part of an XML tag
+\item Variables and sections may not exist in the identifier part of an XML tag
   or attribute.
 \end{itemize}
 
@@ -271,9 +273,8 @@ When parsing a rendered template in the client library, we will want to parse
 all children first and continue with offsets that depend on those children.
 
 Figure \ref{fig:section-example.mustache} from
-appendix \ref{app:mustache-explain-section} illustrates the difference
-very well, once we add a last list element as shown in
-figure \ref{fig:offsets.mustache}.
+appendix \ref{app:mustache-section} illustrates this difference,
+once we add a last list element as shown in figure \ref{fig:offsets.mustache}.
 \begin{figure}
 	\centering
 	\begin{lstlisting}[language=HTML]
@@ -367,14 +368,16 @@ children\footnote{Note the important distinction of ``children'' and
 	Those do however not affect the \inline{childNodes} list of the parent tag.
 } of the section, this changes.
 The length of a subsection will increase the length of a parent section, while
-unescaped variables may do the same.
+unescaped variables\footnote{See appendix \ref{app:mustache-unescaped}} may do
+the same.
 In order for us to still reliably determine said length, we also include
 mustache tags in this content list. The client library may then access
 information about these tags to asses the impact they have had on the length of
 an iteration.
 
 \subsection{Lambda sections}
-Lambda sections and normal mustache sections can not be distinguished.
+Lambda sections\footnote{See appendix \ref{app:mustache-lambda}}
+and normal mustache sections can not be distinguished.
 We also have no way of determining the input to a function by looking at its
 output. For that reason we will simply treat them as sections when parsing
 templates and assume the developer is aware when a function is bound to a
