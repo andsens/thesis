@@ -1,5 +1,10 @@
 Comb
 ====
+Use cabal to build Comb:
+* cd to Comb directory
+* `cabal build`
+
+The executable will be placed in `./dist/build/Comb/Comb`
 
 Demo applications
 =================
