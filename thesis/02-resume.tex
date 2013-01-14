@@ -16,8 +16,8 @@ Vi præsenterer et værktøj der løser netop dette problem.
 Det udnytter web applikationers brug af HTML skabeloner (\emph{templates}),
 som kan analyseres for at automatisere navigationen gennem DOM'en
 --- en førhen manuel opgave.
-Desuden viser vi hvordan en klar afgrænset, minimal omfang af værktøjer
-kan øge deres anvendelighed og hjælpe dem med at trives i et økosystem af
+Desuden viser vi hvordan en klar afgrænsning og minimal omfang
+kan øge værktøjers anvendelighed og hjælpe dem med at trives i et økosystem af
 anden software.
 
 Vores værktøj er baseret på \emph{mustache template engine}; et template sprog,
@@ -25,8 +25,8 @@ der er implementeret i mange forskellige programmeringssprog.
 Værktøjet genskaber på klienten det oprindelige datasæt der blev brugt til at
 rendere et template.
 Dette rekonstruerede datasæt gør det muligt for en udvikler at læse værdier
-fra --- og interagere med --- DOM'en ved at bruge de i forvejen kendte nøgler
-der blev brugt som variable i skabelonerne.
+fra --- og interagere med --- DOM'en ved at referere til de i forvejen kendte
+nøgler der blev brugt som variable i skabelonerne.
 Denne metode er også mere robust end at bruge CSS selectors,
 fordi navnene på nøglerne ikke ændrer sig når templates omstruktureres.
 Vi demonstrerer dette med to web applikationer.

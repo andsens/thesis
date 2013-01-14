@@ -28,8 +28,7 @@ concrete in the following ways:
 	\item \emph{Discover additional requirements}\\
 	The implementation of a movie library allows for practical challenges to
 	arise, which might not have been discovered if we implemented such an
-	application at the conclusion of the project. This is one of the advantages
-	of beginning a project with an exploratory prototype.
+	application at the conclusion of the project.
 \end{itemize}
 
 \section{Architecture}
@@ -49,7 +48,7 @@ application stack consists of the following:
 		The de facto standard when creating web applications. Among other things it
 		simplifies the interaction with the DOM.
 	\item \emph{backbone.js}\label{sec:backbonejs}\\
-		Backbone.js is a JavaScript Model/View framework. It provides the developer
+		backbone.js is a JavaScript Model/View framework. It provides the developer
 		with View, Model and Collection prototypes. The View prototype can be
 		considered analogous to the aforementioned ViewModel, while the Model and
 		Collection part make up the Model component and collections thereof,
@@ -63,16 +62,16 @@ application stack consists of the following:
 		It includes a small template engine which will allow us to generate
 		DOM elements and insert them into the page.
 	\item \emph{php-activerecord}\\
-		PHP ActiveRecord is the server-side library utilized to communicate with the
+		php-activerecord is the server-side library utilized to communicate with the
 		database.
 	\item \emph{XPath}\\
-		XPath is a language that allows us to define a path from a root node to
-		another node.
+		XPath is a language that allows us to define a path through the DOM
+		from a on node to another node.
 		Although limited, the language is fairly concise and directly built into
-		JavaScript. We will only be dealing with XPath 1.0, because version 2.0 is,
-		with the exception of Microsoft Internet Explorer, not implemented in any
-		browsers yet and likely will not ever be (the final specification was
-		released 2006).
+		JavaScript. We will only be dealing with XPath 1.0, because version 2.0 is
+		not implemented in any browsers yet and likely will not ever be
+		(the first candidate recommendation was released in
+		November 2005\footnote{\url{http://www.w3.org/TR/2005/CR-xpath20-20051103/}}).
 \end{itemize}
 
 \subsection{Templates}
@@ -98,17 +97,18 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 
 \begin{itemize}
 	\item \emph{Template inclusion}\\
-	Starting from the root sub-templates are included via a simple
+	Starting from the root, sub-templates are included via a simple
 	PHP \inline{require} command.
 	\item \emph{Simple variables}\\
 	Simple variables are inserted via a PHP \inline{echo} command.
 	\item \emph{Objects}\\
-	Objects are converted into arrays so their fields can be initialized as
-	variables with the \inline{extract} method.
+	Objects are converted into associative arrays so their fields can be
+	initialized as variables with the \inline{extract} method
+	(the array keys become variable names).
 	\item \emph{Collections}\\
 	Collections (i.e. PHP arrays) are simply iterated through, in this prototype
 	only objects are present in these arrays, the block inside the
-	\inline{foreach} loop therefore simply contains the aforementioned method
+	\inline{foreach} loop therefore contains the aforementioned method
 	for placing object fields into the global scope.
 	\item \emph{Client-side templates}\\
 	There is a small portion of client-side templates, which are used whenever new
@@ -122,12 +122,13 @@ The PHP is embedded between \inline{<?php} and \inline{?>} tags.
 Every Model on the server-side is linked to the database.
 One instance of a model represents one entity in the database.
 Each of these Models is also represented on the client-side using backbone.js,
-which provides us with a ``Backbone.Model'' base class\footnote{By ``class''
-we of course mean a JavaScript prototype.} that can be extended.
+which provides us with a \inline{Backbone.Model} base class\footnote{By
+``class'' we of course mean a JavaScript prototype.} that can be extended.
 
-Using the ``Backbone.View'', we can create ViewModels that bind the Model and the
-DOM together. For example, this can be used to listen to changes in
-form elements, which the ViewModel translates into changes of the corresponding
+Using the \inline{Backbone.View}, we can create ViewModels that bind the Model
+and the DOM together.
+For example, this can be used to listen to changes in form elements,
+which the ViewModel translates into changes of the corresponding
 fields in the Model. The Model can in turn synchronize those changes to the
 server.
 
@@ -137,22 +138,23 @@ the ViewModel about those changes. The ViewModel can then update the
 DOM (the user interface) with those changes.
 
 \subsection{Collections}
-In addition the above mentioned base classes backbone.js provides a third class.
+In addition to the above mentioned base classes backbone.js provides a third
+class.
 It is called a Collection and contains any number of other Model instances.
-In a given Collection the models all have the same type.
+In any given Collection the models all have the same type.
 
 \section{Coupling client-side and server-side models}
 Models and ViewModels are powerful abstractions.
 We can extend them to make use of the information that specifies
 which server-side field attribute belongs with what content on the HTML page.
 
-Since the client-side model mirrors the server-side model a direct mapping of
+Since the client-side model mirrors the server-side model, a direct mapping of
 the information retrieved from the templates should be possible.
 The classification of this information is of importance: We will need to know
 whether a field contains a collection, a string, or an aggregated model,
 in order to parse the DOM properly.
 
-We have two possible abstractions this information can be attached to and
+We have two possible abstractions the information can be attached to and
 used by: The Model and the ViewModel.
 The information specifies where a Model field is located in the DOM, which would
 make the Model the optimal candidate. However, the information has a
@@ -165,8 +167,8 @@ The ViewModels may even be coupled one to one with the templates.
 This property renders the ViewModel better suited to tackle this problem.
 
 Storing the information on the ViewModel and letting it utilize it is
-advantageous because that information is valuable when binding event listeners
-to the DOM or manipulating DOM nodes otherwise.
+advantageous, because that information is useful when binding event listeners
+to the DOM or manipulating DOM nodes in other ways.
 
 In this prototype we will not focus on retrieving the information from
 the templates. Instead we assume this extraction has already taken place and
@@ -176,7 +178,7 @@ The XPath is labeled with the name of that field.
 
 The ViewModel is a means to an end: It does not enable any meaningful
 interaction with the web application by simply binding to DOM nodes.
-It does however function as a bridge between that DOM and the Model.
+It does however function as a bridge between the DOM and the Model.
 The Model in turn can communicate with the server, which can process
 the user interaction and return a meaningful response.
 
@@ -186,12 +188,12 @@ The Models that are to hold the data we want to handle need to be created and
 populated with the data from the DOM when the page has loaded.
 To that end we use the ViewModels to parse the HTML and create both them and
 the Models they are attached to.
-A recursive approach will simplify the parsing in this matter, since the DOM
-is a tree structure.
+A recursive approach will simplify the parsing in this matter,
+given that the DOM is a tree structure.
 
 We bootstrap the parsing function by giving it a ``Root'' model and
 a ``RootView'' ViewModel.
-Both are prototype objects, that will later be instantiated.
+Both are prototype objects that will later be instantiated.
 The RootView has an XPath attached to it, which points to the list of movies
 in the DOM. The parsing function returns an instantiated ViewModel with a Model
 attached to it (e.g. the bootstrapping yields a ``RootView'' object containing
@@ -200,8 +202,8 @@ a ``Root'' object).
 During the process every XPath in the ViewModel is examined.
 Since any XPath is labeled with the name of the corresponding field on the
 Model, we can query the Model for the type of that field
-(this is hard-coded for the time being). The function \inline{getAttrType()}
-returns that type.
+\footnote{this is hard-coded for the time being}.
+The function \inline{getAttrType()} returns that type.
 
 We can follow three courses of action depending on the type
 returned by the Model.
@@ -212,12 +214,12 @@ returned by the Model.
 	\item \emph{The field aggregates another Model}\\
 	The function queries the Model for the type of Model its field aggregates
 	(\inline{getComplexType()}).
-	We the recurse by calling the parsing function again.
+	We then recurse by calling the parsing function again.
 	This time it is called with the aggregated Model class and
 	the ViewModel class, which is returned by the \inline{view()} function
 	we attached to the XPath\footnote{The coupling of ViewModels and XPaths
-	via the \inline{view()} function, implies that a way to map templates to
-	ViewModels to templates will be required}.
+	via the \inline{view()} function implies that a way to map templates to
+	ViewModels will be required}.
 	\item \emph{The field is a Collection}\\
 	We query the Model for the type of Model the collection contains.
 	The XPath can return more than one DOM node.
@@ -228,19 +230,20 @@ returned by the Model.
 Once all XPaths have been examined, the function instantiates the Model class
 that was passed to it in the beginning. It is populated with the field values
 collected while examining the XPaths.
-The ViewModel, also a function argument, is then instantiated with
+The ViewModel --- also a function argument --- is then instantiated with
 the Model instance as one of the arguments.
 This ViewModel is the return value of the function.
 
 One drawback to the method we use to obtain field values is the requirement
 for a post-processing function, that takes an XPath result and
 returns the correct value of a field.
-This is necessary because XPath is not an exact query language.
+This is necessary because XPath is not an exact query language:
 \begin{itemize}
 	\item DOM node attributes will be returned with both their attribute name and
-	their value as one string. This is undesirable, since we almost always only
-	place a server-side field value into the value part of a DOM node attribute.
-	\item Substrings can not be retrieved with XPath, it can only return entire
+	their value in one string. This is undesirable, since we currently only
+	place a server-side field value into the ``value'' part of a DOM node
+	attribute.
+	\item Substrings cannot be retrieved with XPath, it can only return entire
 	text nodes.
 \end{itemize}
 
@@ -261,8 +264,8 @@ this prototype.
 	We have not uncovered any major logical errors that would require us to
 	rethink the idea for coupling client-side models to server-side templates.
 	\item \emph{Discover additional requirements}\\
-	We not only mapped fields of models that aggregated another single model,
-	but also collections of models. We solved this challenge in the prototype,
+	We not only mapped fields of models that aggregated other models,
+	but also collections of models. We solved this challenge in the prototype
 	by simply iterating through the nodes and adding them to
 	a backbone collection. This method will need to be refined in the final
 	implementation.
@@ -273,8 +276,8 @@ this prototype.
 The function \inline{getComplexType()} illustrates, that we will need some form
 of mapping between ViewModels and templates.
 It will be tedious and error prone for the developer to create those mappings
-by hand. We will need a process, which automates the coupling of the ViewModels
-with server-side templates.
+by hand. We will require a process, which automates the coupling of the
+ViewModels with server-side templates.
 
 While developing this application various libraries have been examined for their
 viability. backbone.js has in this case proven itself to be a very good fit.

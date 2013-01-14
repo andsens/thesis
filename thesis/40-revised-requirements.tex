@@ -7,18 +7,18 @@
 In this chapter we will analyze which parts of our exploratory prototype we can
 utilize in our implementation. To that end we will examine every tool used and
 arrive at a subset of these tools, which we will complement with a fresh set of
-parts. Our goal is to have a plan laid out for the final architecture at the end
-of this chapter.
+parts. Our goal is to have a plan laid out for the architecture of our tool
+at the end of this chapter.
 
 The prototype featured a large amount of moving parts that were constructed for
-the occasion. Among others this includes our templates, that were not mustache
-templates but simple repeatable patterns in PHP. The recursive tree parser,
-building a set of models and views for us to use on the client-side is another
-example of an ad-hoc constructed tool.
+the occasion. Among others this includes our templates, that were simple
+repeatable patterns in PHP.
+The recursive tree parser that builds a set of models and views for us to use
+on the client-side is another example of an ad-hoc constructed tool.
 
 These parts bring with them their own set of problems and bugs.
 Since they are custom developed in a limited time frame they will have coding
-errors other seasoned related tools do not have.
+errors similar but seasoned tools do not have.
 We decided to develop these tools for our prototype regardless,
 because evaluating alternatives that would fit the purpose precisely
 would have taken up more time.
@@ -31,7 +31,7 @@ They are rather tools that help achieve the goals of it.
 For a proper tool, that we can consider usable, to emerge from our process,
 we will need to reduce the amount of said custom parts.
 To that end we will first have to identify the superfluous parts of the
-prototype, that can be replaced by existing well maintained tools. Once we have
+prototype that can be replaced by existing well maintained tools. Once we have
 achieved this, we can begin concentrating on the core of our concept and define
 it with greater precision.
 
@@ -42,9 +42,9 @@ information about the binding of model fields to placeholders in templates and
 use this information to bind client-side models to the DOM.
 
 In reality this goal consists of two parts:\
-First we need to extract the dataset passed into the template engine together
-with the template from the rendered template\footnote{Read: from the HTML in the
-browser.}.
+First we need to extract the dataset that was passed together with the template
+into the template engine from the rendered template\footnote{Read:
+From the HTML in the browser.}.
 In the prototype we did this by utilizing hard-coded XPaths. The motivation
 behind hard-coding this part was the assumption that we would generate the those
 paths dynamically in our real implementation.\
@@ -53,7 +53,6 @@ to models on the client-side. In the prototype we realized the mapping process
 by hard-coding the types of backbone fields into the ModelView.\
 However, our final implementation will only feature the first of these
 processes.
-
 To state it clearly:
 \begin{quote}
 Our goal is to extract the dataset passed to the mustache template engine from
@@ -81,7 +80,7 @@ choose a language and model framework to automate this process. This choice
 reduces the applicability of our tool greatly. Leaving only the option of
 requiring the developer to specify the relations. For big web applications this
 requirement may slow the development process significantly.
-For this reason we choose to pursue only the first part of the mapping process.
+This is why we choose to pursue only the first part of the mapping process.
 With that choice the implementation will no longer concentrate on mapping values
 sent by the server via rendered templates to client-side models,
 but on extracting data from rendered templates.
@@ -89,7 +88,10 @@ but on extracting data from rendered templates.
 By concentrating on one part of the process we are also able to create a tool in
 the proper sense. As a guide for the properties of such a tool we can apply
 some of the rules set by Eric Steven Raymond in his book
-``The Art of Unix Programming''.
+``The Art of Unix Programming''. The success of Unix can partially be attributed
+to its many small tools that work in concert to create more complex systems.
+We believe this design philosophy can be applied to web development tools as
+well.
 \begin{citequote}{\cite[Chapter 1]{UXART}}
 \begin{itemize}
 	\item Rule of Modularity: Write simple parts connected by clean interfaces.
@@ -125,12 +127,10 @@ feature\footnote{This also means that we will no longer focus on the task from
 We simplify our approach and thereby follow the Rule of Simplicity.
 
 By using these rules for guidance we hope to be able to develop a tool that will
-be able to fit into an ecosystem of existing software.
+be able to fit into an ecosystem of existing software much the same way
+Unix tools exist in a similar ecosystem of software.
 To do this we focus on our previously stated goal and remove all superfluous
 features that do not contribute to that goal.
-There may however be subsequent feature additions that can help the developer
-when writing software and lie in the functional scope of our tool.
-
 To see a list of which rules we follow throughout the rest of this thesis
 refer to appendix \ref{app:rules-followed}.
 
@@ -151,17 +151,17 @@ as ``d3''.
 \label{sec:simple-server}
 We begin our simplification on the server. Here we communicated with a database
 to persist our movies, actors etc. in the MySQL database. The database and the
-object relational mapper (ORM) php-activerecord are not at all necessary for our
+object relational mapper (ORM) php-activerecord are not necessary at all for our
 tool to work. They are interchangeable with any other type of software, that can
-persist data on the server. Our concept should work with even ephemeral data.
+persist data on the server. Our concept should work even with ephemeral data.
 
 Our server-side language of choice - PHP -, also belongs to this category.
 The server could have been written in any other server-side language.
 As a consequence, the template engine, will of course need to be
-able to interface with that language. For the prototype we omitted these
-templates and wrote them directly in PHP instead.
+able to interface with that language. For the prototype we omitted such an
+engine and wrote the templates directly in PHP instead.
 
-Our plan however is to write the server-side templates in mustache
+Our plan is to write the server-side templates in mustache
 (\ref{app:mustache}). Mustache is a template language that is very
 predictable in its output, given that it cannot perform any computations on the
 dataset or modify its input. This will be an advantage when we want to extract
@@ -203,19 +203,20 @@ are essential.
 
 \subsection{Client-side}
 The client-side tools we have used in our prototype interact with the data we
-``retrieved'' (remember: we did not actually retrieve any template information)
-from the server. This makes the setup of the client more intricate. We will have
-to look carefully at each tool and determine by the nature of its interaction
-with that data, whether it is a crucial part of our concept.
+extracted\footnote{Remember: In the prototype we did not actually retrieve any
+information from the templates automatically} from the rendered templates.
+This makes the setup of the client more intricate.
+We will have to look carefully at each tool and determine by the nature of its
+interaction with that data, whether it is a crucial part of our concept.
 
 Regardless of which tools we remove, we must remember that the information about
-our server-side templates must be used somehow. This would suggest that the
+our server-side templates must be used somehow. This suggests that the
 client can have more than one structure and set of interconnected parts, which
 leverage the additional information.
 
 \begin{itemize}
-\item Beginning with the periphery, we can easily see how a framework to ease
-	the development of CSS is not part of our tool.
+\item Beginning with the periphery, we can easily see how \emph{less.js}
+	--- a framework to ease the development of CSS --- is not part of our tool.
 \item The JavaScript language is required on the basis that we need some form of
 	client-side programming. We have discussed its alternatives in
 	section \ref{sec:javascript-alts}, depending on the challenges we face in the
@@ -230,6 +231,6 @@ leverage the additional information.
 	considered a crucial part of our tool.
 \end{itemize}
 
-In essence we will not retain any client-side \emph{libraries}.
+In essence we will not retain any client-side libraries.
 
 \end{document}

@@ -72,7 +72,7 @@ the back button in the browser and the window size of the browser.
 Alternatives to JavaScript like Dart, CoffeeScript and Google Web Toolkit
 do exist and are meant to ameliorate the shortcomings of JavaScript. 
 However, they are all translated into JavaScript if cross-browser
-compatibility is a requirement (which it almost always is).
+compatibility is a requirement \footnote{which it almost always is}.
 
 \subsection{Server-side web applications}
 A web application can incorporate business logic and interactivity by rendering
@@ -113,12 +113,13 @@ situations:
 Web applications can also be developed solely using client-side code,
 leaving the server to only supply static content.
 ``Mashups'' are fitting examples of such an approach.
-These web applications rely on external JavaScript APIs
-(Google Maps, Twitter, Weather services) to combine readily available in new
-ways. The client browser requests and combines this data without interacting
-with the server. These external APIs retrieve their data from servers of course,
-but those servers are not maintained by the developer and are exposed to neither
-the user nor the developer.
+These web applications rely on external JavaScript APIs (Google Maps, Twitter,
+Weather services) to combine readily available data in new ways.
+The client browser requests and combines this data without interacting
+with the server.
+These external APIs retrieve their data from servers of course,
+but those servers are not maintained by the developer and are exposed directly
+to neither the user nor the developer.
 
 As with the server-side only approach, the client-side only approach has some
 exclusive advantages.
@@ -192,9 +193,9 @@ The development process of a web application is similar to most
 software development processes. One starts with the data to be modeled.
 It may be developed for the client and server part simultaneously.
 A protocol for communication between the two is then established.
-The design of a web application is usually the last component to fall
-into place. It may have existed in the very beginning of the development
-process, but is usually only finished and implemented when most other critical
+The design of a web application is usually the last component to be completed.
+It may have existed in the very beginning of the development process,
+but is usually only finished and implemented when most other critical
 components are in place.
 
 \subsection{Usual design patterns}
@@ -205,45 +206,46 @@ Although their exact features may not be known when a developer is first
 introduced to a new software project, design patterns help him to quickly
 recognize where functionality may be located in the code.
 
-Instead of requiring developers to think up new structures, Design patterns
+Instead of requiring developers to think up new structures, design patterns
 also help developers with grouping new code into well known components.
 
-We will focus on one specific design pattern in this thesis. There many others,
-which are relevant in web application development. There is nonetheless one
-prevalent design pattern which we will examine in the following.
+We will focus on one specific design pattern in this thesis.
+There are many others, which are relevant in web application development.
+Nonetheless, the most prevalent design pattern is the Model-View-Controller
+pattern, which we will examine in the following section.
 
 \subsubsection{Model-View-Controller}
-The Model-View-Controller design pattern has proven itself to be a sane
+The Model-View-Controller design pattern has proven itself to be a sound
 choice for developing web applications. Most frameworks today use this
 pattern or variations thereof.
 It lends itself very well to web applications because of the client server
-model, components of this pattern can be present on both sides allowing the
+model; components of this pattern can be present on both sides allowing the
 structure to be homogeneous.
 
 \begin{itemize}
-	\item The ``Model'' part represents the ``data''. All dynamic parts of an
+	\item The ``Model'' part represents the data. All dynamic parts of an
 	application modify, create or delete data, however ephemeral this data may
 	be. Since much of the data can grouped, because it belongs to the same
 	entity, it makes sense to represent those entities in the code and
 	attach the data to them. This constitutes a Model. Besides this data,
 	the Model can also have functions attached to it, which can act upon the data
 	in various ways.
-	\item A ``Controller'' implements the business logic that is decoupled from one
-	specific Model. It draws on the functions tied to the models to perform its
-	duties. Both of these components may be present on the server as well
-	as the client.
+	\item A ``Controller'' implements the business logic that is decoupled from
+	any specific Model.
+	It draws on the functions tied to the models to perform its duties.
+	Both of these components may be present on the server as well as the client.
 	\item This is true for the ``View'' component as well. Its purpose however only
 	comes to fruition on the client. This component is present on both the server
 	and the client. Any HTML the server sends to the client is considered part of
-	the ``View'' component.\\
-	The job of the ``View'' component is to present the data to the user and
+	the View component.\\
+	The job of the View component is to present the data to the user and
 	tie calls to the controller to elements of the interface that can be acted
 	upon by the user.
 \end{itemize}
 
 Designs of web applications change with time, features are added or
 removed and common processes simplified. In light of this, it is
-desirable to ensure that the ``View'' part of the Model-View-Controller
+desirable to ensure that the View part of the Model-View-Controller
 pattern is easily modifiable.
 
 Modifications of this pattern have evolved in the web application domain to
@@ -257,14 +259,16 @@ HTML5\footnote{\url{http://knockoutjs.com/documentation/observables.html}}.
 The ``ViewModel'' component allows developers to implement interface logic that
 lies between the Model and the View, allowing the view to be entirely free
 of code. This component is meant to hold data-bindings to the Model while
-listening to interface events at the same time. It ``translates'' user actions
-into operations on the Model. Without it, the view would have to be aware of how
-data is laid out internally, making refactoring of code harder.
+listening to interface events from the View at the same time.
+It ``translates'' user actions into operations on the Model.
+Without it, the view would have to be aware of how data is laid out internally,
+making code refactoring harder.
 
-The advantage of this version of Model-View-Controller is the improved
-separation of responsibility between interface developers and application
-developers. Neither will be required to modify or thoroughly understand the code
-of the other. Even if both roles are filled by the same person,
+The advantage of this version is the improved separation of responsibility
+between interface developers and application developers.
+Neither will be required to modify or thoroughly understand the code of the
+other.
+Even if both roles are filled by the same person,
 separation of responsibility in an application still has its merits.
 
 

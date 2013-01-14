@@ -15,7 +15,8 @@ originates from.
 
 However, once a template is rendered, template engines discard that information.
 This loss of information is inconsequential to the way web applications are
-built with current frameworks. That does still not mean that it is useless.
+built with current frameworks.
+Nevertheless, this does not mean that the information is useless.
 
 Consider a minimal template used for editing profile information as in
 figure \ref{fig:user.mustache}
@@ -38,11 +39,9 @@ figure \ref{fig:user.mustache}
 	\caption{A template for displaying user information}
 	\label{fig:user.mustache}
 \end{figure}
-
 As you can see, the fields of the user object are printed into the HTML
 at the appropriate places, leaving us with a normal page which can be
 displayed in the browser.
-
 The following scenario illustrates how this simple way of handling templates,
 requires additional work when information about where data is put in the
 template is not readily available:
@@ -56,27 +55,27 @@ for that is AJAX.
 Once the form is working the way it should, everything is brought into
 production. Metrics however suggest that changing the layout of the form would
 increase usability.
-The designer moves form fields around to make it easier for user to update
+The designer moves form fields around to make it easier for users to update
 their profile.
 All the while, the developer has to accommodate the design changes by modifying
 the CSS selectors he uses to bind the form elements and the client-side version
 of the user model together.
-CSS identities are used sparingly to avoid naming conflicts, so every correction
-to a HTML template bears with it a correction in the selection of DOM nodes.
+CSS identities are used sparingly to avoid naming conflicts across the
+application, so every correction to a HTML template bears with it a correction
+in the selection of DOM nodes.
 \end{shaded}
 This example highlights a rather obvious loss of information, namely
-the position of the form elements and their connection to model attributes.\\
+the position of the form elements and their connection to model attributes.
 When the placeholders of an HTML template are filled these positions are known,
-but as soon as the result is reduced to simple a string that is sent
+but as soon as the result is reduced to simple a HTML string that is sent
 to the client, this information is lost.
 
 The argument to uphold the status quo in this case is increased usage of
-CSS identities. The problem is however that this approach does not scale very well.
+CSS identities. The problem however is that this approach does not scale very well.
 A complex naming scheme would be required to avoid naming collisions.
 Every possibly modifiable DOM node would be tagged with a CSS identity,
 requiring more work in both the template writing and DOM binding of
 client-side models.
-
 Based on findings we can formulate a goal for our project:
 \begin{quote}
 Our goal is to retrieve information about the binding of model fields to
