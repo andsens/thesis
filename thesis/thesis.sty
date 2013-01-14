@@ -13,6 +13,11 @@
 \usepackage[backend=biber,backref=true,citestyle=numeric]{biblatex}
 \addbibresource{thesis.bib}
 
+% Colors
+\usepackage{color,xcolor}
+\usepackage{solarized}
+\definecolor{lgray}{rgb}{0.93,0.93,0.93}
+
 % Set geometry for different versions
 \ifdefined\print
 	\usepackage[a4paper]{geometry}
@@ -21,7 +26,7 @@
 	\usepackage[a4paper]{geometry}
 \fi
 \ifdefined\ebook
-	\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
+	\usepackage[papersize={85.09mm,111.76mm},margin=0.55mm]{geometry}
 	\setlength{\parskip}{2pt}
 
 	\usepackage{fourier-orns}
@@ -39,6 +44,23 @@
 		\def\@captype{figure}
 		\par\nobreak\begin{center}\nobreak}
 		{\par\nobreak\end{center}}
+	
+	\PassOptionsToPackage{kerning=true, spacing=true, babel=true}{microtype}
+	%\usepackage[normalmargins]{savetrees}
+	
+	% Fix vertically centered text on partially full pages for the kindle
+	\usepackage[width=85.09mm, height=111.76mm, center]{crop}
+	\usepackage{pict2e}
+	\definecolor{corner-gray}{gray}{0.95}
+	
+	\newcommand*\cornerCrop{
+		\begin{picture}(0,0)
+			\unitlength1pt
+			\put(0,0){\color{corner-gray}\circle*{1}}
+	\end{picture}}
+	
+	\cropdef\cornerCrop\cornerCrop\cornerCrop\cornerCrop{cornerDots}
+	\crop[cornerDots]
 \fi
 
 %
@@ -54,11 +76,6 @@
 
 % URLs
 \usepackage{url}
-
-% Colors
-\usepackage{color,xcolor}
-\usepackage{solarized}
-\definecolor{lgray}{rgb}{0.93,0.93,0.93}
 
 % Make text boxes
 \usepackage{framed}
