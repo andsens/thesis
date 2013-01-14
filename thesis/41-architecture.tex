@@ -13,31 +13,37 @@ our tool to slow down the web application every time a new template is rendered
 and the values are retrieved on the client. To minimize the effort required to
 parse a rendered template we try to compile as much information about a template
 as possible before it is rendered. Using this information we should be able
-to parse a rendered template more quickly.
+to retrieve the dataset from a rendered template more quickly.
 This strategy implies a pre-parsing step that outputs data which aids
-the client library in the parsing process. Since this is an operation
-that only needs to be run once before a web application is deployed, we are not
-constrained by the environment the actual web server runs in.
+the client library in the parsing process.
+Since this is an operation that only needs to run once for every template before
+a web application is deployed,
+we are not constrained by the environment the actual web server runs in.
 
 \section{Compiling template information}
 \label{sec:arch-comp-tpl}
 We need to be able to parse a mustache template and acquire the necessary
 information to enable the client library to parse a rendered template.
-We analyze the capabilities of the mustache template language and arrive
-at the following pieces of information, which we can deduce before
+Analyzing the capabilities of the mustache template language we arrive
+at the following pieces of information, that can be deduced before
 the template is rendered.
 
 \begin{itemize}
-\item The location of variables in the document
-\item Whether a variable is escaped or unescaped
+\item The location of variables\footnote{See appendix \ref{app:mustache-var}}
+	in the document
+\item Whether a variable is escaped or
+	unescaped\footnote{See appendix \ref{app:mustache-unescaped}}
 	(\inline{\{\{identifier\}\}} vs. \inline{\{\{\{identifier\}\}\}})
-\item The location of sections in the document
+\item The location of
+	sections\footnote{See appendix \ref{app:mustache-section}} in the document
 \item Whether a section is
 	inverted\footnote{See appendix \ref{app:mustache-inverted}}
 	(\inline{\{\{\#identifier\}\}} vs. \inline{\{\{^identifier\}\}})
 \item The contents of a section
-\item The location of partials in the document
-\item The location of comments in the document
+\item The location of partials\footnote{See appendix \ref{app:mustache-partial}}
+	in the document
+\item The location of comments\footnote{See appendix \ref{app:mustache-comment}}
+	in the document
 \end{itemize}
 
 Because of the nature of mustache templates we can however not retrieve the
@@ -46,20 +52,26 @@ following data:
 \begin{itemize}
 \item The contents of variables (including their type, e.g. integer, string)
 \item The number of iterations a section will run
-\item Whether a section is a loop or an if block
+\item Whether a section is a loop or an
+	if block\footnote{See appendix \ref{app:mustache-inverted}}
 	(except in the case of an inverted section)
-\item Whether a section is a lambda section or an actual section.
+\item Whether a section is a
+	lambda section\footnote{See appendix \ref{app:mustache-lambda}}
+	or an actual section.
 \item The behavior of a lambda section
 \item The template a partial points at
-\item Whether an identifier refers to a key in the current context level or
-	to a key in one of the lower context levels\footnote{Except if we are
-	located at the root level}
+\item Whether an identifier refers to a key in the
+	current context level\footnote{See appendix \ref{app:mustache-section}}
+	or to a key in one of the lower context levels\footnote{Excluding the lowest
+	context level. That is: Identifiers with no parent section}
 \end{itemize}
 
-The rendered template is in the Document Object Model format, once it has
-been rendered by the client. We can still access the rendered template as a
+The rendered template is --- once it has been rendered by the client ---
+in the Document Object Model format.
+We can still access the rendered template as a
 string after it has been inserted by accessing the \inline{innerHTML} property
-on the element node it was inserted into. This has one major drawback.
+on the element node it was inserted into.
+Using this property to extract the dataset has a major drawback.
 The browser does not return the actual string that was inserted but rather a
 serialized version of the DOM. This is demonstrated quite easily by executing
 the following lines in the Google Chrome Developer Console:
@@ -70,16 +82,17 @@ div.innerHTML
 \end{lstlisting}
 
 The last line does not return the string ``\ <img/\ >'' but ``\ <img\ >''.
-In Firefox the last line returns ``\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >''.
+In Firefox the last line returns
+``\ <img xmlns="http://www.w3.org/1999/xhtml" /\ >''.
 This means that the rendered templates cannot be parsed reliably by using the
 \inline{innerHTML} property.
 
 However, no matter which way the browser decides to represent an HTML tag,
-we can still rely on the ordering of tags and on the names of tags to be the same
-(case sensitivity can be avoided with a simple
-\inline{element.tagName.toLowerCase()} when comparing tag names client-side).
-We therefore opt to relate the information about mustache tags to the DOM instead.
-
+we can still rely on the ordering of tags and on the names of tags to be
+the same\footnote{case sensitivity can be avoided with a simple
+\inline{element.tagName.toLowerCase()} when comparing tag names client-side}.
+We therefore opt to relate the information about mustache tags to the DOM
+instead.
 This choice requires our pre-parsing tool to be able to understand
 HTML documents and construct a data structure resembling the DOM in which the
 mustache tags can be located and their location converted into a DOM path.
@@ -99,7 +112,8 @@ possibilities.
 \item Prepend template information to the template and subsequently
 	cut it out before passing the template to the template engine.
 	This way only one file needs to be handled and transferred.
-\item Use require-js to load templates and their information in parallel
+\item Use require-js\footnote{See section \ref{sec:requirejs}}
+	to load templates and their information in parallel
 	while developing and subsequently inline both template and
 	template information into one big JavaScript file when deploying.
 \end{itemize}
@@ -113,8 +127,8 @@ The data is fed into the mustache template engine on a page request to generate
 HTML that is served to the client. Once on the client, the HTML is parsed and we
 can access it via the Document Object Model. The parser in our client library
 uses the DOM in concert with the template information retrieved from the server
-to parse the rendered template and outputs the data that was originally fed into
-the template engine.
+to parse the rendered template and to output the data that was originally fed
+into the template engine.
 \begin{figure}
 	\centering
 	\resizebox{\linewidth}{!}{\input{graphics/architecture}}
@@ -145,7 +159,7 @@ have no effect on the visual layout but can be retrieved by the library.
 This would make the client-side code a very lightweight value retriever
 thereby obsoleting the pre-parser.
 
-Apart from simply shifting the workload of locating template variables
+However, apart from simply shifting the workload of locating template variables
 from the ViewModel maintainer to the template maintainer\footnote{The scenario
 in chapter \ref{chap:requirements} illustrates this point},
 the task of retrofitting existing web applications becomes much greater.
@@ -162,7 +176,7 @@ By examining the output of the \inline{innerHTML} property in different browsers
 and hypothesizing\footnote{though not really``demonstrating'' in terms of
 implementation} how our goal could be solved by decorating templates,
 we have shown ``that nothing else will do''.
-The approach to parse rendered templates after analyzing them may be are
+The approach to parse rendered templates after analyzing them may be a
 more complex operation than other solutions, but it is the only one
 ``that will do'' to achieve our goal. We have also shown that integrating
 directly with the template engine would in fact result in a bigger program.
