@@ -1,9 +1,15 @@
 {
-	"folders": [
-		{"path": "prototype"},
-		{"path": "Comb"},
-		{"path": "thesis",
-			"file_exclude_patterns": [
+	"folders":
+	[
+		{
+			"path": "prototype"
+		},
+		{
+			"path": "Comb"
+		},
+		{
+			"file_exclude_patterns":
+			[
 				"*.aux",
 				"*.auxlock",
 				"*.fdb_latexmk",
@@ -21,7 +27,11 @@
 				"*-figure*.dpth",
 				"*.run.xml",
 				"*.out"
-			]
+			],
+			"path": "thesis"
+		},
+		{
+			"path": "/Users/anders/Workspace/uni/speciale"
 		}
 	]
 }
