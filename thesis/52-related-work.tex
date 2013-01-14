@@ -177,7 +177,8 @@ the architecture of the project as either a tool or a framework
 
 \begin{figure}
 	\centering
-	\begin{tabular}{ | l || l | l | l | l | } \hline
+	\resizebox{\columnwidth}{!}{
+		\begin{tabular}{ | l || l | l | l | l | } \hline
                   & Template language & Typed & Server language & Architecture \\ \hline \hline
 Comb              & External          & No    & \emph{Any}      & Tool         \\ \hline
 Template::Extract & External          & No    & perl            & Tool         \\ \hline
@@ -186,7 +187,8 @@ MAWL              & Internal          & Yes   & mawl            & Framework    \
 DynDoc            & Internal          & Yes   & Java            & Framework    \\ \hline
 WASH/CGI          & Internal          & Yes   & Haskell         & Framework    \\ \hline
 SMLserver library & Internal          & Yes   & ML              & Framework    \\ \hline
-	\end{tabular}
+		\end{tabular}
+	}
 	\caption{A comparison of related works}
 	\label{fig:related-works-table}
 \end{figure}
