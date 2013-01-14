@@ -7,14 +7,20 @@
 \addcontentsline{toc}{chapter}{Abstract}
 
 Extracting information from HTML and binding event handlers to the
-Document Object Model in web applications using CSS selectors is a tedious
+Document Object Model (DOM) in web applications using CSS selectors is a tedious
 exercise. There have been many attempts to both rectify the root cause and
 alleviate the symptoms with jQuery being the most prominent among them.
 We present a solution which targets this precise problem and leverages the fact
 that web applications use HTML templates, which can be analyzed to automate
 the otherwise manual navigation through the DOM.
-
 We also show how a clear-cut, minimal scope can increase the applicability of
 a tool and allow it to thrive in an ecosystem of other software.
+
+Our solution recreates the original dataset passed into the mustache template
+engine on the client. This reconstructed dataset allows the developer
+to read values from --- and interact with --- the DOM using the already familiar
+identifiers that were used as placeholders in the templates.
+Because these identifiers do not change when templates are restructured, this
+method is also more robust than using CSS selectors.
 
 \end{document}
