@@ -1,5 +1,5 @@
 #!/bin/bash -e
-mkdir thesis-package
+mkdir -p thesis-package
 rm -rf thesis-package.tar.gz thesis-package/*
 
 (cd prototype && git archive --prefix=prototype/ -o ../thesis-package/prototype.tar HEAD)
