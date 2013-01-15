@@ -9,7 +9,7 @@ This chapter describes two applications utilizing Comb to make a case for
 its relevance in the web development area and to illustrate the internal
 workings of Comb.
 The first application shows an actual use case of Comb and highlights its
-strengths by comparison with jQuery. To that end the applications has been
+strengths by comparison with jQuery. To that end the application has been
 developed in four different versions.
 
 The second application demonstrates the internal workings of Comb by using Combs
@@ -21,12 +21,12 @@ to allow changing its values.
 In the exploratory prototype (chapter \ref{chap:prototype}) we created a
 Movie Database to organize information about the cast, year of release as well
 as the plot and synopsis of a movie. We reimplemented the same application
-in much the same way.
+with Comb this time.
 
 We use chaplin\footnote{See appendix \ref{app:chaplin}} to structure our
 application on the client-side, while a PHP REST framework together with
-php-activerecord function as a communication layer to the MySQL database for the
-client.
+php-activerecord functions as a communication layer to the MySQL database for
+the client.
 The client code is written in CoffeeScript\footnote{See
 section \ref{sec:coffeescript}}.
 
@@ -36,7 +36,7 @@ The first link leads to an implementation using the CSS and HTML structure from
 our exploratory prototype.
 The second link leads to a different version of the application where we use the
 Twitter Bootstrap\footnote{See appendix \ref{app:bootstrap}} library to style
-the interface, instead of the original CSS and HTML.
+the interface.
 
 In both implementations, Movies can be browsed, created and edited. Examples of
 both versions can be seen in figures \ref{fig:moviedb-prototype} and
@@ -57,8 +57,8 @@ both versions can be seen in figures \ref{fig:moviedb-prototype} and
 \end{figure}
 
 \subsection{Architecture}
-The HTML page is built with server-side mustache templates. Interactivity is
-then added once the client application has started.
+The HTML page is built with server-side mustache templates.
+Interactivity is added once the client application has started.
 We use chaplin views to split sections of the web application into the following
 manageable parts:
 
@@ -78,9 +78,10 @@ retrieving values from the DOM to populate the Model it is holding, while also
 initializing subviews that belong to it.
 In the case of the Movies CollectionView, we iterate over the list of movies and
 instantiate a new Movie View for each list element we encounter.
-Once a Movie View has been created we access the Model the View has populated
-and push it onto our collection of movies. The corresponding code can be seen in
-figure \ref{fig:movies-iter}.
+Once a Movie View has been created we access the Model,
+which the View has populated with the values retrieved from the rendered
+template, and push it onto our collection of movies.
+The corresponding code can be seen in figure \ref{fig:movies-iter}.
 \begin{figure}
 	\centering
 	\begin{lstlisting}
@@ -103,11 +104,11 @@ The original version of the Movie Database from our exploratory prototype comes
 in two flavors: jQuery and Comb.
 These flavors refer to the strategy we use in a View to retrieve values from the
 DOM and populate our Models with. We can switch between the strategies by
-clicking on the button On/Off below the list of Movies.
+clicking on the On/Off button below the list of Movies.
 
 In the jQuery strategy we use CSS selectors and jQuery
-accessors\footnote{\inline{.attr('name') or .text()}} to pinpoint values in the
-DOM.
+accessors\footnote{e.g. \inline{.attr('name')} or \inline{.text()}} to pinpoint
+values in the DOM.
 Once a value is retrieved, we may also need to strip some of the parts that do
 not belong to the actual value present in the database.
 In figure \ref{fig:movie-jquery-prototype} we retrieve all the
@@ -127,9 +128,10 @@ values of a Movie and add them to the Movie Model.
 \end{figure}
 
 Figure \ref{fig:movie-comb-prototype} shows the same procedure, only here we
-use Comb to retrieve those values. We can clearly see that there are no
-references to the structure of the template used, instead we use the exact same
-names the to set model properties and access values in the dataset.
+use Comb to retrieve those values.
+We can clearly see that there are no references to the structure of the
+movie template, instead we use the exact same identifiers to
+set model properties as we use to access values in the dataset.
 This is no coincidence, the properties of our client-side Movie Model and
 those of the server-side Movie Model are the same. Therefore we must also use
 them when creating our templates, which leaves us with a dataset, that mirrors
@@ -235,9 +237,9 @@ part is the underlying architecture.
 
 \subsection{Generating the form}
 To generate the form in the left view port, we transform the dataset retrieved
-from the rendered template in the left view port into a structure that fits the
-form template (figure \ref{fig:mustache.mustache}) we have written in mustache
-as well.
+from the rendered template in the right view port into a structure that fits the
+form template (figure \ref{fig:mustache.mustache}), which we have written in
+mustache as well.
 \begin{figure}
 	\centering
 	\lstinputlisting[language=HTML]{../Comb/Editor/app/scripts/templates/mustache.mustache}
@@ -260,13 +262,13 @@ Since this form was rendered with mustache, we can now make it interactive by
 parsing it with Comb. The buttons in the ``section'' section have
 \inline{data-target} attributes so that we may bind click event listeners to
 them, by using the parent nodes of the ``name'' variables. We can listen
-for changes on the input fields for the escaped variables and text areas for the
-unescaped variables in much the same way.
+for changes on the input fields and text areas for the variables in much the
+same way.
 
 \subsection{Loopbacking Comb}
 \label{sec:loopbacking}
-The fields in our form have corresponding entries in the dataset passed to
-the template we loaded in the beginning.
+The dataset entries from our form template correspond to entries in the
+dataset passed to the template we loaded in the beginning.
 Note that although we passed an empty dataset to mustache, Comb will return
 section values as empty lists (see section \ref{sec:if-else}) and
 variable values as empty strings (see appendix \ref{app:mustache-var}).
@@ -277,7 +279,7 @@ right view port.
 
 Pushing the ``push'' button on a section appends a new entry to the array of the
 original dataset, while the ``pop'' button removes the last entry from said array.
-When we modify the amount of iterations in an array, we re-render the loaded
+When we modify the amount of entries in an array, we re-render the loaded
 template\footnote{Section \ref{sec:update-dom} explains this necessity
 in more detail.}.
 \end{document}
