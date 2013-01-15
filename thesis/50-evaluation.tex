@@ -43,9 +43,9 @@ comb file and continues with his next task.
 
 Consider also how the id of a movie was fetched in the jQuery version
 (figure \ref{fig:jquery-fetch-substring}). The id is embedded in an element
-attribute with a prefix. To arrive only at the id, we had to strip away the
-``movie-'' part of the attribute by discarding the first 6 characters of the
-``id'' attribute.
+attribute value with a prefix. To arrive only at the id, we had to strip away
+the ``movie-'' part of the attribute value by discarding the first 6 characters
+of the ``id'' attribute.
 In an era where first-person shooters can be played directly in the browser
 and processors are manufactured on the nanometer scale, counting characters
 should not be part of the daily routine of a web developer.
@@ -88,7 +88,7 @@ In our application we did not need to extract data
 from this specific part of the template, since the subsequent HTML for the
 actual tab-panes contained the same and additional data.
 If we were to determine the number of movies using this list with jQuery,
-we would count the number of list items it contains. Subsequently we will need
+we would count the number of list items it contains. Subsequently we would need
 to subtract 2 from this number to account for the additional list headers.
 Alternatively we could add a class name to the list item in the
 \inline{\{\{\#movies\}\}} loop, making it distinguishable from the header list
@@ -110,7 +110,8 @@ Figure \ref{fig:movielist-jquery.js} illustrates these possible selectors.
 \end{figure}
 
 With Comb it is possible to retrieve such \emph{implicit} values quite easily:
-We simply access the \inline{movies} array in the extracted dataset.
+We simply access the \inline{movies} array in the extracted dataset as shown in
+figure \ref{fig:movielist-comb.js}.
 In addition to this strategy being simpler we also conserve the meaning behind
 our code. Any developer looking at the code will immediately understand what
 the number from the \inline{length} property represents without having to
@@ -130,13 +131,14 @@ data from the rendered template like we do in the second selector of figure
 \ref{fig:movielist-jquery.js} is not a sound strategy. We pollute the CSS
 selector namespace with classes that have nothing to do with the layout and
 design of the web application.
-Some scenarios may however require us to do exactly that, because there is no
-section surrounding a group of tags. We can however extend Comb to also
-recognize mustache comments, they do not change a rendered template in any way,
-but give the developer a possibility to annotate parts of a template. In section
-\ref{sec:comment-selectors} we examine this extension in more detail.
+Some scenarios may however require us to do exactly that even when using Comb,
+because there is no section surrounding a group of tags.
+We can however extend Comb to also recognize mustache comments,
+they do not change a rendered template in any way,
+but give the developer the possibility to annotate parts of a template.
+In section \ref{sec:comment-selectors} we examine this extension in more detail.
 
-Mustach comment annotations could be used to take advantage of the
+Mustache comment annotations could be used to take advantage of the
 \inline{parentNode} property we return for all variables. In the Comb version
 of our Movie Database we still used jQuery selectors to access parts of the HTML
 where we wanted to listen for click events from the user. Specifically we wanted
@@ -195,7 +197,7 @@ any other type of framework or tool.
 A more sensible approach to such an integration would be a separate layer which
 handles communication between Comb and whichever other library we wish to
 integrate with. Such a layer has the possibility to choose libraries that
-enhance Combs features in a way specific to its purpose.
+enhance Combs features in ways specific to its purpose.
 
 The developer from the scenario in chapter \ref{sec:scenario} for example has
 no need for an entire client-side Model-View-Controller framework.
@@ -223,10 +225,12 @@ requirement by splitting the task into two distinct actions and changed the goal
 to implementing the first part only: Extracting the dataset from a rendered
 template.
 
-The architecture we set to achieve this goal aimed at a two-staged process where
-we first retrieve information from templates and later use that information to
-parse rendered templates. The demo applications from chapter \ref{chap:demo}
-integrate Comb to do exactly that. They render templates with a given dataset,
+The architecture we devised to achieve this goal aimed at a two-staged process
+where we first retrieve information from templates and later use that
+information to parse rendered templates.
+The demo applications from chapter \ref{chap:demo} integrate Comb to do exactly
+that.
+They render templates with a given dataset,
 extract the data from the rendered templates and employ that data in the rest of
 the application.
 
@@ -240,17 +244,18 @@ Rule of Extensibility: Design for the future, because it will be here sooner tha
 \end{citequote}
 To extract data, the Comb client does not depend on any client libraries, which
 may need upgrades or become superseded by better projects.
-We achieved this not by incorporating functionality from other libraries
-directly into the code of the client, but by restricting the feature-set of Comb
-to the core functionality --- a ``nucleus of code''.
+We achieved this not by copying functionality from other libraries
+directly into the code of the client library,
+but by restricting the feature-set of Comb to the core functionality
+--- a ``nucleus of code''.
 
 
 
 
 \section{Pre-Parser tool improvements}
 As with any piece of software, there is always room for improvement.
-Comb is no different. In this section we will look at which parts of the
-pre-parser can be improved.
+Comb is no different. In this section we will look at parts of the
+pre-parser that can be improved.
 
 \subsection{Parser}
 
@@ -275,11 +280,12 @@ DOM API returns their name with the namespace included.
 \subsubsection{Standalone mustache tag lines}
 As we describe in appendix \ref{app:mustache-standalone-lines} mustache removes
 lines containing only white space and a mustache section tag.
-The demo application runs a modified version of mustache.js where this feature
-is removed\footnote{Specifically we removed the highlighted line seen at
-\url{https://github.com/janl/mustache.js/blob/master/mustache.js\#L512}}.
 Our parser does currently not account for this detail. This causes
 our client library to expect a whitespace line where in fact there is none.
+To work around this problem the demo application runs a modified version of
+mustache.js where this feature is
+removed\footnote{Specifically we removed the highlighted line seen at
+\url{https://github.com/janl/mustache.js/blob/master/mustache.js\#L512}}.
 
 \subsubsection{Mustache comments}
 \label{sec:comment-selectors}
@@ -302,12 +308,12 @@ developer to specify the entire string.
 Although this feature addition can be considered a significant improvement to
 the possibilities of our tool, it cannot be deemed a shortcoming.
 Our goal was to retrieve the original dataset from a rendered template.
-Comments do not receive any dataset value and do not output any value and as
-such they were out of scope.
+Comments do not receive any dataset value and do not output any value,
+as such they are out of scope.
 
 \subsection{Resolver}
 
-\subsubsection{Identifier origins}
+\subsubsection{Inverted sections}
 In section \ref{sec:arch-comp-tpl} we determined that we would not be able to
 determine the origin of a key in the dataset precisely, when the context
 stack is greater than one. This holds true for all cases except the inverted
@@ -321,9 +327,8 @@ rendered if and only if the data list is empty.''}:
 This section MUST NOT be rendered unless the data list is empty.
 \end{citequote}
 We can be certain that all identifiers referenced in an inverted section do not
-belong to the identifier of the section. This fact allows us to lift the parsed
-values into the parent context and shall be implemented in a future version of
-Comb.
+belong to the identifier of the section.
+This fact allows us to lift the parsed values into the parent context.
 
 \subsubsection{Lookahead}
 \label{sec:lookahead}
@@ -331,8 +336,8 @@ The filter in our pre-parse tool currently requires mustache tags to be
 separated by strings or XML tags. This restriction is necessary to ensure that
 our client library can recognize the end of variables as well as the beginning
 and end of section iterations. The parser employs a limited form of lookahead
-when it checks whether an iteration is followed by another iteration. Variables
-consider stop parsing as soon as they encounter the first occurrence of their
+when it checks whether an iteration is followed by another iteration.
+Variables stop parsing as soon as they encounter the first occurrence of their
 next sibling. This is a rather limiting restriction which can hinder developers
 in writing templates.
 We can overcome this restriction by enhancing the parsing capabilities of our
@@ -345,22 +350,21 @@ try alternative possibilities until we succeed. This is however not only
 resource intensive but may result in a faulty dataset extraction, because more
 than one combination of possibilities can be applied to a DOM tree.
 
-A more sound approach requires extending our pre-parser tool as well. It can
-combine the same aforementioned possibilities of parsing a template and
-replacing any unknowns (i.e. variables) with wildcard characters our client
-library can recognize. Whether a section is entered is also not knowable when
-analyzing a template, but we can create a binary tree of possibilities,
+A more sound approach requires extending our pre-parser tool as well.
+It can combine the same aforementioned possibilities of parsing a template and
+replacing any unknowns (i.e. variables) with wildcards.
+Whether a section is entered is also not knowable when analyzing a template,
+but we can create a binary tree of possibilities,
 where each node represents a list of XML tags. Upon encountering a section we
 branch and continue the tree generation. This tree generation can continue until
 we encounter the end of a DOM tree. We can also set a limit on the depth of the
 tree, thereby limiting the amount of possibilities our client library has to
 try. Once the tree is generated the filter may analyze it and print errors if
-two paths are indistinguishable. The tree can then be reduced in size without
-reaching ambiguous paths.
+two paths are indistinguishable.
 The client library can for example use this tree to determine whether a
 section containing a variable as its first child and a variable as its
-next sibling has another iteration by analyzing the content that follows this
-ambiguity.
+next sibling has another iteration by analyzing the content that immediately
+follows this ambiguous (variable-) text node.
 Such an improvement would also obsolete our filter that checks whether the
 first child and next node of a section can be confused
 (\emph{ambiguous\_boundaries}, section \ref{sec:filter}).
@@ -390,9 +394,10 @@ may encounter with two or more variables in one text node as shown in figure
 	\caption{Two variables without a separator between them}
 	\label{fig:twovars-no-sep}
 \end{figure}
-The parser cannot split a string originating from two variables that are not
-separated by text in any meaningful way. It is impossible to determine how much
-text belongs to the first variable and how much text belongs to the second
+The parser cannot in any meaningful way split a string originating from two
+variables when they are not separated by text.
+It is impossible to determine how much text belongs to the first variable and
+how much text belongs to the second
 variable\footnote{This also applies to more than two variables of course.}.
 
 Separating variables with text can alleviate this problem only if the variable
@@ -432,7 +437,7 @@ Thanks to the Parsec library, the developer receives helpful messages when a
 template cannot be parsed. Our filter component also outputs detailed error
 messages. The errors can be improved by accompanying them with suggestions for
 how to resolve them. Filters have access to enough information to calculate how
-an error may be avoided.
+an error may be corrected.
 
 \subsection{Generator}
 
@@ -449,7 +454,7 @@ existing comb file. Assuming the file we are about to overwrite originates from
 the old template, we can parse its content and compare it with the newly
 generated content. Armed with this information, the pre-parser tool can alert
 the developer to any changes between two versions of a template that require the
-code accessing the extracted dataset to be changed.
+code, which accesses the extracted dataset, to be changed.
 
 More importantly, the developer should also be aware when this is \emph{not}
 necessary. If regenerating a comb file produces no alerts the developer can
@@ -473,30 +478,33 @@ checks will have to be rewritten to allow for variable tag names.
 
 \subsection{Fall back to lambda sections}
 Lambda sections may currently cause unexpected errors in our client library.
-It assumes every section is a normal section and throws errors if it does not
-find what is expected to be found. Instead of stopping the parsing process
-the client library should fall back to the assumption that the current section
-is a lambda section and collect its contents. Similar to ambiguous variable
-boundaries this strategy may be problematic as well. The parser can in many
-cases not be sure when a lambda section is actually finished because its content
-can vary wildly.
+Comb assumes every section is a normal section and throws errors if it does not
+find what is expected to be found.
+Instead of stopping the parsing process the client library should fall back to
+the assumption that the current section is a lambda section and simply collect
+its contents.
+Similar to ambiguous variable boundaries however this strategy may be
+problematic.
+The parser can in many cases not be sure when a lambda section is actually
+finished because its content can vary wildly.
 
 \subsection{Partials must be only children}
 \label{sec:partial-only-child}
 The filter of our pre-parser tool requires partials to be contained within an
 XML tag as its only child. This is done to simplify the parsing process, which
-would otherwise be complicated by accounting for siblings of root nodes in
-a template.
+would otherwise become more complicated by having to account for siblings of
+root nodes in a template.
 
 \subsection{Unescaped variables as last children}
 \label{sec:unescaped-variable-filter}
 Much like lambda sections the content of unescaped variables is hard to predict
 and can be confused with the next sibling of the variable. We added the filter
 \emph{unescaped\_pos} in the filter component of our pre-parser tool for that
-reason. With the guarantee that an unescaped variable is always the last child
-of an XML tag, our client library can add all nodes it encounters to the value
-list of an unescaped variable beginnning at the location of that variable until
-it finds no more nodes.
+reason.
+With the guarantee that an unescaped variable is always the last child of an
+XML tag, our client library can add all nodes it encounters to the value
+list of an unescaped variable --- beginnning at the location of that variable
+(and until it finds no more nodes).
 
 \subsection{Improving the retrieved dataset}
 \label{sec:improve-dataset}
@@ -515,7 +523,7 @@ the data/entity relationships and not the structure of the templates.}
 The structure of a template is however all our tool knows.
 This structure therefore dictates the structure of the dataset retrieved from
 the rendered template.
-In the following sections we will propose improvements that can counteract this
+In the following section we will propose improvements that can counteract this
 effect and bring the retrieved dataset closer to its origins.
 
 \subsubsection{Properties of values}
@@ -595,7 +603,7 @@ Such a layer would implement the feature we originally set out to implement,
 but chose to forgo in the revised requirements of chapter \ref{chap:revised}.
 A feature like this will surely also encourage the use of Comb even if the
 template was rendered on the client, making the retrieval of values from the DOM
-a secondary objective.
+a secondary priority.
 
 
 
@@ -625,7 +633,8 @@ evaluation of it.
 \item Templates are verified for proper HTML syntax through the pre-parser tool.
 \item Data extraction implies a one-way communication, but using
       \inline{parentNode} allows Comb to supply the developer with additional
-      information, that can be used for various kinds of extensions.
+      information, that can be used for various kinds of extensions supporting
+      DOM interactions.
 \item The \inline{update()} function allows for some limited DOM manipulation.
       In section \ref{sec:update-dom} we described how this could be extended to
       sections.
