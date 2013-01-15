@@ -9,13 +9,13 @@ similarities to Comb through either their goals or their domain.
 
 
 \section{Similar goals}
-First we will discuss a tool and a framework which have a goal similar to Comb.
+First we will discuss two tools which have goals similar to Comb.
 
 \subsection{Template::Extract}
-Template::Extract\cite{TPLEXTRACT} is a tool written as aperl module with a
-functionality much like Comb. It is written for the ``Template Toolkit''
-template language and allows the developer to extract values from a rendered
-template when given the template.
+Template::Extract\cite{TPLEXTRACT} is a tool written as a perl module with a
+functionality very similar to that of Comb.
+It is written for the ``Template Toolkit'' template language and allows the
+developer to extract values from a rendered template when given the template.
 This extraction is accomplished by compiling a regular expression based on the
 template and applying it to the rendered template.
 
@@ -30,7 +30,7 @@ Document Object Model while Template::Extract operates on a single string.
 In chapter \ref{chap:architecture} we evaluated that strategy but discovered
 that the strings returned by the \inline{innerHTML} property of DOM elements
 differ between browsers and do not reflect the original rendered template.
-By choosing to extract values from the DOM we also gain the added advantage
+By extracting values from the DOM we also gain the added advantage
 of retaining references to the nodes the strings were extracted
 from\footnote{as detailed in section \ref{sec:parent-nodes}}.
 This additional piece of information allows Comb to become more than a simple
@@ -52,11 +52,12 @@ The rendering takes place when the models are bound to the template.
 This precludes any form of server-side rendering without
 node.js\footnote{See appendix \ref{app:nodejs}}.
 In fact, rendering a template on the server-side and transmitting it to the
-client is not possible without losing the bond between DOM and Model.
-
+client is not possible without losing the bond between the DOM and the Model.
 Rivet.js is however an example of how a two-way binding
 layer\footnote{As discussed in section \ref{sec:two-way-binding}}
-for Comb may function.
+for Comb may function. It is also reminiscent of the architectural alternative
+we considered in section \ref{sec:integrate-tpl-engine}, in which we proposed a
+direct integration with the mustache template engines.
 
 
 
@@ -82,7 +83,8 @@ CGI programs handling the data flow need no longer be programmed in
 perl, Tcl or the Korn Shell, but can be compiled from said language.
 
 A secondary advantageous property of MAWL is its ability to verify the
-type signature of the form abstraction against structure of an MHTML template.
+type signature of the form abstraction against the structure of
+an MHTML template.
 Although the paper does not go into detail explaining how these templates are
 analyzed, a parallel can be drawn to our Comb pre-parser tool which employs
 Parsec to construct an abstract syntax tree. Much like MHTML is checked for
@@ -97,18 +99,20 @@ For MHTML templates, this means verifying that a template is legal MHTML.
 
 \subsection{Typed Dynamic Documents}
 The paper ``A Type System for Dynamic Web Documents'' by Anders Sandholm and
-Michael I. Schwartzbach proposes like MAWL a type template language where
-\emph{gaps} in a template can be filled with HTML fragments. The type of
-fragments these gaps can be filled with is inferred by their placement in a
-template. This allows the resulting content of a rendered template to fall
-within a predictable range. This quality is recognizable in mustache when we
-compare escaped variables and unescaped variables. Together with the large list
-of mustache engine implementations we chose mustache primarily for its
+Michael I. Schwartzbach proposes --- like MAWL --- a typed template language
+where \emph{gaps} in a template can be filled with HTML fragments.
+The type of fragments these gaps can be filled with is inferred by their
+placement in a template.
+This allows the resulting content of a rendered template to fall
+within a predictable range.
+A similar yet less pronounced quality is recognizable in mustache when we
+compare escaped variables and unescaped variables.
+Together with the large list of mustache engine implementations we chose
+mustache primarily for its
 predictability\footnote{See section \ref{sec:simple-server}}.
-
-Since typed dynamic documents go beyond the guarantees mustache can deliver
-and implement an even stricter subset, a solution like Comb could also be
-implemented for this template language.
+However, since typed dynamic documents go beyond the guarantees mustache can
+deliver and implement an even stricter subset, a solution like Comb could also
+be implemented for this template language.
 
 \subsection{WASH/CGI}
 WASH/CGI \cite{WASH} is a CGI library written in Haskell to ease integration
@@ -142,12 +146,12 @@ increase efficiency and the probability of a satisfiable outcome.
 Frameworks are usually comprised of not only a structure but a set of tools that
 are deeply interconnected.
 
-The frameworks in the two aforementioned papers can be describe as such, because
-they supply the developer with a predefined set of tools that work together to
-enable him to achieve a goal. The assurance that the templates are created in a
-specific fashion allow them to ease the development of other parts of the
-application\footnote{In both cases this would be the HTML forms}. Rivet.js can
-also be categorized as a framework using the same argument.
+The frameworks in the four aforementioned papers can be describe as such,
+because they supply the developer with a predefined set of tools that work
+together to enable him to achieve a goal.
+The assurance that the templates are created in a specific fashion allow them
+to ease the development of other parts of the
+application\footnote{In both cases this would be the HTML forms}.
 
 Tools on the other hand do not dictate a predefined structure and only supply
 the developer with a specific output given an input. They need not be versatile
@@ -168,9 +172,9 @@ rendered version. How this information is used is not the concern of the tool.
 Table \ref{fig:related-works-table} compares Comb and the related works
 using four parameters.
 ``Template language'' indicates whether the template language in use is internal
-to the tool or an external language from another project (internal DSL versus
-external DSL). Whether the template language is typed can be seen in the
-neighboring column.
+to the tool or an external language from another project (\emph{internal DSL}
+versus \emph{external DSL}).
+Whether the template language is typed can be seen in the neighboring column.
 The ``Server language'' criterion lists which language the server
 for the web application can be programmed with. The last column designates
 the architecture of the project as either a tool or a framework
@@ -194,24 +198,23 @@ SMLserver library & Internal          & Yes   & ML              & Framework    \
 \end{figure}
 
 \subsection{All or nothing}
-Frameworks such as MAWL, Dynamic Web Documents, the SMLserver library or
-WASH/CGI use an all-or-nothing approach when it comes to typing templates and
-extracting additional information from them.
+Frameworks such as MAWL, Dynamic Web Documents, WASH/CGI or
+the SMLserver library use an all-or-nothing approach when
+it comes to typing templates and extracting additional information from them.
 Comb does not operate in the exact same domain as those frameworks, but it
 stands to reason that the applicability of our tool is greater because of its
 framework agnosticism.
 
 The highly advantageous guarantees these frameworks supply may fall on deaf ears
 when they require developers to switch to an unfamiliar framework or even to
-a new server-side programming language. It is not possible to simply extract a
-part of these frameworks and easily integrate it into another application
-context.
+a new server-side programming language. It is not easy to extract a
+part of these frameworks and integrate it into another application context.
 
 This fact --- which can hardly be described as a shortcoming, since it is an
 integral part of these frameworks uniqueness --- is what allows Comb to stand
 apart. The template language is not one specifically designed for our purpose,
 we simply latch on to an already successful project that has been ported to many
-languages. Through this ubiquity Comb gains a higher chance of adoption as well.
+languages. Through this ubiquity Comb gains a higher chance of adoption.
 
 
 \end{document}
