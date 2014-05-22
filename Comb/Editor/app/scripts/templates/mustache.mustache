@@ -1,0 +1,21 @@
+{{#section}}<fieldset class="section">
+	<h5>{{name}}</h5>
+	<div class="buttons">
+		<button class="btn btn-mini btn-primary" data-target="{{name}}"><icon class="icon-plus"/> Push iteration</button>
+		<button class="btn btn-mini btn-danger" data-target="{{name}}"><icon class="icon-minus"/> Pop iteration</button>
+	</div>
+	{{#iterations}}<div class="iterations">{{>mustache}}</div>{{/iterations}}
+	<hr/>
+</fieldset>{{/section}}
+{{#escaped}}<div class="control-group">
+	<label class="control-label">{{name}}</label>
+	<div class="controls">
+		<input type="text" placeholder="{{name}}" value="{{value}}" />
+	</div>
+</div>{{/escaped}}
+{{#unescaped}}<div class="control-group">
+	<label class="control-label">{{name}}</label>
+	<div class="controls">
+		<textarea rows="3">{{nodes}}</textarea>
+	</div>
+</div>{{/unescaped}}

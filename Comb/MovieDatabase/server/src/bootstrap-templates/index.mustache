@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<title></title>
+		<meta name="description" content=""/>
+		<meta name="viewport" content="width=device-width"/>
+		
+		<link rel="stylesheet" href="styles/bootstrap.min.css"/>
+	</head>
+	<body>
+    <div class="container-fluid" id="movies">
+    	<div class="row-fluid">
+				<div class="span2">
+					<ul class="nav nav-list">
+						<li class="nav-header">Movies</li>
+						{{#movies}}<li><a data-toggle="tab" href="#movietab-{{id}}">{{title}}</a></li>{{/movies}}
+						<li class="nav-header"><a href="#" id="add-movie"><i class="icon-plus"></i></a></li>
+					</ul>
+				</div>
+				<div class="span9">
+					<div class="tab-content movie-list">
+						{{#movies}}<div class="tab-pane" id="movietab-{{id}}">{{>movie}}</div>{{/movies}}
+					</div>
+				</div>
+				<div class="span1"><label>Comb <button class="comb btn btn-primary">On</button></label></div>
+			</div>
+		</div>
+	<script data-main="scripts/main" src="scripts/vendor/require.js"></script>
+</body>
+</html>

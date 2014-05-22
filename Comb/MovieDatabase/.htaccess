@@ -1,0 +1,11 @@
+DirectoryIndex /server/src/index.php
+RewriteEngine On
+RewriteBase /
+RewriteRule ^(no-)?bootstrap/$ /server/src/index.php?template=$1bootstrap
+RewriteRule ^rest/.*$ server/src/rest.php
+
+RewriteRule ^(no-)?bootstrap/templates/(.*)$ server/src/$1bootstrap-templates/$2
+
+RewriteRule ^(no-)?bootstrap/scripts/views/(.*)$ client/scripts/$1bootstrap-views/$2
+
+RewriteRule ^(no-)?bootstrap/(scripts|styles|img)/(.*)$ client/$2/$3

@@ -1,0 +1,27 @@
+@import "compass_twitter_bootstrap";
+form.indent div {
+	border-left: gray 1px solid;
+	padding: 2px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 8px;
+}
+fieldset.section h5 {
+	display: inline-block;
+}
+fieldset.section div.buttons {
+	margin-top: 10px;
+	margin-right: 10px;
+	float: right;
+}
+html, body {
+}
+div.view-input {
+	height: 500px;
+	overflow: scroll;
+}
+
+fieldset.section div.iterations {
+	border-bottom: #BBB 1px dotted;
+	margin-top: 20px;
+}
