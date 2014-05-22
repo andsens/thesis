@@ -1,0 +1,6 @@
+RewriteEngine On
+#RewriteRule ^movies$ /index.php?show=edit [qsa]
+#RewriteRule ^movies/([0-9]+)$ /index.php?show=edit&id=$1 [qsa]
+RewriteRule ^movies /rest.php
+RewriteRule ^actors /rest.php
+RewriteRule ^roles /rest.php
