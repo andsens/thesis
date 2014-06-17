@@ -18,5 +18,6 @@
 *.synctex.gz(busy)
 *-figure*.dpth
 *.pdf
+!/thesis.*.pdf
 thesis-diff.tex
 temp
