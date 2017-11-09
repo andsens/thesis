@@ -26,7 +26,7 @@ containing the data for each iteration (this also goes for nested loops).
 
 Downloads
 ---------------------
-You can download my entire thesis as a tarball from S3: [s3-eu-west-1.amazonaws.com/ingemann/thesis-package.tar.gz](https://s3-eu-west-1.amazonaws.com/ingemann/thesis-package.tar.gz).
+You can download my entire thesis as a tarball from the [releases page](https://github.com/andsens/thesis/releases).
 The PDFs of my thesis are in the `thesis/` folder
 (available in 3 versions: [print](thesis/thesis.print.pdf), [PC](thesis/thesis.pc.pdf)
 and [ebook](thesis/thesis.ebook.pdf)).
