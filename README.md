@@ -1,4 +1,4 @@
-Master thesis of Anders Ingemann
+Master thesis of Anders
 ================================
 
 This is the repository of my master thesis, which I began in 2012 and ended february 2013.
